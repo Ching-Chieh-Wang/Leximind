@@ -1,6 +1,6 @@
 // src/controllers/user.js
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/user');  // Adjust the path as needed
 

@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend    # This should point to the backend folder
+    volumes:
+      - ./backend:/app      # Mount backend folder to /app in the container
+    ports:
+      - "3000:3000"         # Expose port 3000
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./backend/.env      # Include the environment variables
