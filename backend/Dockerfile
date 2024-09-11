@@ -7,11 +7,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
 
-# Install dependencies (this includes bcrypt)
+# Install all dependencies (including devDependencies if NODE_ENV is not production)
 RUN npm install
-
-# Rebuild native modules like bcrypt to ensure compatibility with the container
-RUN npm rebuild bcrypt --build-from-source
 
 # Copy the rest of the application code into the container
 COPY . .
@@ -19,5 +16,5 @@ COPY . .
 # Expose the backend application port
 EXPOSE 3000
 
-# Start the backend application using npm run dev for development
+# Start the backend application using nodemon for development
 CMD ["npm", "run", "dev"]
