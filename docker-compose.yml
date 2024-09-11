@@ -1,11 +1,12 @@
 services:
   backend:
     build:
-      context: ./backend    # Path to the Dockerfile
+      context: ./backend
     volumes:
-      - ./backend:/app      # Mount backend code, but avoid overwriting node_modules
-      - /app/node_modules   # Bind mount to keep the node_modules in the container
+      - ./backend:/app
+      - /app/node_modules
     ports:
-      - "3000:3000"
+      - "4000:4000"        # Application port
+      - "9229:9229"        # Debug port
     environment:
       - NODE_ENV=development

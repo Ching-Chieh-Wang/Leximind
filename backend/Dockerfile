@@ -7,14 +7,14 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies if NODE_ENV is not production)
+# Install dependencies
 RUN npm install
 
 # Copy the rest of the application code into the container
 COPY . .
 
-# Expose the backend application port
-EXPOSE 3000
+# Expose the backend application port and the debug port
+EXPOSE 4000 9229
 
-# Start the backend application using nodemon for development
+# Start the backend application in debug mode using nodemon
 CMD ["npm", "run", "dev"]
