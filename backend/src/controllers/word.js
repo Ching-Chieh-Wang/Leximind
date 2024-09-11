@@ -45,13 +45,6 @@ const update = async (req, res) => {
     const wordId = req.params.id;
     const { title, description, labelIds } = req.body;
 
-    // Fetch the existing word
-    const word = await wordModel.findById(wordId);
-
-    if (!word) {
-      return res.status(404).json({ message: 'Word not found' });
-    }
-
     // Check if the new title already exists (excluding the current word)
     if (title) {
       const wordWithNewTitle = await wordModel.findByTitleAndUserId(title,userId);
@@ -75,13 +68,6 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     const wordId = req.params.id;
-
-    // Fetch the word
-    const word = await wordModel.findById(wordId);
-
-    if (!word) {
-      return res.status(404).json({ message: 'Word not found' });
-    }
 
     // Remove the word from the database
     await wordModel.remove(wordId);

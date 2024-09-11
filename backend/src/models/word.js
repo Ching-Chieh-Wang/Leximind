@@ -95,7 +95,7 @@ const update = async (wordId, { title, description, labelIds }) => {
 const remove = async (wordId) => {
   try {
     // Remove label associations
-    await wordLabelModel.removeLabelsFromWord(wordId);
+    await wordLabelModel.removeWordFromLabel(wordId);
 
     // Delete the word from the words table
     await db.query('DELETE FROM words WHERE id = $1', [wordId]);

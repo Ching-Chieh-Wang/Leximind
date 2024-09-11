@@ -6,6 +6,10 @@ const checkWordOwnership = async (req, res, next) => {
     const wordId = req.params.id;
     const userId = req.user.id;
 
+    if (isNaN(wordId) || parseInt(wordId) != wordId) {
+      return res.status(400).json({ message: 'Invalid word ID' });
+    }
+
     // Fetch the word from the database
     const word = await wordModel.getById(wordId);
 
@@ -14,7 +18,7 @@ const checkWordOwnership = async (req, res, next) => {
     }
 
     // Ensure that the user owns the word
-    if (word.userId !== userId) {
+    if (word.user_id !== userId) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
