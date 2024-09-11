@@ -29,7 +29,7 @@ const getByUserId = async (req, res) => {
     const userId = req.user.id;
 
     // Fetch all words for the user, including associated labels
-    const words = await wordModel.getByUserId(userId);
+    const words = await wordModel.getAllByUserId(userId);
 
     res. status(200).json({ words });
   } catch (err) {
