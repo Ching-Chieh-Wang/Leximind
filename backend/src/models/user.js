@@ -19,9 +19,14 @@ const createTable = async () => {
   }
 };
 
-const getAll = async () => {
-  const result = await db.query('SELECT * FROM users');
-  return result.rows;
+const getPaginatedUsers = async (limit = 10, offset = 0) => {
+  try {
+    const result = await db.query('SELECT * FROM users LIMIT $1 OFFSET $2', [limit, offset]);
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching paginated users:', err);
+    throw err;
+  }
 };
 
 const getById = async (id) => {
@@ -57,4 +62,4 @@ const remove = async (id) => {
 
 
 
-module.exports = { createTable, getAll,getById, getByEmail, create, update, remove };
+module.exports = { createTable, getPaginatedUsers, getById, getByEmail, create, update, remove };

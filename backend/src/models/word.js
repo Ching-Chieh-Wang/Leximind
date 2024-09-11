@@ -145,6 +145,21 @@ const getByTitleAndUserId = async (title, userId) => {
   }
 };
 
+const getPaginatedWords = async (page = 1, limit = 100) => {
+  try {
+    const offset = (page - 1) * limit;
+    const result = await db.query(
+      'SELECT * FROM words LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching paginated words:', err);
+    throw err;
+  }
+};
+
+
 
 
 module.exports = {
@@ -154,5 +169,6 @@ module.exports = {
   update,
   remove,
   getAllByUserId,
-  getByTitleAndUserId
+  getByTitleAndUserId,
+  getPaginatedWords
 };

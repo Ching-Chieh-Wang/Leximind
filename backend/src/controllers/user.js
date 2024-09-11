@@ -60,18 +60,11 @@ const login = async (req, res) => {
 };
 
 // Get user profile
-const getById = async (req, res) => {
+const getProfile = async (req, res) => {
   try {
-    const userId = req.user.id;  // Extract user ID from the request object (set by auth middleware)
-
-    // Find the user by ID
-    const user = await userModel.findUserById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
+    const user=req.user;
     // Respond with user details (excluding the password)
-    res.status(200).json({ user: { id: user.id, username: user.username, email: user.email } });
+    res.status(200).json({ user: { username: user.username, email: user.email } });
   } catch (err) {
     console.error('Error fetching user profile:', err);
     res.status(500).json({ message: 'Server error' });
@@ -81,7 +74,7 @@ const getById = async (req, res) => {
 // Update user profile
 const update= async (req, res) => {
   const { username, email, password } = req.body;
-  const userId = req.user.id;  // Extract user ID from the request object (set by auth middleware)
+  const user_id = req.user.id;  // Extract user ID from the request object (set by auth middleware)
 
   try {
     // Update user fields
@@ -93,7 +86,7 @@ const update= async (req, res) => {
     }
 
     // Update the user
-    const updatedUser = await userModel.updateUserById(userId, updatedFields);
+    const updatedUser = await userModel.updateUserById(user_id, updatedFields);
 
     // Respond with the updated user details (excluding the password)
     res.status(200).json({ user: { id: updatedUser.id, username: updatedUser.username, email: updatedUser.email } });
@@ -106,10 +99,10 @@ const update= async (req, res) => {
 // Delete user profile
 const remove = async (req, res) => {
   try {
-    const userId = req.user.id;  // Extract user ID from the request object (set by auth middleware)
+    const user_id = req.user.id;  // Extract user ID from the request object (set by auth middleware)
 
     // Delete the user
-    const result = await userModel.deleteUserById(userId);
+    const result = await userModel.deleteUserById(user_id);
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -122,14 +115,6 @@ const remove = async (req, res) => {
   }
 };
 
-const getAll = async (req, res) => {
-  try {
-    const result = await userModel.getAllUsers(); 
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching users', error: error.message });
-  }
-};
 
 const getByEmail = async (req, res) => {
   const { email } = req.params;
@@ -150,9 +135,8 @@ const getByEmail = async (req, res) => {
 module.exports = {
   register,
   login,
-  getById,
+  getProfile,
   update,
   remove,
-  getAll,
   getByEmail
 };

@@ -4,7 +4,7 @@ const { protect } = require('../middleware/auth/user');
 const {
   register,
   login,
-  getById,
+  getProfile,
   update,
   remove,
 } = require('../controllers/user');
@@ -17,7 +17,7 @@ router.post('/register', validateProfile, register);
 router.post('/login', validateLogin, login);
 
 // Route for fetching user profile (requires authentication)
-router.get('/', protect, getById);
+router.get('/', protect, getProfile);
 
 // Route for updating user profile with validation (requires authentication)
 router.put('/', protect, validateProfile, update);
