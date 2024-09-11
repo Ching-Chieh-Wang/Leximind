@@ -23,13 +23,13 @@ const createTable = async () => {
 };
 
 // Function to create a new word
-const create = async ({ title, description, imgPath, userId, labelIds }) => {
+const create = async ({ title, definition,  img_path,  user_id, labelIds }) => {
   try {
     // Insert the new word into the words table
     const result = await db.query(
       `INSERT INTO words (title, definition, img_path, user_id) 
        VALUES ($1, $2, $3, $4) RETURNING *`,
-      [title, description, imgPath, userId]
+      [title, definition, img_path, user_id]
     );
 
     const newWord = result.rows[0];
@@ -47,16 +47,16 @@ const create = async ({ title, description, imgPath, userId, labelIds }) => {
 };
 
 // Function to find a word by ID, including its associated labels
-const getById = async (wordId) => {
+const getById = async (word_id) => {
   try {
     // Fetch the word from the words table
-    const wordResult = await db.query('SELECT * FROM words WHERE id = $1', [wordId]);
+    const wordResult = await db.query('SELECT * FROM words WHERE id = $1', [word_id]);
     const word = wordResult.rows[0];
 
     if (!word) return null;
 
     // Fetch the associated labels using WordLabel model
-    word.labels = await wordLabelModel.getLabelsByWordId(wordId);
+    word.labels = await wordLabelModel.getLabelsByWordId(word_id);
 
     return word;
   } catch (err) {
@@ -124,6 +124,27 @@ const getAllByUserId = async (userId) => {
   }
 };
 
+const getByTitleAndUserId = async (title, userId) => {
+  try {
+    // Query the words table where both title and user_id match the provided values
+    const result = await db.query(
+      'SELECT * FROM words WHERE title = $1 AND user_id = $2',
+      [title, userId]
+    );
+
+    // If no word is found, return null
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    // Return the found word
+    return result.rows[0];
+  } catch (err) {
+    console.error('Error fetching word by title and user ID:', err);
+    throw err;
+  }
+};
+
 
 
 module.exports = {
@@ -133,4 +154,5 @@ module.exports = {
   update,
   remove,
   getAllByUserId,
+  getByTitleAndUserId
 };

@@ -3,22 +3,22 @@ const wordModel = require('../../models/word'); // Import the Word model
 // Middleware to check ownership of a word
 const checkWordOwnership = async (req, res, next) => {
   try {
-    const wordId = req.params.id;
-    const userId = req.user.id;
+    const word_id = req.params.id;
+    const user_id = req.user.id;
 
-    if (isNaN(wordId) || parseInt(wordId) != wordId) {
+    if (isNaN(word_id) || parseInt(word_id) != word_id) {
       return res.status(400).json({ message: 'Invalid word ID' });
     }
 
     // Fetch the word from the database
-    const word = await wordModel.getById(wordId);
+    const word = await wordModel.getById(word_id);
 
     if (!word) {
       return res.status(404).json({ message: 'Word not found' });
     }
 
     // Ensure that the user owns the word
-    if (word.user_id !== userId) {
+    if (word.user_id !== user_id) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
