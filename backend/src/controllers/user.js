@@ -11,7 +11,7 @@ const register = async (req, res) => {
   try {
     email=email.toLowerCase();
     // Check if the user already exists
-    const user = await userModel.findByEmail(email);
+    const user = await userModel.getByEmail(email);
     if (user) {
       return res.status(400).json({ message: 'Email already registered' });
     }
@@ -40,7 +40,11 @@ const login = async (req, res) => {
   try {
     email=email.toLowerCase();
 
+    // Find the user by email
     const user = await userModel.getByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     
     // Check if the password matches
     const isMatch = await bcrypt.compare(password, user.password);
@@ -49,7 +53,7 @@ const login = async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user.id, role:user.role }, process.env.JWT_SECRET);
 
     // Respond with the token
     res.status(200).json({ token });

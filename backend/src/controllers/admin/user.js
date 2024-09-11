@@ -1,5 +1,6 @@
 const userModel = require('../../models/user'); 
 const userController = require('../user');
+const bcrypt = require('bcryptjs');
 
 // Fetch all users (admin-specific)
 const getAll = async (req, res) => {
@@ -19,8 +20,8 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    const userId = req.params.id;  // Extract user ID from the request parameters
-    const user = await userModel.getById(userId);
+    const user_id = req.params.id;  // Extract user ID from the request parameters
+    const user = await userModel.getById(user_id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -48,10 +49,33 @@ const update = async (req, res) => {
   return userController.update(req, res);
 };
 
+// Register a new admin by an admin
+const registerAdmin = async (req, res) => {
+  const { username, email, password } = req.body;
+  try {
+    
+    const user = await userModel.getByEmail(email);
+    if (user) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+    // Hash the password before storing it
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the new admin user with 'admin' role
+    const newAdmin = await userModel.create(username, email, hashedPassword, 'admin');
+    
+    res.status(201).json({ message: 'Admin registered successfully', admin: newAdmin });
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   getAll,
   getById,
   getByEmail,
   remove,
-  update
+  update,
+  registerAdmin
 };

@@ -8,7 +8,8 @@ const createTable = async () => {
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         username VARCHAR(50) NOT NULL,
         email VARCHAR(60) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(20) DEFAULT 'user' 
       );
     `);
     console.log('Users table created successfully');
@@ -39,13 +40,14 @@ const getByEmail = async (email) => {
   return result.rows[0];
 };
 
-const create = async (username, email, hashedPassword) => {
+const create = async (username, email, hashedPassword, role = 'user') => {
   const result = await db.query(
-    'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-    [username, email, hashedPassword]
+    'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *',
+    [username, email, hashedPassword, role]
   );
   return result.rows[0];
 };
+
 
 const update = async (id, username, email, hashedPassword) => {
   const result = await db.query(
