@@ -1,4 +1,4 @@
-const db = require('../config/db');  // Import the database connection
+const db = require('../db/db');  // Import the database connection
 const wordLabelModel = require('./word_label');  // Import the WordLabel model
 
 // Function to create the words table
@@ -23,8 +23,11 @@ const createTable = async () => {
 };
 
 // Function to create a new word
-const create = async ({ title, definition,  img_path,  user_id, labelIds }) => {
+const create = async ({ title, definition, img_path, user_id, label_ids }) => {
   try {
+    // Begin a new transaction
+    await db.query('BEGIN');
+
     // Insert the new word into the words table
     const result = await db.query(
       `INSERT INTO words (title, definition, img_path, user_id) 
@@ -34,19 +37,30 @@ const create = async ({ title, definition,  img_path,  user_id, labelIds }) => {
 
     const newWord = result.rows[0];
 
-    // Associate the word with the provided labels
-    if (labelIds && labelIds.length > 0) {
-      await Promise.all(labelIds.map(labelId => wordLabelModel.addWordToLabel(labelId, newWord.id)));
+    // If there are labels, associate the word with the provided labels using unnest
+    if (label_ids && label_ids.length > 0) {
+      const queryText = `
+        INSERT INTO word_labels (word_id, label_id)
+        SELECT $1, unnest($2::int[])
+      `;
+
+      // Execute bulk insert for word-label associations
+      await db.query(queryText, [newWord.id, label_ids]);
     }
+
+    // Commit the transaction
+    await db.query('COMMIT');
 
     return newWord;
   } catch (err) {
+    // Rollback the transaction in case of an error
+    await db.query('ROLLBACK');
     console.error('Error creating word:', err);
     throw err;
   }
 };
 
-// Function to find a word by ID, including its associated labels
+// Function to find a word by ID,
 const getById = async (word_id) => {
   try {
     // Fetch the word from the words table
@@ -55,9 +69,6 @@ const getById = async (word_id) => {
 
     if (!word) return null;
 
-    // Fetch the associated labels using WordLabel model
-    word.labels = await wordLabelModel.getLabelsByWordId(word_id);
-
     return word;
   } catch (err) {
     console.error('Error fetching word by ID:', err);
@@ -65,29 +76,25 @@ const getById = async (word_id) => {
   }
 };
 
-// Function to update a word by ID, including label associations
-const update = async (wordId, { title, description, labelIds }) => {
+// Function to update a word by ID
+const update = async (wordId, { title, description }) => {
   try {
-    // Update the word in the words table
-    await db.query(
-      `UPDATE words SET title = $1, definition = $2 WHERE id = $3`,
+    // Update the word in the words table and return the updated row
+    const result = await db.query(
+      `UPDATE words SET title = $1, definition = $2 WHERE id = $3 RETURNING *`,
       [title, description, wordId]
     );
 
-    // Update label associations
-    if (labelIds && labelIds.length > 0) {
-      // Remove existing label associations
-      await wordLabelModel.removeLabelsFromWord(wordId);
-
-      // Add new label associations
-      await Promise.all(labelIds.map(labelId => wordLabelModel.addWordToLabel(labelId, wordId)));
+    // Check if a word was updated
+    if (result.rows.length === 0) {
+      throw new Error('Word not found');
     }
 
-    // Return the updated word with labels
-    return getByIdWithLabels(wordId);
+    // Return the updated word
+    return result.rows[0];
   } catch (err) {
     console.error('Error updating word:', err);
-    throw err;
+    throw err; // Rethrow the error for further handling
   }
 };
 
@@ -105,21 +112,25 @@ const remove = async (wordId) => {
   }
 };
 
-// Function to get all words for a specific user, including associated labels
-const getAllByUserId = async (userId) => {
+// Function to get all words and associated labels for a specific user
+const getAllByUserId = async (user_id) => {
+  const query = `
+    SELECT w.id as word_id, w.title, w.definition, w.img_path,
+           COALESCE(
+             json_agg(
+               json_build_object('label_id', l.id, 'label_name', l.name)
+             ) FILTER (WHERE l.id IS NOT NULL), '[]') AS labels
+    FROM words w
+    LEFT JOIN word_labels wl ON w.id = wl.word_id
+    LEFT JOIN labels l ON wl.label_id = l.id
+    WHERE w.user_id = $1
+    GROUP BY w.id
+  `;
   try {
-    // Fetch all words for the user
-    const wordsResult = await db.query('SELECT * FROM words WHERE user_id = $1', [userId]);
-    const words = wordsResult.rows;
-
-    // Fetch associated labels for each word
-    for (let word of words) {
-      word.labels = await wordLabelModel.getLabelsByWordId(word.id);
-    }
-
-    return words;
+    const result = await db.query(query, [user_id]);
+    return result.rows;
   } catch (err) {
-    console.error('Error fetching words by user ID:', err);
+    console.error('Error fetching words with labels:', err);
     throw err;
   }
 };
@@ -145,11 +156,11 @@ const getByTitleAndUserId = async (title, userId) => {
   }
 };
 
-const getPaginatedWords = async (page = 1, limit = 100) => {
+const getPaginated = async (page = 1, limit = 100) => {
   try {
     const offset = (page - 1) * limit;
     const result = await db.query(
-      'SELECT * FROM words LIMIT $1 OFFSET $2',
+      'SELECT * FROM words LIMIT $1 OFFSET $2', // Ensure LIMIT and OFFSET are used
       [limit, offset]
     );
     return result.rows;
@@ -159,7 +170,21 @@ const getPaginatedWords = async (page = 1, limit = 100) => {
   }
 };
 
+const searchByPrefix = async (prefix) => {
+  const query = `
+    SELECT * FROM words
+    WHERE title ILIKE $1 OR definition ILIKE $1
+  `;
+  const values = [`${prefix}%`]; // Use ILIKE for case-insensitive matching
 
+  try {
+    const result = await db.query(query, values);
+    return result.rows; // Return the matched rows
+  } catch (err) {
+    console.error('Error fetching words:', err);
+    throw err;
+  }
+};
 
 
 module.exports = {
@@ -170,5 +195,6 @@ module.exports = {
   remove,
   getAllByUserId,
   getByTitleAndUserId,
-  getPaginatedWords
+  getPaginated,
+  searchByPrefix
 };

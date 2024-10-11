@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const userModel =require('../../models/user')
 
-const authorizeDeveloper = (req, res, next) => {
+const authorizeAdmin = async (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1]; // Expecting 'Bearer <token>'
 
   if (!token) {
@@ -11,13 +12,20 @@ const authorizeDeveloper = (req, res, next) => {
     // Verify the token using the secret
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Check if the user has the 'admin' or 'developer' role
-    if (decoded.role !== 'admin' && decoded.role !== 'developer') {
-      return res.status(403).json({ message: 'Forbidden: You do not have access to this resource' });
+    // Fetch the user from the database to check their current role
+    const user = await userModel.getById(decoded.id);
+
+    // Ensure the user exists and has either 'admin' or 'developer' role
+    if (!user) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    if (user.role !== 'admin' && user.role !== 'developer') {
+      return res.status(403).json({ message: 'User not authorized as admin or developer' });
     }
 
     // Attach the user information to the request object
-    req.user = decoded;
+    req.user = user;
     next(); // Proceed to the next middleware or route handler
   } catch (err) {
     console.error('Token verification failed:', err);
@@ -25,4 +33,5 @@ const authorizeDeveloper = (req, res, next) => {
   }
 };
 
-module.exports = authorizeDeveloper;
+
+module.exports = {authorizeAdmin};

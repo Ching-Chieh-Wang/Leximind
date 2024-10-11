@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 require('dotenv').config(); // Ensure environment variables are loaded
 
-
+// Create a new Pool instance
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -11,22 +11,22 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }, // Adjust SSL settings if needed
 });
 
-let client;
-
-
 // Function to connect to the database and initialize tables
 const connectToDatabase = async () => {
   try {
     const user = require('../models/user');
     const label = require('../models/label');
     const word = require('../models/word');
-    const word_label=require('../models/word_label');
-    client = await pool.connect(); // Ensure proper connection
-    await user.createTable(); // Create tables if they do not exist
-    await label.createTable(); // Create tables if they do not exist
-    await word.createTable(); // Create tables if they do not exist
-    await word_label.createTable(); // Create tables if they do not exist
-    console.log('Database connected');
+    const word_label = require('../models/word_label');
+    
+    await pool.connect(); // Ensure proper connection
+    
+    await user.createTable();  // Create user table if it doesn't exist
+    await label.createTable(); // Create label table if it doesn't exist
+    await word.createTable();  // Create word table if it doesn't exist
+    await word_label.createTable();  // Create word_label table if it doesn't exist
+    
+    console.log('Database connected and tables initialized');
   } catch (error) {
     console.error('Error connecting to the database:', error);
     throw error;
@@ -44,4 +44,4 @@ const query = async (text, params) => {
   }
 };
 
-module.exports = { connectToDatabase, query, client };
+module.exports = { connectToDatabase, query, pool };  // Export the pool instead of client

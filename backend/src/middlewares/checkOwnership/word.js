@@ -3,7 +3,7 @@ const wordModel = require('../../models/word'); // Import the Word model
 // Middleware to check ownership of a word
 const checkWordOwnership = async (req, res, next) => {
   try {
-    const word_id = req.params.id;
+    const {word_id} = req.params;
     const user_id = req.user.id;
 
     if (isNaN(word_id) || parseInt(word_id) != word_id) {
@@ -30,4 +30,4 @@ const checkWordOwnership = async (req, res, next) => {
   }
 };
 
-module.exports = checkWordOwnership;
+module.exports = {checkWordOwnership};

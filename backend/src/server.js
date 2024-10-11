@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { connectToDatabase } = require('./config/db'); // Import the database connection
+const { connectToDatabase } = require('./db/db'); // Import the database connection
 
 // Import routes
 const userRoutes = require('./routes/user');
@@ -19,10 +19,10 @@ connectToDatabase()
 
     // API Routes
     app.use('/adminApi',adminRoutes);
-    app.use('/api/word_labels',wordLabelRoutes)
-    app.use('/api/users', userRoutes);
-    app.use('/api/labels', labelRoutes);
-    app.use('/api/words', wordRoutes);
+    app.use('/api/word_label',wordLabelRoutes)
+    app.use('/api/user', userRoutes);
+    app.use('/api/label', labelRoutes);
+    app.use('/api/word', wordRoutes);
 
     // Start the server
     const PORT = process.env.PORT || 4000;

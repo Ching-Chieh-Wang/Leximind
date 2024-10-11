@@ -1,23 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const authorizeDeveloper = require('../../middleware/auth/admin');
-const { getAll, remove, update, getById, registerAdmin} = require('../../controllers/admin/user');
-const { validateProfile } = require('../../middleware/validateInput/user');
-const validateUUID = require('../../middleware/validateUUID');
+const {authorizeAdmin} = require('../../middlewares/auth/admin');
+const { getPaginated, remove, update, getById, promoteToAdmin } = require('../../controllers/admin/user');
+const { validateProfile } = require('../../middlewares/validateInput/user');
+const {validatePagination}=require('../../middlewares/validatePagination')
+const {validateUUID} = require('../../middlewares/validateUUID');
+const {setUserInRequest} = require('../../middlewares/setUserInRequest'); // Middleware to set user by userId
 
-// Route for fetching all users, restricted to developers
-router.get('/', authorizeDeveloper, getAll);
+// Route for fetching all users with pagination (admin only)
+router.get('/', validatePagination,authorizeAdmin, getPaginated);
 
-// Route for fetching a user by ID, restricted to developers
-router.get('/:id', authorizeDeveloper, validateUUID, getById);  
+// Route for fetching a user by ID (admin only)
+router.get('/:user_id', authorizeAdmin, validateUUID, setUserInRequest, getById);
 
-// Route for deleting a user by ID, restricted to developers
-router.delete('/:id', authorizeDeveloper,validateUUID, remove);
+// Route for deleting a user by ID (admin only)
+router.delete('/:user_id', authorizeAdmin, validateUUID, setUserInRequest, remove);
 
-// Route for updating a user by ID, restricted to developers
-router.put('/:id', authorizeDeveloper, validateUUID, validateProfile, update);
+// Route for updating a user by ID (admin only)
+router.put('/:user_id', authorizeAdmin, validateUUID, validateProfile, setUserInRequest, update);
 
-// Route for registering a new admin, restricted to admins
-router.post('/register-admin', authorizeDeveloper, validateProfile, registerAdmin);
+// Route for promoting a user to admin (admin only)
+router.post('/:user_id/promote-to-admin', authorizeAdmin, validateUUID, setUserInRequest, promoteToAdmin);
 
 module.exports = router;

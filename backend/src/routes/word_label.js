@@ -1,17 +1,18 @@
 const express = require('express');
-const { protect } = require('../middleware/auth/user');
-const {checkLabelOwnership} = require('../middleware/checkOwnership/label');
+const { authorizeUser } = require('../middlewares/auth/user');
+const { checkLabelOwnership } = require('../middlewares/checkOwnership/label');
 const { getWordsByLabel, addWordToLabel, removeWordFromLabel } = require('../controllers/word_label');
+const {checkWordOwnership} = require('../middlewares/checkOwnership/word');
 
 const router = express.Router();
 
-// Route for getting all words under a specific label (requires authentication and ownership check)
-router.get('/:labelId/words', protect, checkLabelOwnership, getWordsByLabel);
+// Route for getting all words under a specific label 
+router.get('/label/:label_id/words', authorizeUser, checkLabelOwnership, getWordsByLabel);
 
-// Route for adding a word to a label (requires authentication and ownership check)
-router.post('/:labelId/words/:wordId', protect, checkLabelOwnership, addWordToLabel);
+// Route for adding a word to a label 
+router.post('/label/:label_id/word/:word_id', authorizeUser, checkLabelOwnership, checkWordOwnership, addWordToLabel);
 
-// Route for removing a word from a label (requires authentication and ownership check)
-router.delete('/:labelId/words/:wordId', protect, checkLabelOwnership, removeWordFromLabel);
+// Route for removing a word from a label 
+router.delete('/label/:label_id/word/:word_id', authorizeUser, checkLabelOwnership,checkWordOwnership, removeWordFromLabel);
 
 module.exports = router;

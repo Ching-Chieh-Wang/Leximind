@@ -1,6 +1,4 @@
-// models/label.js
-
-const db = require('../config/db');
+const db = require('../db/db');
 const WordLabel = require('./word_label');  // Import the word_label model for managing associations
 
 // Create the labels table
@@ -23,6 +21,12 @@ const createTable = async () => {
   }
 };
 
+// Get all labels with pagination
+const getPaginated = async (limit, offset) => {
+  const result = await db.query('SELECT * FROM labels LIMIT $1 OFFSET $2', [limit, offset]);
+  return result.rows;
+};
+
 // Create a new label
 const create = async (name, userId) => {
   try {
@@ -38,7 +42,7 @@ const create = async (name, userId) => {
 };
 
 // Find a label by ID
-const findById = async (id) => {
+const getById = async (id) => {
   try {
     const result = await db.query('SELECT * FROM labels WHERE id = $1', [id]);
     return result.rows[0];
@@ -48,16 +52,16 @@ const findById = async (id) => {
   }
 };
 
-// Find a label by name and user ID (to prevent duplicates)
-// const findByNameAndUserId = async (name, userId) => {
-//   try {
-//     const result = await db.query('SELECT * FROM labels WHERE name = $1 AND user_id = $2', [name, userId]);
-//     return result.rows[0];
-//   } catch (error) {
-//     console.error('Error finding label by name and user ID:', error);
-//     throw error;
-//   }
-// };
+//Find a label by name and user ID (to prevent duplicates)
+const getByNameAndUserId = async (name, user_id) => {
+  try {
+    const result = await db.query('SELECT * FROM labels WHERE name = $1 AND user_id = $2', [name, user_id]);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error finding label by name and user ID:', error);
+    throw error;
+  }
+};
 
 // Update a label by ID
 const update = async (id, name) => {
@@ -84,9 +88,9 @@ const remove = async (id) => {
 };
 
 // Get all labels for a specific user
-const getByUserId = async (userId) => {
+const getAllByUserId = async (user_id) => {
   try {
-    const result = await db.query('SELECT * FROM labels WHERE user_id = $1', [userId]);
+    const result = await db.query('SELECT * FROM labels WHERE user_id = $1', [user_id]);
     return result.rows;
   } catch (error) {
     console.error('Error fetching labels by user ID:', error);
@@ -98,9 +102,10 @@ const getByUserId = async (userId) => {
 module.exports = {
   createTable,
   create,
-  findById,
-  // findByNameAndUserId,
+  getById,
+  getByNameAndUserId,
   update,
   remove,
-  getByUserId,
+  getAllByUserId,
+  getPaginated,
 };

@@ -1,15 +1,15 @@
-const db = require('../config/db');
+const db = require('../db/db');
 
 const createTable = async () => {
   try {
     const result = await db.query(`
-      CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         username VARCHAR(50) NOT NULL,
         email VARCHAR(60) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
-        role VARCHAR(20) DEFAULT 'user' 
+        role VARCHAR(20) DEFAULT 'user',
+        created_at TIMESTAMPTZ DEFAULT NOW()  -- Automatically store creation time with timezone
       );
     `);
     console.log('Users table created successfully');
@@ -20,7 +20,7 @@ const createTable = async () => {
   }
 };
 
-const getPaginatedUsers = async (limit = 10, offset = 0) => {
+const getPaginated = async (limit = 10, offset = 0) => {
   try {
     const result = await db.query('SELECT * FROM users LIMIT $1 OFFSET $2', [limit, offset]);
     return result.rows;
@@ -49,19 +49,32 @@ const create = async (username, email, hashedPassword, role = 'user') => {
 };
 
 
-const update = async (id, username, email, hashedPassword) => {
-  const result = await db.query(
-    'UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4 RETURNING *',
-    [username, email, hashedPassword, id]
-  );
-  return result.rows[0];
+const update = async (userId, { username, email, password, role }) => {
+  try {
+    const result = await db.query(
+      `UPDATE users 
+       SET username = COALESCE($1, username), 
+           email = COALESCE($2, email), 
+           password = COALESCE($3, password),
+           role = COALESCE($4, role)
+       WHERE id = $5 
+       RETURNING id, username, email, role`,
+      [username, email, password, role, userId]
+    );
+    
+    return result.rows[0]; // Return the updated user without the password
+  } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
+  }
 };
+
 
 const remove = async (id) => {
-  await db.query('DELETE FROM users WHERE id = $1', [id]);
+  const result = await db.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+  return result.rows[0]; 
 };
 
 
 
-
-module.exports = { createTable, getPaginatedUsers, getById, getByEmail, create, update, remove };
+module.exports = { createTable, getPaginated, getById, getByEmail, create, update, remove };

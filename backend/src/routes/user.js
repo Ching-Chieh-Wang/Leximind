@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth/user');
+const {authorizeUser}  = require('../middlewares/auth/user');
 const {
   register,
   login,
@@ -8,22 +8,22 @@ const {
   update,
   remove,
 } = require('../controllers/user');
-const {validateLogin,validateProfile}= require('../middleware/validateInput/user')
+const {validateLogin,validateRegister,validateProfile}= require('../middlewares/validateInput/user')
 
 // Route for user registration with validation
-router.post('/register', validateProfile, register);
+router.post('/register', validateRegister, register);
 
 // Route for user login with validation
 router.post('/login', validateLogin, login);
 
 // Route for fetching user profile (requires authentication)
-router.get('/', protect, getProfile);
+router.get('/', authorizeUser, getProfile);
 
 // Route for updating user profile with validation (requires authentication)
-router.put('/', protect, validateProfile, update);
+router.put('/', authorizeUser, validateProfile, update);
 
 // Route for deleting user profile (requires authentication)
-router.delete('/', protect, remove);
+router.delete('/', authorizeUser, remove);
 
 
 
