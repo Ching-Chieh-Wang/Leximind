@@ -1,12 +1,14 @@
-const wordModel = require('../../models/word'); // Import the Word model
+const wordModel = require('../../models/word');
 
 // Middleware to check ownership of a word
 const checkWordOwnership = async (req, res, next) => {
   try {
-    const {word_id} = req.params;
+    const { word_id } = req.params;
     const user_id = req.user.id;
+    const collection_id = req.collection.id; 
 
-    if (isNaN(word_id) || parseInt(word_id) != word_id) {
+    // Validate the word_id to ensure it's a positive integer
+    if (isNaN(word_id) || parseInt(word_id) !== Number(word_id)) {
       return res.status(400).json({ message: 'Invalid word ID' });
     }
 
@@ -19,10 +21,18 @@ const checkWordOwnership = async (req, res, next) => {
 
     // Ensure that the user owns the word
     if (word.user_id !== user_id) {
-      return res.status(403).json({ message: 'Forbidden' });
+      return res.status(403).json({ message: 'You do not have permission to access this word.' });
     }
 
-    // If ownership check passes, proceed to the next middleware or route handler
+    // Ensure that the word belongs to the specified collection
+    if (word.collection_id !== collection_id) {
+      return res.status(403).json({ message: 'Word does not belong to this collection.' });
+    }
+
+    // Attach the word object to the request for further use in the next handler
+    req.word = word;
+
+    // If all checks pass, proceed to the next middleware or route handler
     next();
   } catch (err) {
     console.error('Error checking word ownership:', err);
@@ -30,4 +40,4 @@ const checkWordOwnership = async (req, res, next) => {
   }
 };
 
-module.exports = {checkWordOwnership};
+module.exports = { checkWordOwnership };

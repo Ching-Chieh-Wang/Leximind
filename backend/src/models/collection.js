@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require('../db/db');
 
 // Function to create the collections table
 const createTable = async () => {
@@ -50,10 +50,15 @@ const remove = async (id) => {
   return result.rows[0];
 };
 
-// Get all collections for a user
-const getAllByUserId = async (user_id) => {
-  const query = `SELECT * FROM collections WHERE user_id = $1;`;
-  const result = await db.query(query, [user_id]);
+// Function to get paginated collections for a user by their user ID
+const getPaginatedByUserId = async (user_id, limit, offset) => {
+  const query = `
+    SELECT * FROM collections 
+    WHERE user_id = $1
+    ORDER BY created_at DESC
+    LIMIT $2 OFFSET $3;
+  `;
+  const result = await db.query(query, [user_id, limit, offset]);
   return result.rows;
 };
 
@@ -63,5 +68,5 @@ module.exports = {
   getById,
   update,
   remove,
-  getAllByUserId
+  getPaginatedByUserId
 };

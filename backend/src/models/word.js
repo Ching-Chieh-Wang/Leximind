@@ -1,167 +1,146 @@
-const db = require('../db/db');  // Import the database connection
-const wordLabelModel = require('./word_label');  // Import the WordLabel model
+// models/word.js
+const db = require('../db/db');
 
 // Function to create the words table
 const createTable = async () => {
+  const query = `
+    CREATE TABLE IF NOT EXISTS words (
+      id SERIAL PRIMARY KEY,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      collection_id INT REFERENCES collections(id) ON DELETE CASCADE,
+      name VARCHAR(255) NOT NULL,
+      description TEXT NOT NULL,
+      img_path TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+  
   try {
-    const result = await db.query(`
-      CREATE TABLE IF NOT EXISTS words (
-        id SERIAL PRIMARY KEY,
-        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        title VARCHAR(50) NOT NULL,
-        definition TEXT NOT NULL,
-        img_path TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-    `);
+    await db.query(query);
     console.log('Words table created successfully');
-    return result;
   } catch (error) {
     console.error('Error creating words table:', error);
-    throw error;
   }
 };
 
-// Function to create a new word
-const create = async ({ title, definition, img_path, user_id, label_ids }) => {
-  try {
-    // Begin a new transaction
-    await db.query('BEGIN');
+// Function to create a new word with transaction handling
+const create = async ({ name, description, img_path, user_id, collection_id, label_ids }) => {
+  return await db.executeTransaction(async (client) => {
+    // Validate label_ids if provided
+    if (Array.isArray(label_ids) && label_ids.length > 0) {
+      // Check that all provided label_ids belong to the user and are in the specified collection
+      const labelCheckResult = await client.query(
+        'SELECT id FROM labels WHERE id = ANY($1) AND user_id = $2 AND collection_id = $3',
+        [label_ids, user_id, collection_id]
+      );
 
-    // Insert the new word into the words table
-    const result = await db.query(
-      `INSERT INTO words (title, definition, img_path, user_id) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [title, definition, img_path, user_id]
+      const existingLabelIds = labelCheckResult.rows.map(row => row.id);
+      const invalidLabelIds = label_ids.filter(id => !existingLabelIds.includes(id));
+
+      // If there are any invalid labels, throw an error to roll back the transaction
+      if (invalidLabelIds.length > 0) {
+        throw new Error(`Labels not owned by the user or not in the collection: ${invalidLabelIds.join(', ')}`);
+      }
+    }
+
+    // Insert the new word
+    const result = await client.query(
+      `INSERT INTO words (name, description, img_path, user_id, collection_id)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [name, description, img_path, user_id, collection_id]
     );
 
     const newWord = result.rows[0];
 
-    // If there are labels, associate the word with the provided labels using unnest
-    if (label_ids && label_ids.length > 0) {
-      const queryText = `
-        INSERT INTO word_labels (word_id, label_id)
-        SELECT $1, unnest($2::int[])
-      `;
-
-      // Execute bulk insert for word-label associations
-      await db.query(queryText, [newWord.id, label_ids]);
+    // Manage label associations if label_ids are provided
+    if (Array.isArray(label_ids) && label_ids.length > 0) {
+      for (const label_id of label_ids) {
+        await client.query(
+          `INSERT INTO word_labels (word_id, label_id)
+           VALUES ($1, $2)
+           ON CONFLICT (word_id, label_id) DO NOTHING`,
+          [newWord.id, label_id]
+        );
+      }
     }
 
-    // Commit the transaction
-    await db.query('COMMIT');
-
     return newWord;
-  } catch (err) {
-    // Rollback the transaction in case of an error
-    await db.query('ROLLBACK');
-    console.error('Error creating word:', err);
-    throw err;
-  }
+  });
 };
 
-// Function to find a word by ID,
-const getById = async (word_id) => {
-  try {
-    // Fetch the word from the words table
-    const wordResult = await db.query('SELECT * FROM words WHERE id = $1', [word_id]);
-    const word = wordResult.rows[0];
+// Function to update a word by ID with transaction handling
+const update = async (id, { name, description, img_path }) => {
+  return await db.executeTransaction(async (client) => {
+    // Fetch current word details
+    const currentWordResult = await client.query('SELECT * FROM words WHERE id = $1', [id]);
+    const currentWord = currentWordResult.rows[0];
 
-    if (!word) return null;
-
-    return word;
-  } catch (err) {
-    console.error('Error fetching word by ID:', err);
-    throw err;
-  }
-};
-
-// Function to update a word by ID
-const update = async (wordId, { title, description }) => {
-  try {
-    // Update the word in the words table and return the updated row
-    const result = await db.query(
-      `UPDATE words SET title = $1, definition = $2 WHERE id = $3 RETURNING *`,
-      [title, description, wordId]
-    );
-
-    // Check if a word was updated
-    if (result.rows.length === 0) {
+    if (!currentWord) {
       throw new Error('Word not found');
     }
 
-    // Return the updated word
-    return result.rows[0];
-  } catch (err) {
-    console.error('Error updating word:', err);
-    throw err; // Rethrow the error for further handling
-  }
-};
-
-// Function to remove a word by ID, including label associations
-const remove = async (wordId) => {
-  try {
-    // Remove label associations
-    await wordLabelModel.removeWordFromLabel(wordId);
-
-    // Delete the word from the words table
-    await db.query('DELETE FROM words WHERE id = $1', [wordId]);
-  } catch (err) {
-    console.error('Error removing word:', err);
-    throw err;
-  }
-};
-
-// Function to get all words and associated labels for a specific user
-const getAllByUserId = async (user_id) => {
-  const query = `
-    SELECT w.id as word_id, w.title, w.definition, w.img_path,
-           COALESCE(
-             json_agg(
-               json_build_object('label_id', l.id, 'label_name', l.name)
-             ) FILTER (WHERE l.id IS NOT NULL), '[]') AS labels
-    FROM words w
-    LEFT JOIN word_labels wl ON w.id = wl.word_id
-    LEFT JOIN labels l ON wl.label_id = l.id
-    WHERE w.user_id = $1
-    GROUP BY w.id
-  `;
-  try {
-    const result = await db.query(query, [user_id]);
-    return result.rows;
-  } catch (err) {
-    console.error('Error fetching words with labels:', err);
-    throw err;
-  }
-};
-
-const getByTitleAndUserId = async (title, userId) => {
-  try {
-    // Query the words table where both title and user_id match the provided values
-    const result = await db.query(
-      'SELECT * FROM words WHERE title = $1 AND user_id = $2',
-      [title, userId]
+    // Update the word
+    const result = await client.query(
+      `UPDATE words SET name = $1, description = $2, img_path = $3 WHERE id = $4 RETURNING *`,
+      [
+        name || currentWord.name,
+        description || currentWord.description,
+        img_path || currentWord.img_path,
+        id,
+      ]
     );
 
-    // If no word is found, return null
-    if (result.rows.length === 0) {
-      return null;
-    }
-
-    // Return the found word
     return result.rows[0];
-  } catch (err) {
-    console.error('Error fetching word by title and user ID:', err);
-    throw err;
-  }
+  });
 };
 
-const getPaginated = async (page = 1, limit = 100) => {
+// Function to remove a word by ID with transaction handling
+const remove = async (id) => {
+  return await db.executeTransaction(async (client) => {
+    // Get the word to delete
+    const wordResult = await client.query('SELECT * FROM words WHERE id = $1', [id]);
+    const word = wordResult.rows[0];
+
+    if (!word) {
+      throw new Error('Word not found');
+    }
+
+    const collection_id = word.collection_id;
+    const order_index = word.order_index;
+
+    // Delete the word
+    await client.query('DELETE FROM words WHERE id = $1', [id]);
+
+    // Shift order_index values of subsequent words
+    await client.query(
+      'UPDATE words SET order_index = order_index - 1 WHERE collection_id = $1 AND order_index > $2',
+      [collection_id, order_index]
+    );
+  });
+};
+
+// Function to get paginated words by collection ID
+const getPaginated = async (collection_id, offset = 0, limit = 50) => {
   try {
-    const offset = (page - 1) * limit;
     const result = await db.query(
-      'SELECT * FROM words LIMIT $1 OFFSET $2', // Ensure LIMIT and OFFSET are used
-      [limit, offset]
+      `SELECT words.*,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', labels.id,
+              'name', labels.name
+            )
+          ) FILTER (WHERE labels.id IS NOT NULL), '[]'
+        ) AS labels
+       FROM words
+       LEFT JOIN word_labels ON words.id = word_labels.word_id
+       LEFT JOIN labels ON word_labels.label_id = labels.id
+       WHERE words.collection_id = $1
+       GROUP BY words.id
+       ORDER BY words.created_at
+       LIMIT $2 OFFSET $3`,
+      [collection_id, limit, offset]
     );
     return result.rows;
   } catch (err) {
@@ -170,18 +149,51 @@ const getPaginated = async (page = 1, limit = 100) => {
   }
 };
 
-const searchByPrefix = async (prefix) => {
-  const query = `
-    SELECT * FROM words
-    WHERE title ILIKE $1 OR definition ILIKE $1
-  `;
-  const values = [`${prefix}%`]; // Use ILIKE for case-insensitive matching
 
+// Function to get paginated words by collection ID and label ID
+const getPaginatedByLabelId = async (collection_id, label_id, offset = 0, limit = 50) => {
   try {
-    const result = await db.query(query, values);
-    return result.rows; // Return the matched rows
+    const result = await db.query(
+      `SELECT words.*,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', labels.id,
+              'name', labels.name
+            )
+          ) FILTER (WHERE labels.id IS NOT NULL), '[]'
+        ) AS labels
+       FROM words
+       JOIN word_labels ON words.id = word_labels.word_id
+       LEFT JOIN labels ON word_labels.label_id = labels.id
+       WHERE words.collection_id = $1 AND word_labels.label_id = $2
+       GROUP BY words.id
+       ORDER BY words.created_at
+       LIMIT $3 OFFSET $4`,
+      [collection_id, label_id, limit, offset]
+    );
+    return result.rows;
   } catch (err) {
-    console.error('Error fetching words:', err);
+    console.error('Error fetching paginated words by collection ID and label ID:', err);
+    throw err;
+  }
+};
+
+
+
+// Function to search words by prefix within a specific collection
+const searchByPrefix = async (collection_id, prefix) => {
+  try {
+    const result = await db.query(
+      `SELECT * FROM words 
+       WHERE collection_id = $1 
+       AND (name ILIKE $2 OR description ILIKE $2)
+       ORDER BY created_at`,
+      [collection_id, `${prefix}%`]
+    );
+    return result.rows; // Return the list of words that match the prefix in either name or description
+  } catch (err) {
+    console.error('Error searching words by prefix:', err);
     throw err;
   }
 };
@@ -190,11 +202,9 @@ const searchByPrefix = async (prefix) => {
 module.exports = {
   createTable,
   create,
-  getById,
   update,
   remove,
-  getAllByUserId,
-  getByTitleAndUserId,
+  searchByPrefix,
   getPaginated,
-  searchByPrefix
+  getPaginatedByLabelId
 };

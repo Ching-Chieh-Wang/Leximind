@@ -1,111 +1,78 @@
-const db = require('../db/db');
-const WordLabel = require('./word_label');  // Import the word_label model for managing associations
+const db = require('../db/db');  // Import the database connection
 
-// Create the labels table
+// Function to create the labels table
 const createTable = async () => {
-  try {
-    const result = await db.query(`
-      CREATE TABLE IF NOT EXISTS labels (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(50) NOT NULL,
-        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        UNIQUE(name, user_id) 
-      );
-    `);
-    console.log('Labels table created successfully');
-    return result;
-  } catch (error) {
-    console.error('Error creating labels table:', error);
-    throw error;
-  }
-};
-
-// Get all labels with pagination
-const getPaginated = async (limit, offset) => {
-  const result = await db.query('SELECT * FROM labels LIMIT $1 OFFSET $2', [limit, offset]);
-  return result.rows;
-};
-
-// Create a new label
-const create = async (name, userId) => {
-  try {
-    const result = await db.query(
-      'INSERT INTO labels (name, user_id) VALUES ($1, $2) RETURNING *',
-      [name, userId]
+  const result = await db.query(`
+    CREATE TABLE IF NOT EXISTS labels (
+      id SERIAL PRIMARY KEY,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      name VARCHAR(50) NOT NULL,
+      collection_id INT REFERENCES collections(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE (collection_id, name) -- Ensures name is unique within each collection
     );
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error creating label:', error);
-    throw error;
-  }
+  `);
+  console.log('Labels table created successfully');
+  return result;
 };
 
-// Find a label by ID
+// Function to create a new label
+const create = async ({ name, user_id, collection_id }) => {
+  const result = await db.query(
+    `INSERT INTO labels (name, user_id, collection_id) 
+      VALUES ($1, $2, $3) RETURNING *`,
+    [name, user_id, collection_id]
+  );
+  return result.rows[0]; // Return the created label
+};
+
+// Function to get a label by ID
 const getById = async (id) => {
-  try {
-    const result = await db.query('SELECT * FROM labels WHERE id = $1', [id]);
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error finding label by ID:', error);
-    throw error;
-  }
+  const result = await db.query('SELECT * FROM labels WHERE id = $1', [id]);
+  return result.rows[0] || null; // Return the label or null if not found
 };
 
-//Find a label by name and user ID (to prevent duplicates)
-const getByNameAndUserId = async (name, user_id) => {
-  try {
-    const result = await db.query('SELECT * FROM labels WHERE name = $1 AND user_id = $2', [name, user_id]);
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error finding label by name and user ID:', error);
-    throw error;
+// Function to update a label by ID
+const update = async (id, { name }) => {
+  const result = await db.query(
+    `UPDATE labels SET name = $1 WHERE id = $2 RETURNING *`,
+    [name, id]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error('Label not found');
   }
+
+  return result.rows[0]; // Return the updated label
 };
 
-// Update a label by ID
-const update = async (id, name) => {
-  try {
-    const result = await db.query(
-      'UPDATE labels SET name = $1 WHERE id = $2 RETURNING *',
-      [name, id]
-    );
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error updating label:', error);
-    throw error;
-  }
-};
-
-// Delete a label by ID
+// Function to remove a label by ID
 const remove = async (id) => {
-  try {
-    await db.query('DELETE FROM labels WHERE id = $1', [id]);
-  } catch (error) {
-    console.error('Error deleting label:', error);
-    throw error;
-  }
+  await db.query('DELETE FROM labels WHERE id = $1', [id]);
 };
 
-// Get all labels for a specific user
-const getAllByUserId = async (user_id) => {
-  try {
-    const result = await db.query('SELECT * FROM labels WHERE user_id = $1', [user_id]);
-    return result.rows;
-  } catch (error) {
-    console.error('Error fetching labels by user ID:', error);
-    throw error;
-  }
+
+// Function to get all labels by collection ID
+const getAllByCollectionId = async (collection_id) => {
+  const result = await db.query('SELECT * FROM labels WHERE collection_id = $1 ORDER BY name ASC', [collection_id]);
+  return result.rows; // Return the list of labels
 };
 
+// Function to get a label by name and collection ID
+const getByNameAndCollectionId = async (name, collection_id) => {
+  const result = await db.query(
+    'SELECT * FROM labels WHERE name = $1 AND collection_id = $2',
+    [name, collection_id]
+  );
+  return result.rows[0]; // Return the label or null if not found
+};
 
 module.exports = {
   createTable,
   create,
   getById,
-  getByNameAndUserId,
   update,
   remove,
-  getAllByUserId,
-  getPaginated,
+  getAllByCollectionId,
+  getByNameAndCollectionId,
 };

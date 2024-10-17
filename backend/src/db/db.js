@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-require('dotenv').config(); // Ensure environment variables are loaded
+require('dotenv').config(); // Load environment variables
 
 // Create a new Pool instance
 const pool = new Pool({
@@ -14,34 +14,69 @@ const pool = new Pool({
 // Function to connect to the database and initialize tables
 const connectToDatabase = async () => {
   try {
-    const user = require('../models/user');
-    const label = require('../models/label');
-    const word = require('../models/word');
-    const word_label = require('../models/word_label');
-    
     await pool.connect(); // Ensure proper connection
+
+    // Import models after connecting to avoid dependency issues
+    const userModel = require('../models/user');
+    const collectionModel = require('../models/collection');
+    const labelModel = require('../models/label');
+    const wordModel = require('../models/word');
+    const wordLabelModel = require('../models/word_label');
     
-    await user.createTable();  // Create user table if it doesn't exist
-    await label.createTable(); // Create label table if it doesn't exist
-    await word.createTable();  // Create word table if it doesn't exist
-    await word_label.createTable();  // Create word_label table if it doesn't exist
-    
-    console.log('Database connected and tables initialized');
+
+    await userModel.createTable(),
+    await collectionModel.createTable(),
+    await labelModel.createTable(),
+    await wordModel.createTable(),
+    await wordLabelModel.createTable()
   } catch (error) {
     console.error('Error connecting to the database:', error);
     throw error;
   }
 };
 
-// Function to execute a query
+// Function to execute a simple query
 const query = async (text, params) => {
+  const res = await pool.query(text, params);
+  return res;
+};
+
+// Function to start a transaction
+const beginTransaction = async (client) => {
+  await client.query('BEGIN');
+};
+
+// Function to commit a transaction
+const commitTransaction = async (client) => {
+  await client.query('COMMIT');
+};
+
+// Function to rollback a transaction
+const rollbackTransaction = async (client) => {
+  await client.query('ROLLBACK');
+};
+
+// Function to perform queries within a transaction
+const executeTransaction = async (transactionCallback) => {
+  const client = await pool.connect(); // Get a new client from the pool
   try {
-    const res = await pool.query(text, params);
-    return res;
+    await beginTransaction(client);
+    const result = await transactionCallback(client);
+    await commitTransaction(client);
+    return result;
   } catch (err) {
-    console.error('Database query error:', err);
-    throw err;
+    await rollbackTransaction(client);
+    throw err; // Re-throw the error after rollback so that calling code can handle it
+  } finally {
+    client.release(); // Release the client back to the pool
   }
 };
 
-module.exports = { connectToDatabase, query, pool };  // Export the pool instead of client
+module.exports = {
+  connectToDatabase,
+  query,
+  beginTransaction,
+  commitTransaction,
+  rollbackTransaction,
+  executeTransaction,
+};

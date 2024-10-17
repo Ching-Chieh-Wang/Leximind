@@ -1,4 +1,4 @@
-const UserModel = require('../models/user');
+const userModel = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -10,7 +10,7 @@ const register = async (req, res) => {
     email = email.toLowerCase();
 
     // Check if the user already exists
-    const user = await UserModel.getByEmail(email);
+    const user = await userModel.getByEmail(email);
     if (user) {
       return res.status(400).json({ message: 'Email already registered' });
     }
@@ -19,7 +19,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the new user
-    const newUser = await UserModel.create(username, email, hashedPassword);
+    const newUser = await userModel.create(username, email, hashedPassword);
 
     // Generate a JWT token
     const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET);
@@ -43,7 +43,7 @@ const login = async (req, res) => {
     email = email.toLowerCase();
 
     // Find the user by email
-    const user = await UserModel.getByEmail(email);
+    const user = await userModel.getByEmail(email);
     if (!user) {
       return res.status(404).json({ message: 'Invalid email or password' });
     }
@@ -98,7 +98,7 @@ const update = async (req, res) => {
     };
 
     // Update the user using the UserModel update function
-    const updatedUser = await UserModel.update(userId, updatedFields);
+    const updatedUser = await userModel.update(userId, updatedFields);
 
     // Exclude the password from the response
     const { password: _, ...userWithoutPassword } = updatedUser;
@@ -115,7 +115,7 @@ const remove = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const deletedUser = await UserModel.remove(userId);
+    const deletedUser = await userModel.remove(userId);
     if (!deletedUser) {
       return res.status(404).json({ message: 'User not found' });
     }

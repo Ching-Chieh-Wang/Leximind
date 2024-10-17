@@ -1,86 +1,88 @@
-const LabelModel = require('../models/label');
+const labelModel = require('../models/label'); // Import the Label model
 
-// Create a new label
+// Function to create a new label within a specific collection
 const create = async (req, res) => {
   try {
     const { name } = req.body;
-    const user_id = req.user.id;  // Get user ID from request object
+    const user_id = req.user.id; // Extract user ID from the authenticated user
+    const collection_id = req.collection.id; // Get collection ID from request
 
-    // Check if the label already exists for the user
-    const label = await LabelModel.getByNameAndUserId(name, user_id);
-    if (label) {
-      return res.status(400).json({ message: 'Label with this name already exists' });
-    }
+    // Create the new label in the database
+    const newLabel = await labelModel.create({ name, user_id, collection_id });
 
-    // Create the new label
-    const newLabel = await LabelModel.create(name, user_id);
-    res.status(201).json({ label: newLabel });
+    // Send a success response with the created label
+    res.status(201).json({ message: 'Label created successfully', label: newLabel });
   } catch (err) {
+    // Check for unique constraint violation (PostgreSQL code '23505')
+    if (err.code === '23505') {
+      return res.status(400).json({ message: 'A label with this name already exists in this collection.' });
+    }
     console.error('Error creating label:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Update a specific label by ID
+// Function to update a specific label by ID
 const update = async (req, res) => {
   try {
-    const { label_id} = req.params;
-    const { name } = req.body;
+    const label = req.label; // The label object is already attached by the middleware
+    const { name } = req.body; // Extract the new name from the request body
 
-    // Check if the new label name already exists for the user
-    const user_id = req.user.id;  // Get user ID from request object
-    const label = await LabelModel.getByNameAndUserId(name, user_id);
+    // Update the label's name in the database if it has changed
+    if (label.name !== name) {
+      const updatedLabel = await labelModel.update(label.id, { name });
 
-    if (label && label.id !== parseInt(label_id)) { 
-      return res.status(400).json({ message: 'Label exists' });
+      // Respond with a success message and the updated label
+      return res.status(200).json({ message: 'Label updated successfully', label: updatedLabel });
     }
 
-    const updatedLabel = await LabelModel.update(label_id, name);
-
-    if (!updatedLabel) {
-      return res.status(404).json({ message: 'Label not found' });
-    }
-
-    res.status(200).json({ label: updatedLabel });
+    // If the name is the same, return a 204 No Content status, indicating no changes were made
+    return res.status(204).json({ message: 'No changes made to the label.' });
   } catch (err) {
-    console.error('Error updating label:', err);
-    res.status(500).json({ message: 'Server error' });
+    // Check for unique constraint violation (PostgreSQL code '23505')
+    if (err.code === '23505') {
+      return res.status(400).json({ message: 'A label with this name already exists in this collection.' });
+    }
+    else{
+      console.error('Error updating label:', err);
+      res.status(500).json({ message: 'Server error' });    console.error('Error updating label:', err);
+    }
   }
 };
 
-// Delete a specific label by ID
+// Function to delete a specific label by ID
 const remove = async (req, res) => {
   try {
-    const label_id = req.params.id;
-    const label = await LabelModel.remove(label_id);
+    const label_id = req.label.id; // Get the label ID from request parameters
 
-    if (!label) {
-      return res.status(404).json({ message: 'Label not found' });
-    }
+    // Remove the label from the database
+    await labelModel.remove(label_id);
 
-    res.status(200).json({ message: 'Label deleted' });
+    res.status(200).json({ message: 'Label deleted successfully' });
   } catch (err) {
     console.error('Error deleting label:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Get all labels for the authenticated user
-const getAllByUserId = async (req, res) => {
+// Function to get all labels by collection ID
+const getAllByCollectionId = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const labels = await LabelModel.getAllByUserId(userId);
+    const collection_id = req.collection.id; // Get the collection ID from request parameters
+
+    // Fetch all labels associated with the collection
+    const labels = await labelModel.getAllByCollectionId(collection_id);
+
     res.status(200).json({ labels });
   } catch (err) {
-    console.error('Error fetching user labels:', err);
+    console.error('Error fetching labels:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 module.exports = {
   create,
   update,
   remove,
-  getAllByUserId,
+  getAllByCollectionId,
 };
