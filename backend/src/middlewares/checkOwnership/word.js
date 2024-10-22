@@ -7,6 +7,11 @@ const checkWordOwnership = async (req, res, next) => {
     const user_id = req.user.id;
     const collection_id = req.collection.id; 
 
+    // Check if collection_id is provided
+    if (!word_id) {
+      return res.status(400).json({ message: 'Word ID is required' });
+    }
+
     // Validate the word_id to ensure it's a positive integer
     if (isNaN(word_id) || parseInt(word_id) !== Number(word_id)) {
       return res.status(400).json({ message: 'Invalid word ID' });

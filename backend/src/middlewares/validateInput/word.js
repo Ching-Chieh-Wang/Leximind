@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 // Middleware to validate word input
 const validateWordInput = [
   body('name')
+    .trim()
     .notEmpty().withMessage('name is required')
     .isLength({ max: 100 }).withMessage('name cannot be more than 100 characters long'),
   

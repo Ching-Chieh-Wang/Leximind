@@ -9,6 +9,11 @@ const create = async (req, res) => {
     // Create a new collection in the database
     const newCollection = await collectionModel.create(user_id, name, description);
 
+    // If collection creation fails, return a 500 error
+    if (!newCollection) {
+      return res.status(500).json({ message: 'Error creating collection' });
+    }
+
     // Respond with the newly created collection
     res.status(201).json({ message: 'Collection created successfully', collection: newCollection });
   } catch (err) {
@@ -44,18 +49,16 @@ const update = async (req, res) => {
     let { name, description } = req.body;
 
     // Update the collection in the database
-    if(name!==collection.name||description!==(collection.description||null)){
-      const updatedCollection = await collectionModel.update(collection.id, name, description);
-      if (!updatedCollection) {
-        return res.status(404).json({ message: 'Collection not found' });
-      }
-      // Respond with the updated collection data
-      res.status(200).json({ message: 'Collection updated successfully', collection: updatedCollection });
-    }
-    else{
+    if(name==collection.name||description==(collection.description||null)){
       // If the name and description are the same, return a 204 No Content status, indicating no changes were made
       return res.status(204).json({ message: 'No changes made to the collection.' });
     }
+    const updatedCollection = await collectionModel.update(collection.id, name, description);
+    if (!updatedCollection) {
+      return res.status(404).json({ message: 'Collection not found' });
+    }
+    // Respond with the updated collection data
+    res.status(200).json({ message: 'Collection updated successfully', collection: updatedCollection });
   } catch (err) {
     console.error('Error updating collection:', err);
     res.status(500).json({ message: 'Server error' });

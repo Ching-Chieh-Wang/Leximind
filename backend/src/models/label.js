@@ -20,7 +20,7 @@ const createTable = async () => {
 const create = async ({ name, user_id, collection_id }) => {
   const result = await db.query(
     `INSERT INTO labels (name, user_id, collection_id) 
-      VALUES ($1, $2, $3) RETURNING *`,
+      VALUES ($1, $2, $3) RETURNING *;`,
     [name, user_id, collection_id]
   );
   return result.rows[0]; // Return the created label
@@ -28,40 +28,36 @@ const create = async ({ name, user_id, collection_id }) => {
 
 // Function to get a label by ID
 const getById = async (id) => {
-  const result = await db.query('SELECT * FROM labels WHERE id = $1', [id]);
-  return result.rows[0] || null; // Return the label or null if not found
+  const result = await db.query('SELECT * FROM labels WHERE id = $1;', [id]);
+  return result.rows[0];
 };
 
 // Function to update a label by ID
 const update = async (id, { name }) => {
   const result = await db.query(
-    `UPDATE labels SET name = $1 WHERE id = $2 RETURNING *`,
+    `UPDATE labels SET name = $1 WHERE id = $2 RETURNING *;`,
     [name, id]
   );
-
-  if (result.rows.length === 0) {
-    throw new Error('Label not found');
-  }
-
   return result.rows[0]; // Return the updated label
 };
 
 // Function to remove a label by ID
 const remove = async (id) => {
-  await db.query('DELETE FROM labels WHERE id = $1', [id]);
+  const result= await db.query('DELETE FROM labels WHERE id = $1;', [id]);
+  return result.rows[0];
 };
 
 
 // Function to get all labels by collection ID
 const getAllByCollectionId = async (collection_id) => {
-  const result = await db.query('SELECT * FROM labels WHERE collection_id = $1 ORDER BY name ASC', [collection_id]);
+  const result = await db.query('SELECT * FROM labels WHERE collection_id = $1 ORDER BY name ASC;', [collection_id]);
   return result.rows; // Return the list of labels
 };
 
 // Function to get a label by name and collection ID
 const getByNameAndCollectionId = async (name, collection_id) => {
   const result = await db.query(
-    'SELECT * FROM labels WHERE name = $1 AND collection_id = $2',
+    'SELECT * FROM labels WHERE name = $1 AND collection_id = $2;',
     [name, collection_id]
   );
   return result.rows[0]; // Return the label or null if not found

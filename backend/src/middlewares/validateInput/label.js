@@ -3,8 +3,10 @@ const { body, validationResult } = require('express-validator');
 // Middleware to validate label input
 const validateLabelInput = [
   body('name')
-    .notEmpty().withMessage('Label name is required')
-    .isLength({ max: 50 }).withMessage('Label name cannot be more than 50 characters long'), // Changed to 50
+  .trim()
+  .notEmpty().withMessage('Label name is required')
+  .isLength({ max: 50 }).withMessage('Label name cannot be more than 50 characters long')
+  .matches(/^[A-Za-z0-9 ]+$/).withMessage('Label name can only contain letters, numbers, and spaces'),
 
   // Middleware to check validation result
   (req, res, next) => {

@@ -6,6 +6,11 @@ const checkLabelOwnership = async (req, res, next) => {
   const collection_id = req.collection.id;
 
   try {
+    // Check if label_id is provided
+    if (!label_id) {
+      return res.status(400).json({ message: 'Label ID is required' });
+    }
+
     // Validate the label_id to ensure it's a positive integer
     if (isNaN(label_id) || parseInt(label_id) !== Number(label_id)) {
       return res.status(400).json({ message: 'Invalid label ID' });

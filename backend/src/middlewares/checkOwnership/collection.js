@@ -5,6 +5,12 @@ const checkCollectionOwnership = async (req, res, next) => {
   const user_id = req.user.id; // Get the current authenticated user's ID from the request
 
   try {
+    // Check if collection_id is provided
+    if (!collection_id) {
+      return res.status(400).json({ message: 'Collection ID is required' });
+    }
+
+    // Check if collection_id is a valid number
     if (isNaN(collection_id) || parseInt(collection_id) != collection_id) {
       return res.status(400).json({ message: 'Invalid collection ID' });
     }
@@ -21,7 +27,7 @@ const checkCollectionOwnership = async (req, res, next) => {
       return res.status(403).json({ message: 'You do not have permission to perform this action' });
     }
 
-    // Attach the label object to the request for further use in the next handler
+    // Attach the collection object to the request for further use in the next handler
     req.collection = collection;
 
     next(); // Ownership confirmed, proceed to the next middleware or route handler

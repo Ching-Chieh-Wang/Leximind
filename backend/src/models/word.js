@@ -15,13 +15,8 @@ const createTable = async () => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
-  
-  try {
-    await db.query(query);
-    console.log('Words table created successfully');
-  } catch (error) {
-    console.error('Error creating words table:', error);
-  }
+  await db.query(query);
+  console.log('Words table created successfully');
 };
 
 // Function to create a new word with transaction handling
@@ -31,7 +26,7 @@ const create = async ({ name, description, img_path, user_id, collection_id, lab
     if (Array.isArray(label_ids) && label_ids.length > 0) {
       // Check that all provided label_ids belong to the user and are in the specified collection
       const labelCheckResult = await client.query(
-        'SELECT id FROM labels WHERE id = ANY($1) AND user_id = $2 AND collection_id = $3',
+        'SELECT id FROM labels WHERE id = ANY($1) AND user_id = $2 AND collection_id = $3;',
         [label_ids, user_id, collection_id]
       );
 
@@ -47,7 +42,7 @@ const create = async ({ name, description, img_path, user_id, collection_id, lab
     // Insert the new word
     const result = await client.query(
       `INSERT INTO words (name, description, img_path, user_id, collection_id)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5) RETURNING *;`,
       [name, description, img_path, user_id, collection_id]
     );
 
@@ -59,7 +54,7 @@ const create = async ({ name, description, img_path, user_id, collection_id, lab
         await client.query(
           `INSERT INTO word_labels (word_id, label_id)
            VALUES ($1, $2)
-           ON CONFLICT (word_id, label_id) DO NOTHING`,
+           ON CONFLICT (word_id, label_id) DO NOTHING;`,
           [newWord.id, label_id]
         );
       }
@@ -71,131 +66,92 @@ const create = async ({ name, description, img_path, user_id, collection_id, lab
 
 // Function to update a word by ID with transaction handling
 const update = async (id, { name, description, img_path }) => {
-  return await db.executeTransaction(async (client) => {
-    // Fetch current word details
-    const currentWordResult = await client.query('SELECT * FROM words WHERE id = $1', [id]);
-    const currentWord = currentWordResult.rows[0];
-
-    if (!currentWord) {
-      throw new Error('Word not found');
-    }
-
     // Update the word
-    const result = await client.query(
-      `UPDATE words SET name = $1, description = $2, img_path = $3 WHERE id = $4 RETURNING *`,
-      [
-        name || currentWord.name,
-        description || currentWord.description,
-        img_path || currentWord.img_path,
-        id,
-      ]
+    const result = await db.query(
+      `UPDATE words SET name = $1, description = $2, img_path = $3 WHERE id = $4 RETURNING *;`,
+      [name,description ,img_path,id]
     );
-
     return result.rows[0];
-  });
 };
 
 // Function to remove a word by ID with transaction handling
 const remove = async (id) => {
-  return await db.executeTransaction(async (client) => {
-    // Get the word to delete
-    const wordResult = await client.query('SELECT * FROM words WHERE id = $1', [id]);
-    const word = wordResult.rows[0];
-
-    if (!word) {
-      throw new Error('Word not found');
-    }
-
-    const collection_id = word.collection_id;
-    const order_index = word.order_index;
-
-    // Delete the word
-    await client.query('DELETE FROM words WHERE id = $1', [id]);
-
-    // Shift order_index values of subsequent words
-    await client.query(
-      'UPDATE words SET order_index = order_index - 1 WHERE collection_id = $1 AND order_index > $2',
-      [collection_id, order_index]
+    // Delete the word and return the deleted word's details
+    const result = await db.query(
+      'DELETE FROM words WHERE id = $1 RETURNING collection_id, order_index;',
+      [id]
     );
-  });
+
+    return result.rows[0];
 };
 
 // Function to get paginated words by collection ID
 const getPaginated = async (collection_id, offset = 0, limit = 50) => {
-  try {
-    const result = await db.query(
-      `SELECT words.*,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', labels.id,
-              'name', labels.name
-            )
-          ) FILTER (WHERE labels.id IS NOT NULL), '[]'
-        ) AS labels
-       FROM words
-       LEFT JOIN word_labels ON words.id = word_labels.word_id
-       LEFT JOIN labels ON word_labels.label_id = labels.id
-       WHERE words.collection_id = $1
-       GROUP BY words.id
-       ORDER BY words.created_at
-       LIMIT $2 OFFSET $3`,
-      [collection_id, limit, offset]
-    );
-    return result.rows;
-  } catch (err) {
-    console.error('Error fetching paginated words:', err);
-    throw err;
-  }
+  const result = await db.query(
+    `SELECT words.*,
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'id', labels.id,
+            'name', labels.name
+          )
+        ) FILTER (WHERE labels.id IS NOT NULL), '[]'
+      ) AS labels
+      FROM words
+      LEFT JOIN word_labels ON words.id = word_labels.word_id
+      LEFT JOIN labels ON word_labels.label_id = labels.id
+      WHERE words.collection_id = $1
+      GROUP BY words.id
+      ORDER BY words.created_at
+      LIMIT $2 OFFSET $3;`,
+    [collection_id, limit, offset]
+  );
+  return result.rows;
 };
 
 
 // Function to get paginated words by collection ID and label ID
 const getPaginatedByLabelId = async (collection_id, label_id, offset = 0, limit = 50) => {
-  try {
-    const result = await db.query(
-      `SELECT words.*,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', labels.id,
-              'name', labels.name
-            )
-          ) FILTER (WHERE labels.id IS NOT NULL), '[]'
-        ) AS labels
-       FROM words
-       JOIN word_labels ON words.id = word_labels.word_id
-       LEFT JOIN labels ON word_labels.label_id = labels.id
-       WHERE words.collection_id = $1 AND word_labels.label_id = $2
-       GROUP BY words.id
-       ORDER BY words.created_at
-       LIMIT $3 OFFSET $4`,
-      [collection_id, label_id, limit, offset]
-    );
-    return result.rows;
-  } catch (err) {
-    console.error('Error fetching paginated words by collection ID and label ID:', err);
-    throw err;
-  }
+  const result = await db.query(
+    `SELECT words.*,
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'id', labels.id,
+            'name', labels.name
+          )
+        ) FILTER (WHERE labels.id IS NOT NULL), '[]'
+      ) AS labels
+      FROM words
+      JOIN word_labels ON words.id = word_labels.word_id
+      LEFT JOIN labels ON word_labels.label_id = labels.id
+      WHERE words.collection_id = $1 AND word_labels.label_id = $2
+      GROUP BY words.id
+      ORDER BY words.created_at
+      LIMIT $3 OFFSET $4;`,
+    [collection_id, label_id, limit, offset]
+  );
+  return result.rows;
 };
 
 
 
 // Function to search words by prefix within a specific collection
 const searchByPrefix = async (collection_id, prefix) => {
-  try {
-    const result = await db.query(
-      `SELECT * FROM words 
-       WHERE collection_id = $1 
-       AND (name ILIKE $2 OR description ILIKE $2)
-       ORDER BY created_at`,
-      [collection_id, `${prefix}%`]
-    );
-    return result.rows; // Return the list of words that match the prefix in either name or description
-  } catch (err) {
-    console.error('Error searching words by prefix:', err);
-    throw err;
-  }
+  const result = await db.query(
+    `SELECT * FROM words 
+      WHERE collection_id = $1 
+      AND (name ILIKE $2 OR description ILIKE $2)
+      ORDER BY created_at;`,
+    [collection_id, `${prefix}%`]
+  );
+  return result.rows; // Return the list of words that match the prefix in either name or description
+};
+
+// Function to get a word by ID
+const getById = async (id) => {
+  const result = await db.query('SELECT * FROM words WHERE id = $1;', [id]);
+  return result.rows[0];
 };
 
 
@@ -206,5 +162,6 @@ module.exports = {
   remove,
   searchByPrefix,
   getPaginated,
-  getPaginatedByLabelId
+  getPaginatedByLabelId,
+  getById
 };

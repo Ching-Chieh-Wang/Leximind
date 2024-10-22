@@ -1,3 +1,4 @@
+require('module-alias/register');
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -23,7 +24,7 @@ connectToDatabase()
     app.use('/api/collections/:collection_id/words', wordRoutes); // Words related to a specific collection
     app.use('/api/collections/:collection_id/labels', labelRoutes); // Labels related to a specific collection
     app.use('/api/collections', collectionRoutes); // Collection-related routes
-    app.use('/api/word-labels', wordLabelRoutes); // Word-label relationships
+    app.use('/api/collections/:collection_id/word-labels', wordLabelRoutes); // Word-label relationships
     app.use('/api/users', userRoutes); // User-related routes
     
     // Start the server

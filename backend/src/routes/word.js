@@ -10,7 +10,6 @@ const {
   create,
   getById,
   getPaginated,
-  getPaginatedByLabelId,
   update,
   remove,
   searchByPrefix,
@@ -25,18 +24,11 @@ router.use(checkCollectionOwnership);
 router.post('/', validateWordInput, create);
 
 // Route to get words within a specific order_index range in a collection
-router.get('/', getPaginated);
-
-// Route to get paginated words by label ID
-// Example: GET /api/labels/:label_id/words?offset=0&limit=20
-router.get('/labels/:label_id/words', checkLabelOwnership, validatePagination, getPaginatedByLabelId);
+router.get('/', validatePagination, getPaginated);
 
 // Route to search words by prefix in a specific collection
 // RESTful URL: GET /api/collections/:collection_id/words/search?prefix=<prefix>
 router.get('/search',searchByPrefix);
-
-// Route to get a specific word by ID (nested under the collection ID)
-router.get('/:word_id', checkWordOwnership, getById);
 
 // Route to update a word by ID
 router.put('/:word_id', checkWordOwnership, validateWordInput, update);

@@ -29,7 +29,7 @@ const create = async (req, res) => {
 // Function to get a specific word by ID
 const getById = async (req, res) => {
   try {
-    const word_id = req.params.word_id;
+    const {word_id} = req.params;
     const word = await wordModel.getById(word_id);
 
     if (!word) {
@@ -46,7 +46,7 @@ const getById = async (req, res) => {
 // Controller function to get paginated words by collection ID
 const getPaginated = async (req, res) => {
   try {
-    const { collection_id } = req.params;
+    const collection_id = req.collection.id;
     const offset = parseInt(req.query.offset, 10) || 0;
     const limit = parseInt(req.query.limit, 10) || 50;
 
@@ -65,17 +65,22 @@ const getPaginated = async (req, res) => {
 const update = async (req, res) => {
   try {
     const word = req.word;
-    const { name, description, img_path, order_index } = req.body;
-    const collection_id = word.collection_id;
+    const { name, description, img_path } = req.body;
 
+    if(word.name===name&&word.description===description&&word.img_path===img_path){
+      return res.status(204).json({ message: 'No changes made to the word.' });
+    }
 
     // Update the word
     const updatedWord = await wordModel.update(word.id, {
       name,
       description,
       img_path,
-      order_index,
     });
+
+    if(!updatedWord){
+      return res.status(404).json({ message: 'Word not found' });
+    }
 
     res.status(200).json({ message: 'Word updated successfully', word: updatedWord });
   } catch (err) {
@@ -87,11 +92,14 @@ const update = async (req, res) => {
 // Function to delete a word by ID
 const remove = async (req, res) => {
   try {
-    const word = req.word;
+    const word_id = req.word.id;
 
     // Remove the word
-    await wordModel.remove(word.id);
+    const word= await wordModel.remove(word_id);
 
+    if(!word){
+      return res.status(404).json({ message: 'Word not found.' });
+    }
     res.status(200).json({ message: 'Word deleted successfully' });
   } catch (err) {
     console.error('Error deleting word:', err);
@@ -119,23 +127,6 @@ const searchByPrefix = async (req, res) => {
   }
 };
 
-// Controller function to get paginated words by collection ID and label ID
-const getPaginatedByLabelId = async (req, res) => {
-  try {
-    const { collection_id, label_id } = req.params;
-    const offset = parseInt(req.query.offset, 10) || 0;
-    const limit = parseInt(req.query.limit, 10) || 50;
-
-    // Fetch the paginated words associated with the label
-    const words = await wordModel.getPaginatedByLabelId(collection_id, label_id, offset, limit);
-
-    res.status(200).json({ words, offset, limit });
-  } catch (error) {
-    console.error('Error fetching paginated words by label:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
 module.exports = {
   create,
   getById,
@@ -143,5 +134,4 @@ module.exports = {
   update,
   remove,
   searchByPrefix,
-  getPaginatedByLabelId
 };

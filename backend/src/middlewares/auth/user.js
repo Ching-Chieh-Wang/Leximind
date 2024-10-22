@@ -19,13 +19,10 @@ const authorizeUser = async (req, res, next) => {
         return res.status(401).json({ message: 'User not found, invalid token' });
       }
 
-      // Exclude the password from req.user (assuming userModel.getById includes the password)
-      const { password, ...userWithoutPassword } = user;
-      req.user = userWithoutPassword; // Attach user to the request without the password
+      req.user = user; // Attach user to the request without the password
 
       next(); // Proceed to the next middleware or route handler
     } catch (err) {
-      console.error('Token verification failed:', err);
       return res.status(401).json({ message: 'Unauthorized: Token verification failed' });
     }
   } else {

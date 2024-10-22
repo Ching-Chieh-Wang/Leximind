@@ -10,6 +10,10 @@ const create = async (req, res) => {
     // Create the new label in the database
     const newLabel = await labelModel.create({ name, user_id, collection_id });
 
+    if(!newLabel){
+      return res.status(500).json({ message: 'Error creating newLabel' });
+    }
+
     // Send a success response with the created label
     res.status(201).json({ message: 'Label created successfully', label: newLabel });
   } catch (err) {
@@ -29,15 +33,20 @@ const update = async (req, res) => {
     const { name } = req.body; // Extract the new name from the request body
 
     // Update the label's name in the database if it has changed
-    if (label.name !== name) {
-      const updatedLabel = await labelModel.update(label.id, { name });
+    if (label.name === name) {
+        // If the name is the same, return a 204 No Content status, indicating no changes were made
+      return res.status(204).json({ message: 'No changes made to the label.' });
+    }
+    const updatedLabel = await labelModel.update(label.id, { name });
 
-      // Respond with a success message and the updated label
-      return res.status(200).json({ message: 'Label updated successfully', label: updatedLabel });
+    if(!updatedLabel){
+      return res.status(404).json({ message: 'Collection not found' });
     }
 
-    // If the name is the same, return a 204 No Content status, indicating no changes were made
-    return res.status(204).json({ message: 'No changes made to the label.' });
+    // Respond with a success message and the updated label
+    return res.status(200).json({ message: 'Label updated successfully', label: updatedLabel });
+
+    
   } catch (err) {
     // Check for unique constraint violation (PostgreSQL code '23505')
     if (err.code === '23505') {
@@ -56,7 +65,11 @@ const remove = async (req, res) => {
     const label_id = req.label.id; // Get the label ID from request parameters
 
     // Remove the label from the database
-    await labelModel.remove(label_id);
+    const label= await labelModel.remove(label_id);
+
+    if(!label){
+      return res.status(404).json({ message: 'Label not found' });
+    }
 
     res.status(200).json({ message: 'Label deleted successfully' });
   } catch (err) {
