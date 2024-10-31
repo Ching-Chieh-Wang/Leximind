@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { authorizeUser } = require('../middlewares/auth/user');
-const { register, login, getProfile, update, remove } = require('../controllers/user');
-const { validateRegister, validateLogin, validateProfile } = require('../middlewares/validateInput/user');
+const { register, login, googleLoginOrRegister, getProfile, update, remove } = require('../controllers/user');
+const { validateRegister, validateProfile } = require('../middlewares/validateInput/user');
 
 // Route for user registration
 // RESTful URL: POST /api/users/register
@@ -10,7 +10,11 @@ router.post('/register', validateRegister, register);
 
 // Route for user login
 // RESTful URL: POST /api/users/login
-router.post('/login', validateLogin, login);
+router.post('/login', login);
+
+// Route for Google login or registration
+// RESTful URL: POST /api/users/google
+router.post('/google', googleLoginOrRegister);
 
 // Route for fetching the user's profile (requires authentication)
 // RESTful URL: GET /api/users (returns the authenticated user's profile)

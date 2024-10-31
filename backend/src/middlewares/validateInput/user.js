@@ -27,7 +27,7 @@ const passwordValidation = body('password')
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ message: errors.array() });
   }
   next();
 };
@@ -40,12 +40,6 @@ const validateRegister = [
   handleValidationErrors
 ];
 
-// Middleware to validate login input (email, password)
-const validateLogin = [
-  emailValidation,
-  passwordValidation,
-  handleValidationErrors
-];
 
 // Middleware to validate profile update input (username, email only)
 const validateProfile = [
@@ -54,4 +48,4 @@ const validateProfile = [
   handleValidationErrors
 ];
 
-module.exports = { validateLogin, validateRegister, validateProfile };
+module.exports = {  validateRegister, validateProfile };
