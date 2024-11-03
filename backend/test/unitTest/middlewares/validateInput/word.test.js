@@ -31,9 +31,10 @@ describe('validateWordInput Middleware', () => {
     await validateWordInput[1](mockReq, mockRes, mockNext);
     await validateWordInput[2](mockReq, mockRes, mockNext);
 
-    const message = mockRes._getJSONData().message;
+    const data = mockRes._getJSONData();
     expect(mockRes.statusCode).toBe(400);
-    expect(message[0].msg).toBe('name is required');
+    expect(data.message).toBe('invalid input')
+    expect(data.errors[0].msg).toBe('name is required');
   });
 
   it('should fail if name contains only spaces', async () => {
@@ -46,9 +47,10 @@ describe('validateWordInput Middleware', () => {
     await validateWordInput[1](mockReq, mockRes, mockNext);
     await validateWordInput[2](mockReq, mockRes, mockNext);
 
-    const message = mockRes._getJSONData().message;
+    const data = mockRes._getJSONData();
     expect(mockRes.statusCode).toBe(400);
-    expect(message[0].msg).toBe('name is required');
+    expect(data.message).toBe('invalid input')
+    expect(data.errors[0].msg).toBe('name is required');
   });
 
   it('should fail if name exceeds 100 characters', async () => {
@@ -61,9 +63,10 @@ describe('validateWordInput Middleware', () => {
     await validateWordInput[1](mockReq, mockRes, mockNext);
     await validateWordInput[2](mockReq, mockRes, mockNext);
 
-    const message = mockRes._getJSONData().message;
+    const data = mockRes._getJSONData();
     expect(mockRes.statusCode).toBe(400);
-    expect(message[0].msg).toBe('name cannot be more than 100 characters long');
+    expect(data.message).toBe('invalid input')
+    expect(data.errors[0].msg).toBe('name cannot be more than 100 characters long');
   });
 
   it('should fail if description is empty', async () => {
@@ -76,9 +79,10 @@ describe('validateWordInput Middleware', () => {
     await validateWordInput[1](mockReq, mockRes, mockNext);
     await validateWordInput[2](mockReq, mockRes, mockNext);
 
-    const message = mockRes._getJSONData().message;
+    const data = mockRes._getJSONData();
     expect(mockRes.statusCode).toBe(400);
-    expect(message[0].msg).toBe('description is required');
+    expect(data.message).toBe('invalid input')
+    expect(data.errors[0].msg).toBe('description is required');
   });
 
 
@@ -92,9 +96,10 @@ describe('validateWordInput Middleware', () => {
     await validateWordInput[1](mockReq, mockRes, mockNext);
     await validateWordInput[2](mockReq, mockRes, mockNext);
 
-    const message = mockRes._getJSONData().message;
+    const data = mockRes._getJSONData();
     expect(mockRes.statusCode).toBe(400);
-    expect(message[0].msg).toBe('description cannot be more than 500 characters long');
+    expect(data.message).toBe('invalid input')
+    expect(data.errors[0].msg).toBe('description cannot be more than 500 characters long');
   });
 
   it('should return multiple message if both name and description are invalid', async () => {
@@ -107,10 +112,11 @@ describe('validateWordInput Middleware', () => {
     await validateWordInput[1](mockReq, mockRes, mockNext);
     await validateWordInput[2](mockReq, mockRes, mockNext);
 
-    const message = mockRes._getJSONData().message;
+    const data = mockRes._getJSONData();
     expect(mockRes.statusCode).toBe(400);
-    expect(message.length).toBe(2);
-    expect(message[0].msg).toBe('name is required');
-    expect(message[1].msg).toBe('description cannot be more than 500 characters long');
+    expect(data.errors.length).toBe(2);
+    expect(data.message).toBe('invalid input')
+    expect(data.errors[0].msg).toBe('name is required');
+    expect(data.errors[1].msg).toBe('description cannot be more than 500 characters long');
   });
 });

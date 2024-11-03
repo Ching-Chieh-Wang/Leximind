@@ -40,9 +40,10 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Username is required');
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Username is required');
     });
 
     it('should fail when email is invalid', async () => {
@@ -57,9 +58,10 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Invalid email address');
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Invalid email address');
     });
 
     it('should fail when password is missing a special character', async () => {
@@ -74,9 +76,9 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
-      expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Password must contain at least one special character');
+      const data = mockRes._getJSONData();      expect(mockRes.statusCode).toBe(400);
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Password must contain at least one special character');
     });
 
     it('should fail when username is whitespace only', async () => {
@@ -91,9 +93,10 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Username is required');
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Username is required');
     });
 
     it('should fail when password exceeds length limit', async () => {
@@ -108,9 +111,10 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Password must be less than 60 characters long');
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Password must be less than 60 characters long');
     });
 
     it('should fail when username is too short', async () => {
@@ -125,9 +129,10 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Username must be at least 3 characters long');
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Username must be at least 3 characters long');
     });
 
     it('should fail when username exceeds length limit', async () => {
@@ -142,9 +147,10 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Username cannot be more than 50 characters long');
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Username cannot be more than 50 characters long');
     });
 
     it('should fail when email exceeds length limit', async () => {
@@ -159,9 +165,10 @@ describe('Validation Middleware Tests', () => {
       await validateRegister[2](mockReq, mockRes, mockNext);
       await validateRegister[3](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Email cannot be more than 60 characters long');
+      expect(data.message).toBe('invalid input');
+      expect(data.errors[0].msg).toBe('Email cannot be more than 60 characters long');
     });
   });
 
@@ -192,9 +199,9 @@ describe('Validation Middleware Tests', () => {
       await validateProfile[1](mockReq, mockRes, mockNext);
       await validateProfile[2](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Username must be alphanumeric');
+      expect(data.errors[0].msg).toBe('Username must be alphanumeric');
     });
 
     it('should fail when email is invalid', async () => {
@@ -207,9 +214,9 @@ describe('Validation Middleware Tests', () => {
       await validateProfile[1](mockReq, mockRes, mockNext);
       await validateProfile[2](mockReq, mockRes, mockNext);
       
-      const message = mockRes._getJSONData().message;
+      const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
-      expect(message[0].msg).toBe('Invalid email address');
+      expect(data.errors[0].msg).toBe('Invalid email address');
     });
   });
 });

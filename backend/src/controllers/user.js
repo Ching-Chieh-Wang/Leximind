@@ -63,7 +63,6 @@ const login = async (req, res) => {
 
 const googleLoginOrRegister = async (req, res) => {
   const { token_id } = req.body;
-
   try {
     // Verify the Google ID token
     const ticket = await client.verifyIdToken({
