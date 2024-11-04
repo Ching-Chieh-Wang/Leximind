@@ -4,9 +4,7 @@ const { body, validationResult } = require('express-validator');
 const usernameValidation = body('username')
 .trim() // Remove leading and trailing spaces
   .notEmpty().withMessage('Username is required')
-  .isAlphanumeric().withMessage('Username must be alphanumeric')
-  .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long')
-  .isLength({ max: 50 }).withMessage('Username cannot be more than 50 characters long');
+  .isLength({ max: 64 }).withMessage('Username cannot be more than 64 characters long');
 
 // Reusable validation rules for email
 const emailValidation = body('email')

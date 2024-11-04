@@ -117,27 +117,9 @@ describe('Validation Middleware Tests', () => {
       expect(data.errors[0].msg).toBe('Password must be less than 60 characters long');
     });
 
-    it('should fail when username is too short', async () => {
-      mockReq.body = {
-        username: 'ab',
-        email: 'validemail@example.com',
-        password: 'ValidPass1!',
-      };
-      
-      await validateRegister[0](mockReq, mockRes, mockNext);
-      await validateRegister[1](mockReq, mockRes, mockNext);
-      await validateRegister[2](mockReq, mockRes, mockNext);
-      await validateRegister[3](mockReq, mockRes, mockNext);
-      
-      const data = mockRes._getJSONData();
-      expect(mockRes.statusCode).toBe(400);
-      expect(data.message).toBe('invalid input');
-      expect(data.errors[0].msg).toBe('Username must be at least 3 characters long');
-    });
-
     it('should fail when username exceeds length limit', async () => {
       mockReq.body = {
-        username: 'a'.repeat(51),
+        username: 'a'.repeat(65),
         email: 'validemail@example.com',
         password: 'ValidPass1!',
       };
@@ -150,7 +132,7 @@ describe('Validation Middleware Tests', () => {
       const data = mockRes._getJSONData();
       expect(mockRes.statusCode).toBe(400);
       expect(data.message).toBe('invalid input');
-      expect(data.errors[0].msg).toBe('Username cannot be more than 50 characters long');
+      expect(data.errors[0].msg).toBe('Username cannot be more than 64 characters long');
     });
 
     it('should fail when email exceeds length limit', async () => {
@@ -187,21 +169,6 @@ describe('Validation Middleware Tests', () => {
       await validateProfile[2](mockReq, mockRes, mockNext);
       
       expect(mockNext).toHaveBeenCalled();
-    });
-
-    it('should fail when username contains non-alphanumeric characters', async () => {
-      mockReq.body = {
-        username: 'invalid@name!',
-        email: 'validemail@example.com',
-      };
-      
-      await validateProfile[0](mockReq, mockRes, mockNext);
-      await validateProfile[1](mockReq, mockRes, mockNext);
-      await validateProfile[2](mockReq, mockRes, mockNext);
-      
-      const data = mockRes._getJSONData();
-      expect(mockRes.statusCode).toBe(400);
-      expect(data.errors[0].msg).toBe('Username must be alphanumeric');
     });
 
     it('should fail when email is invalid', async () => {
