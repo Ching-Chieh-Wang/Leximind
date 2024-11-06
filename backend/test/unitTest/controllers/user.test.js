@@ -335,19 +335,30 @@ describe('User Controller', () => {
 
 
   describe('googleLoginOrRegister', () => {
+    let mockReq, mockRes;
+  
     beforeEach(() => {
       mockReq = {
         body: { token_id: 'valid_google_token' },
       };
-
+  
       mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
       };
-
+  
       jest.clearAllMocks();
     });
-
+  
+    it('should return 400 if token_id is missing', async () => {
+      mockReq.body = {}; // No token_id provided
+  
+      await googleLoginOrRegister(mockReq, mockRes);
+  
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: 'Token ID is required' });
+    });
+  
     it('should log in an existing user successfully', async () => {
       const user = {
         id: 'user-id-123',
@@ -361,15 +372,15 @@ describe('User Controller', () => {
         name: 'ExistingUser',
         picture: 'existing-image-url',
       };
-
+  
       clientMock.verifyIdToken.mockResolvedValue({
         getPayload: () => payload,
       });
       userModel.getByEmail.mockResolvedValue(user);
       jwt.sign.mockReturnValue('app_jwt_token');
-
+  
       await googleLoginOrRegister(mockReq, mockRes);
-
+  
       expect(clientMock.verifyIdToken).toHaveBeenCalledWith({
         idToken: 'valid_google_token',
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -377,7 +388,8 @@ describe('User Controller', () => {
       expect(userModel.getByEmail).toHaveBeenCalledWith('existing@example.com');
       expect(jwt.sign).toHaveBeenCalledWith(
         { id: user.id, role: user.role },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -385,34 +397,38 @@ describe('User Controller', () => {
         user,
       });
     });
-
+  
     it('should register a new user if not already registered', async () => {
       const payload = { email: 'new@example.com', name: 'NewUser', picture: 'new-image-url' };
       const newUser = { id: 'new-user-id', username: 'NewUser', email: 'new@example.com', role: 'user', image: 'new-image-url' };
-
+  
       clientMock.verifyIdToken.mockResolvedValue({ getPayload: () => payload });
       userModel.getByEmail.mockResolvedValue(null);
       userModel.create.mockResolvedValue(newUser);
       jwt.sign.mockReturnValue('app_jwt_token');
-
+  
       await googleLoginOrRegister(mockReq, mockRes);
-
+  
       expect(clientMock.verifyIdToken).toHaveBeenCalledWith({
         idToken: 'valid_google_token',
         audience: process.env.GOOGLE_CLIENT_ID,
       });
       expect(userModel.getByEmail).toHaveBeenCalledWith('new@example.com');
       expect(userModel.create).toHaveBeenCalledWith('NewUser', 'new@example.com', 'google', 'user', '', 'new-image-url');
-      expect(jwt.sign).toHaveBeenCalledWith({ id: newUser.id, role: newUser.role }, process.env.JWT_SECRET);
+      expect(jwt.sign).toHaveBeenCalledWith(
+        { id: newUser.id, role: newUser.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ token: 'app_jwt_token', user: newUser });
     });
-
+  
     it('should return 500 if there is an error with Google verification', async () => {
       clientMock.verifyIdToken.mockRejectedValue(new Error('Google verification error'));
-
+  
       await googleLoginOrRegister(mockReq, mockRes);
-
+  
       expect(clientMock.verifyIdToken).toHaveBeenCalledWith({
         idToken: 'valid_google_token',
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -420,16 +436,16 @@ describe('User Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Server error' });
     });
-
+  
     it('should return 500 if there is an error in user creation', async () => {
       const payload = { email: 'new@example.com', name: 'NewUser', picture: 'new-image-url' };
-
+  
       clientMock.verifyIdToken.mockResolvedValue({ getPayload: () => payload });
       userModel.getByEmail.mockResolvedValue(null);
       userModel.create.mockRejectedValue(new Error('Database error'));
-
+  
       await googleLoginOrRegister(mockReq, mockRes);
-
+  
       expect(clientMock.verifyIdToken).toHaveBeenCalledWith({
         idToken: 'valid_google_token',
         audience: process.env.GOOGLE_CLIENT_ID,

@@ -62,15 +62,19 @@ const login = async (req, res) => {
 };
 
 const googleLoginOrRegister = async (req, res) => {
-  const { token_id } = req.body;
   try {
+    const { token_id } = req.body;
+    // Validate the presence of token_id
+    if (!token_id) {
+      return res.status(400).json({ message: 'Token ID is required' });
+    }
     // Verify the Google ID token
     const ticket = await client.verifyIdToken({
       idToken: token_id,
       audience: process.env.GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of your app
     });
 
-    // Extract the user details from the token payload
+    // Extract user details from the token payload
     const payload = ticket.getPayload();
     const email = payload.email;
     const username = payload.name;  // Full name
@@ -84,13 +88,23 @@ const googleLoginOrRegister = async (req, res) => {
       user = await userModel.create(username, email, 'google', 'user', '', image);
     }
 
-    // Generate an application-specific JWT token for session management
-    const appToken = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
+    // Generate a JWT token with user details for session management
+    const appToken = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }  // Set token expiration for added security
+    );
 
     // Send back the app-specific token and user details
     res.status(200).json({ token: appToken, user });
   } catch (err) {
     console.error('Error logging in with Google:', err);
+
+    // Handle specific Google error codes if needed
+    if (err.message.includes('Invalid token')) {
+      return res.status(401).json({ message: 'Invalid Google token' });
+    }
+
     res.status(500).json({ message: 'Server error' });
   }
 };
