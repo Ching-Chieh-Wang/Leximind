@@ -6,10 +6,13 @@ const createTable = async () => {
     CREATE TABLE IF NOT EXISTS collections (
       id SERIAL PRIMARY KEY,
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      author_id UUID REFERENCES users(id) ON DELETE CASCADE,
       name VARCHAR(100) NOT NULL,
       description TEXT,
+      is_public BOOLEAN DEFAULT FALSE,
+      save_cnt INT DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      last_viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
   await db.query(query);
@@ -17,12 +20,12 @@ const createTable = async () => {
 };
 
 // Create a new collection
-const create = async (user_id, name, description) => {
+const create = async (user_id, author_id, name, description, is_public = false) => {
   const query = `
-    INSERT INTO collections (user_id, name, description) 
-    VALUES ($1, $2, $3) RETURNING *;
+    INSERT INTO collections (user_id, author_id, name, description, is_public, save_cnt) 
+    VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
   `;
-  const result = await db.query(query, [user_id, name, description]);
+  const result = await db.query(query, [user_id, author_id, name, description, is_public, 0]);
   return result.rows[0];
 };
 
@@ -34,12 +37,13 @@ const getById = async (id) => {
 };
 
 // Update a collection by ID
-const update = async (id, name, description) => {
+const update = async (id, name, description, is_public) => {
   const query = `
-    UPDATE collections SET name = $1, description = $2, updated_at = CURRENT_TIMESTAMP 
-    WHERE id = $3 RETURNING *;
+    UPDATE collections 
+    SET name = $1, description = $2, is_public = $3, save_cnt = save_cnt + 1 
+    WHERE id = $4 RETURNING *;
   `;
-  const result = await db.query(query, [name, description, id]);
+  const result = await db.query(query, [name, description, is_public, id]);
   return result.rows[0];
 };
 
@@ -50,15 +54,14 @@ const remove = async (id) => {
   return result.rows[0];
 };
 
-// Function to get paginated collections for a user by their user ID
-const getPaginatedByUserId = async (user_id, limit, offset) => {
+// Get all collections for a user sorted by last viewed time
+const getAllByUserIdSortedByLastViewTime = async (user_id) => {
   const query = `
     SELECT * FROM collections 
     WHERE user_id = $1
-    ORDER BY created_at DESC
-    LIMIT $2 OFFSET $3;
+    ORDER BY last_viewed_at DESC;
   `;
-  const result = await db.query(query, [user_id, limit, offset]);
+  const result = await db.query(query, [user_id]);
   return result.rows;
 };
 
@@ -68,5 +71,5 @@ module.exports = {
   getById,
   update,
   remove,
-  getPaginatedByUserId
+  getAllByUserIdSortedByLastViewTime
 };

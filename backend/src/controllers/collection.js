@@ -3,11 +3,12 @@ const collectionModel = require('../models/collection');
 // Function to create a new collection
 const create = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, is_public } = req.body;
     const user_id = req.user.id;
+    const author_id = req.user.id; // Assuming the authenticated user is the author
 
     // Create a new collection in the database
-    const newCollection = await collectionModel.create(user_id, name, description);
+    const newCollection = await collectionModel.create(user_id, author_id, name, description, is_public);
 
     // If collection creation fails, return a 500 error
     if (!newCollection) {
@@ -45,18 +46,23 @@ const getById = async (req, res) => {
 // Function to update a specific collection by ID
 const update = async (req, res) => {
   try {
-    let collection = req.collection;
-    let { name, description } = req.body;
+    const collection = req.collection;
+    const { name, description, is_public } = req.body;
 
-    // Update the collection in the database
-    if(name==collection.name||description==(collection.description||null)){
-      // If the name and description are the same, return a 204 No Content status, indicating no changes were made
+    // Check if there are no changes to name or description
+    if (
+      (name === collection.name) &&
+      (description === collection.description || description === null)
+    ) {
       return res.status(204).json({ message: 'No changes made to the collection.' });
     }
-    const updatedCollection = await collectionModel.update(collection.id, name, description);
+
+    // Update the collection in the database
+    const updatedCollection = await collectionModel.update(collection.id, name, description, is_public);
     if (!updatedCollection) {
       return res.status(404).json({ message: 'Collection not found' });
     }
+
     // Respond with the updated collection data
     res.status(200).json({ message: 'Collection updated successfully', collection: updatedCollection });
   } catch (err) {
@@ -85,20 +91,18 @@ const remove = async (req, res) => {
   }
 };
 
-// Function to get all collections for the authenticated user
-const getPaginatedByUserId = async (req, res) => {
+// Function to get all collections for the authenticated user, sorted by last viewed time
+const getAllByUserIdSortedByLastViewTime = async (req, res) => {
   try {
     const user_id = req.user.id;
-    const limit = parseInt(req.query.limit, 10) || 10;  // Default limit to 10 if not provided
-    const offset = parseInt(req.query.offset, 10) || 0; // Default offset to 0 if not provided
 
-    // Fetch paginated collections for the authenticated user
-    const collections = await collectionModel.getPaginatedByUserId(user_id, limit, offset);
+    // Fetch all collections for the authenticated user, sorted by last viewed time
+    const collections = await collectionModel.getAllByUserIdSortedByLastViewTime(user_id);
 
-    // Respond with the paginated list of collections
+    // Respond with the list of collections
     res.status(200).json({ collections });
   } catch (err) {
-    console.error('Error fetching paginated collections:', err);
+    console.error('Error fetching collections:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -108,5 +112,5 @@ module.exports = {
   getById,
   update,
   remove,
-  getPaginatedByUserId
+  getAllByUserIdSortedByLastViewTime
 };

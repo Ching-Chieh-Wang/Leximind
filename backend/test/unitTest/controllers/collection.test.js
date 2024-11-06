@@ -1,7 +1,7 @@
 // Mock the collection model before importing the controller
 jest.mock('@models/collection');
 
-const { create, getById, update, remove, getPaginatedByUserId } = require('@controllers/collection');
+const { create, getById, update, remove, getAllByUserIdSortedByLastViewTime } = require('@controllers/collection');
 const collectionModel = require('@models/collection');
 
 describe('Collection Controller Tests', () => {
@@ -25,68 +25,56 @@ describe('Collection Controller Tests', () => {
   });
 
   describe('Collection Controller - Create', () => {
-    let mockReq, mockRes;
-  
     beforeEach(() => {
       mockReq = {
         body: {
           name: 'Test Collection',
           description: 'A description for test collection',
+          is_public: true,
         },
         user: { id: 'user-id-123' },
       };
-  
-      mockRes = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-  
-      jest.clearAllMocks(); // Clear mocks before each test
+
+      jest.clearAllMocks();
     });
-  
+
     it('should create a new collection successfully', async () => {
-      // Mock the create function to return a new collection
       const newCollection = {
         id: 'collection-id-123',
         name: 'Test Collection',
         description: 'A description for test collection',
         user_id: 'user-id-123',
+        author_id: 'user-id-123',
+        is_public: true,
+        save_cnt: 0,
       };
-  
+
       collectionModel.create.mockResolvedValue(newCollection);
-  
-      // Call the create function
+
       await create(mockReq, mockRes);
-  
-      // Verify that the response was successful
-      expect(collectionModel.create).toHaveBeenCalledWith('user-id-123', 'Test Collection', 'A description for test collection');
+
+      expect(collectionModel.create).toHaveBeenCalledWith('user-id-123', 'user-id-123', 'Test Collection', 'A description for test collection', true);
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Collection created successfully',
         collection: newCollection,
       });
     });
-  
+
     it('should return 500 if collection creation fails', async () => {
-      // Mock the create function to return null (simulate failure)
       collectionModel.create.mockResolvedValue(null);
-  
-      // Call the create function
+
       await create(mockReq, mockRes);
-  
-      // Verify that a 500 error is returned
+
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Error creating collection' });
     });
-  
+
     it('should return 500 on server error', async () => {
-      // Mock the create function to throw an error
       collectionModel.create.mockRejectedValue(new Error('Server error'));
-  
-      // Call the create function
+
       await create(mockReq, mockRes);
-  
-      // Verify that a 500 error is returned
+
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Server error' });
     });
@@ -131,13 +119,13 @@ describe('Collection Controller Tests', () => {
 
   describe('update', () => {
     it('should update the collection when changes are made', async () => {
-      mockReq.body = { name: 'Updated Collection', description: 'Updated Description' };
-      const updatedCollection = { id: 'collection-id-456', ...mockReq.body };
+      mockReq.body = { name: 'Updated Collection', description: 'Updated Description', is_public: false };
+      const updatedCollection = { id: 'collection-id-456', ...mockReq.body, save_cnt: 1 };
       collectionModel.update.mockResolvedValue(updatedCollection);
 
       await update(mockReq, mockRes);
 
-      expect(collectionModel.update).toHaveBeenCalledWith('collection-id-456', 'Updated Collection', 'Updated Description');
+      expect(collectionModel.update).toHaveBeenCalledWith('collection-id-456', 'Updated Collection', 'Updated Description', false);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Collection updated successfully',
@@ -155,13 +143,13 @@ describe('Collection Controller Tests', () => {
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'No changes made to the collection.' });
     });
 
-    it('should return 404 if label not found during update', async () => {
-      mockReq.body = { name: 'Updated Collection', description: 'Updated Description' };
+    it('should return 404 if collection not found during update', async () => {
+      mockReq.body = { name: 'Updated Collection', description: 'Updated Description', is_public: true };
       collectionModel.update.mockResolvedValue(null);
       await update(mockReq, mockRes);
 
       expect(collectionModel.update).toHaveBeenCalledWith(
-        'collection-id-456', 'Updated Collection', 'Updated Description'
+        'collection-id-456', 'Updated Collection', 'Updated Description', true
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -171,13 +159,13 @@ describe('Collection Controller Tests', () => {
     });
 
     it('should return 500 on server error', async () => {
-      mockReq.body = { name: 'Updated Collection', description: 'Updated Description' };
+      mockReq.body = { name: 'Updated Collection', description: 'Updated Description', is_public: true };
       const error = new Error('Database error');
       collectionModel.update.mockRejectedValue(error);
 
       await update(mockReq, mockRes);
 
-      expect(collectionModel.update).toHaveBeenCalledWith('collection-id-456', 'Updated Collection', 'Updated Description');
+      expect(collectionModel.update).toHaveBeenCalledWith('collection-id-456', 'Updated Collection', 'Updated Description', true);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Server error' });
     });
@@ -220,42 +208,28 @@ describe('Collection Controller Tests', () => {
     });
   });
 
-  describe('getPaginatedByUserId', () => {
-    it('should return paginated collections for the user', async () => {
-      mockReq.query = { limit: '10', offset: '0' };
+  describe('getAllByUserIdSortedByLastViewTime', () => {
+    it('should return all collections for the user sorted by last viewed time', async () => {
       const collections = [
-        { id: 'collection-id-1', name: 'Collection 1' },
-        { id: 'collection-id-2', name: 'Collection 2' },
+        { id: 'collection-id-1', name: 'Collection 1', last_viewed_at: '2023-11-01T12:00:00Z' },
+        { id: 'collection-id-2', name: 'Collection 2', last_viewed_at: '2023-11-02T12:00:00Z' },
       ];
-      collectionModel.getPaginatedByUserId.mockResolvedValue(collections);
+      collectionModel.getAllByUserIdSortedByLastViewTime.mockResolvedValue(collections);
 
-      await getPaginatedByUserId(mockReq, mockRes);
+      await getAllByUserIdSortedByLastViewTime(mockReq, mockRes);
 
-      expect(collectionModel.getPaginatedByUserId).toHaveBeenCalledWith('user-id-123', 10, 0);
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({ collections });
-    });
-
-    it('should use default limit and offset if not provided', async () => {
-      mockReq.query = {};
-      const collections = [{ id: 'collection-id-1', name: 'Collection 1' }];
-      collectionModel.getPaginatedByUserId.mockResolvedValue(collections);
-
-      await getPaginatedByUserId(mockReq, mockRes);
-
-      expect(collectionModel.getPaginatedByUserId).toHaveBeenCalledWith('user-id-123', 10, 0);
+      expect(collectionModel.getAllByUserIdSortedByLastViewTime).toHaveBeenCalledWith('user-id-123');
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ collections });
     });
 
     it('should return 500 on server error', async () => {
-      mockReq.query = { limit: '10', offset: '0' };
       const error = new Error('Database error');
-      collectionModel.getPaginatedByUserId.mockRejectedValue(error);
+      collectionModel.getAllByUserIdSortedByLastViewTime.mockRejectedValue(error);
 
-      await getPaginatedByUserId(mockReq, mockRes);
+      await getAllByUserIdSortedByLastViewTime(mockReq, mockRes);
 
-      expect(collectionModel.getPaginatedByUserId).toHaveBeenCalledWith('user-id-123', 10, 0);
+      expect(collectionModel.getAllByUserIdSortedByLastViewTime).toHaveBeenCalledWith('user-id-123');
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Server error' });
     });

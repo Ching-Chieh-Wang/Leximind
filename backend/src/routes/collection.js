@@ -3,13 +3,12 @@ const router = express.Router({ mergeParams: true });
 const { authorizeUser } = require('../middlewares/auth/user');
 const { checkCollectionOwnership } = require('../middlewares/checkOwnership/collection');
 const { validateCollectionInput } = require('../middlewares/validateInput/collection');
-const { validatePagination } = require('../middlewares/validatePagination');
 const {
   create,
   update,
   remove,
   getById,
-  getPaginatedByUserId
+  getAllByUserIdSortedByLastViewTime
 } = require('../controllers/collection');
 
 // Route for creating a new collection (requires authentication and input validation)
@@ -28,8 +27,8 @@ router.delete('/:collection_id', authorizeUser, checkCollectionOwnership, remove
 // RESTful URL: GET /api/collections/:collection_id
 router.get('/:collection_id', authorizeUser, checkCollectionOwnership, getById);
 
-// Route for getting paginated collections for the authenticated user (requires authentication)
-// RESTful URL: GET /api/collections (with pagination query parameters: limit, offset)
-router.get('/', authorizeUser, validatePagination, getPaginatedByUserId);
+// Route for getting all collections for the authenticated user (requires authentication)
+// RESTful URL: GET /api/collections
+router.get('/', authorizeUser, getAllByUserIdSortedByLastViewTime);
 
 module.exports = router;
