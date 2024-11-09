@@ -3,26 +3,34 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Page from '@/components/Page';
-import ErrorMsg from '@/components/ErrorMsg';
+import Card from '@/components/Card';
+import ErrorMsg from '@/components/msg/ErrorMsg';
+import SuccessMsg from '@/components/msg/SuccessMsg';
 import Image from 'next/image';
+import FormButton from '@/components/buttons/FormButton';
+import GoogleIcon from '@/components/icons/Google';
 
 const ProfilePage = () => {
-  const { data: session, update } = useSession();
+  const { data: session, update, status } = useSession();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [newProfileImage, setNewProfileImage] = useState(null);
-  const [profileImage, setProfileImage] = useState(session?.user?.image || '/assets/images/logo.jpg');
+  const [newImage, setNewImage] = useState(null);
+  const [image, setImage] = useState(session?.user?.image || '/assets/images/logo.jpg');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login');
+    }
     if (session) {
       setUsername(session.user.username);
       setEmail(session.user.email);
+      setImage(session.user.image)
     }
-  }, [session]);
+  }, [session, status]);
 
   // Handle image change
   const handleImageChange = (e) => {
@@ -37,18 +45,15 @@ const ProfilePage = () => {
     e.preventDefault();
     setIsLoading(true);
     setFieldErrors({});
+    setSuccessMessage(null);
 
     try {
-      // Include the token from the session
-      const token = session?.accessToken;
-
-      const response = await fetch('/api/user/update', {
+      const response = await fetch('/api/protected/users/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Pass the token here
         },
-        body: JSON.stringify({ username: username, email }),
+        body: JSON.stringify({ username, email,image }),
       });
 
       const data = await response.json();
@@ -66,40 +71,44 @@ const ProfilePage = () => {
         return;
       }
 
-      // Update the session data with the new username and email
-      await update({ username, email });
+      // Update the session with the new user information
+      await update({ user: { username, email, image} });
 
       // Handle profile image upload if there's a new one
-      if (newProfileImage) {
+      if (newImage) {
         const formData = new FormData();
-        formData.append('image', newProfileImage);
-        await fetch('/api/user/upload-image', {
+        formData.append('image', newImage);
+        const uploadResponse = await fetch('/api/user/upload-image', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`, // Include the token here too, if needed
-          },
           body: formData,
         });
+
+        if (!uploadResponse.ok) {
+          const uploadData = await uploadResponse.json();
+          setFieldErrors({ general: uploadData.message || 'Image upload failed. Please try again.' });
+          return;
+        }
       }
-      update();
-      router.refresh(); // Reload page to reflect updates
+
+      setSuccessMessage('Profile updated successfully!');
+      router.refresh(); // Refresh to reflect updates
     } catch (error) {
-      setFieldErrors({ general: error.message });
+      setFieldErrors({ general: 'Something went wrong. Please try again later.' });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Page className="w-full px-6 pb-8 mt-8 sm:max-w-xl sm:rounded-lg">
+    <Card className="w-full px-6 pb-8 mt-8 sm:max-w-xl sm:rounded-lg">
       <h2 className="pl-6 text-2xl font-bold sm:text-xl">Public Profile</h2>
 
       <div className="flex flex-col items-center space-y-5 sm:flex-row sm:space-y-0">
         <div className="transition-all opacity-50 -inset-px bg-gradient-to-r from-red-400 from-0% via-yellow-400 via-50% to-green-400 to-100% rounded-full blur-lg group-hover:opacity-100"></div>
         <Image
           className="object-cover w-40 h-40 p-1 rounded-full ring-2 ring-indigo-300 dark:ring-indigo-500"
-          src={profileImage}
-          alt="Profile"
+          src={image}
+          alt="Image"
           width={160}
           height={160}
         />
@@ -128,6 +137,7 @@ const ProfilePage = () => {
         </div>
       </div>
 
+      {successMessage && <SuccessMsg>{successMessage}</SuccessMsg>}
       {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
 
       <div>
@@ -146,27 +156,29 @@ const ProfilePage = () => {
 
       <div>
         <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
-          Your email
+          Email
         </label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
-          placeholder="name@company.com"
-        />
+        {session?.user?.login_provider === 'google' ? (
+          <div className="flex items-center justify-center space-x-2 rounded-md border border-gray-300 p-2 my-2 bg-gray-50">
+            <GoogleIcon className="w-5 h-5 text-blue-500" />
+            <span className="text-gray-600 text-sm">{email}</span>
+          </div>
+        ) : (
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
+            placeholder="name@company.com"
+          />
+        )}
         {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
       </div>
 
-      <button
-        type="submit"
-        onClick={handleSave}
-        className="mt-4 text-white bg-indigo-500 py-1.5 px-4 rounded font-bold w-full"
-        disabled={isLoading}
-      >
-        {isLoading ? 'Saving...' : 'Save Changes'}
-      </button>
-    </Page>
+      <FormButton onClick={handleSave} isLoading={isLoading} loadingText="Saving...">
+        Save
+      </FormButton>
+    </Card>
   );
 };
 

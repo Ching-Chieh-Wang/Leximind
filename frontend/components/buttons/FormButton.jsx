@@ -1,8 +1,8 @@
 // components/FormButton.js
-export default function FormButton({ href, isLoading, loadingText = 'Loading...', children }) {
+export default function FormButton({  onClick,isLoading, loadingText = 'Loading...', children }) {
     return (
         <button
-            href={isLoading ? '#' : href} // Prevents navigation if loading
+            onClick={isLoading ?  null: onClick} // Prevents navigation if loading
               type="submit"
               className="text-white bg-teal-600  py-1.5 px-4 rounded font-bold w-full"
             >

@@ -3,100 +3,81 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Button from '@/components/Button';
+import Button from '@/components/buttons/Button';
+import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
+import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import ProfileIcon from '@/components/icons/ProfileIcon';
+import LogoutIcon from '@/components/icons/LogoutIcon';
+import CollectionIcon from './icons/CollectionIcon';
 
 const Nav = () => {
   const { data: session } = useSession();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null); // Reference for the dropdown element
-  const buttonRef = useRef(null); // Reference for the dropdown toggle button
-  const router=useRouter();
-
-  // Toggle dropdown menu
-  const toggleDropdown = (e) => {
-    e.stopPropagation(); // Prevent click event from bubbling up
-    setIsDropdownOpen((prev) => !prev);
-  };
 
   // Handle logout
   const handleLogout = async () => {
-    await signOut({ redirect: false });
-    router.push('/')
+    await signOut({ callbackUrl: '/' });
   };
 
-  // Close dropdown when clicking outside or pressing any key
-  useEffect(() => {
-    // Handler to close dropdown when clicking outside
-    const handleClickOutside = (event) => {
-        setIsDropdownOpen(false);
-    };
-
-    // Handler to close dropdown on any key press
-    const handleKeyPress = (event) => {
-      setIsDropdownOpen(false);
-    };
-
-    if (isDropdownOpen) {
-      document.addEventListener('keydown', handleKeyPress);
-    }
-
-    // Cleanup event listeners when dropdown is closed
-    return () => {
-      document.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [isDropdownOpen]);
+  // Define the dropdown button
+  const dropdownButton = (
+    <Image
+      src={session?.user?.image || '/assets/images/logo.jpg'}
+      width={40}
+      height={40}
+      className="rounded-full cursor-pointer"
+      alt="Profile"
+    />
+  );
 
   return (
     <nav className="flex justify-between items-center p-4 bg-transparent">
       {/* Logo and Brand Name */}
-      <Link href="/" className="text-xl font-bold flex items-center space-x-6">
-        <Image src="/assets/images/logo.jpg" width={60} height={60} alt="Logo" />
-        <span>LexiMind</span>
+      <Link href="/" className="flex items-center space-x-4 sm:space-x-6">
+        <Image
+          src="/assets/images/logo.jpg"
+          width={40}
+          height={40}
+          className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16"
+          alt="Logo"
+        />
+        <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-manrope font-black leading-snug text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-indigo-400 to-sky-300">
+          LexiMind
+        </h2>
       </Link>
 
       {/* Navigation Links and User Section */}
       <div className="flex items-center space-x-4">
         {session ? (
-          // User is logged in
-          <div className="relative" ref={dropdownRef}>
-            <button
-              ref={buttonRef}
-              onClick={toggleDropdown}
-              className="flex items-center space-x-2 focus:outline-none"
-              aria-haspopup="true"
-              aria-expanded={isDropdownOpen}
-            >
-              <span>{`Hi, ${session?.user?.username || session?.user?.name || 'User'}`}</span>
-              <Image
-                src={session?.user?.image || '/assets/images/logo.jpg'}
-                width={40}
-                height={40}
-                className="rounded-full cursor-pointer"
-                alt="Profile"
-              />
-            </button>
+          <div className="flex items-center space-x-4">
+            {/* Manage Account Button */}
+            <Link href='protected/collections' className="inline-flex h-10 items-center justify-center rounded-md border border-gray-400 bg-gray-100 px-4 font-medium text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 hover:bg-gray-300 text-xs sm:text-sm md:text-base lg:text-lg gap-x-1 sm:gap-x-2 md:gap-x-3">
+              <CollectionIcon />
+              Collections
+            </Link>
 
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50">
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  role="menuitem"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  Profile
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  role="menuitem"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+            {/* Profile Dropdown */}
+            <DropdownMenu button={dropdownButton}>
+              <DropdownItem>
+                <DropdownItem>
+                  <div>
+                    <h1 className="text-base font-semibold">{session?.user?.username}</h1>
+                    <p className="text-sm text-gray-500 mt-1">{session?.user?.email}</p>
+                  </div>
+                </DropdownItem>
+              </DropdownItem>
+              <hr className="my-2"></hr>
+              <DropdownItem
+                href="/protected/profile"
+                icon={<ProfileIcon size="14" />}
+                label="Profile"
+              />
+              <DropdownItem
+                onClick={handleLogout}
+                icon={<LogoutIcon size="14" />}
+                label="Logout"
+              />
+            </DropdownMenu>
           </div>
         ) : (
           // User is not logged in

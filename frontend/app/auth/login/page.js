@@ -2,10 +2,11 @@
 
 import { signIn, useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Page from '@/components/Page';
-import ErrorMsg from '@/components/ErrorMsg';
-import FormButton from '@/components/FormButton';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Card from '@/components/Card';
+import ErrorMsg from '@/components/msg/ErrorMsg';
+import FormButton from '@/components/buttons/FormButton';
+import GoogleIcon from '@/components/icons/Google';
 
 const LoginPage = () => {
   const { data: session, status, update } = useSession();
@@ -14,14 +15,24 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams(); // Access query parameters
+  const [isRedirected, setIsRedirected] = useState(false); // Track redirection state
+
 
   // If the user is already authenticated, redirect them
   useEffect(() => {
-    update();
-    if (status === 'authenticated') {
-      router.push('/'); // Redirect to profile page or any other page
+    if (!isRedirected) {
+      update();
+      // Redirect only when session status is 'authenticated' and not already redirected
+      if (status === 'authenticated') {
+        // Call update to sync the session state across tabs
+
+        const callbackUrl = searchParams.get('callbackUrl') || '/';
+        setIsRedirected(true); // Set redirection flag to true
+        router.push(callbackUrl); // Redirect to callback URL or home
+      }
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -38,7 +49,11 @@ const LoginPage = () => {
       if (result.error) {
         setError(result.error);
       }
+      const callbackUrl = searchParams.get('callbackUrl') || '/';
+      setIsRedirected(true); // Set redirection flag to true
+      router.push(callbackUrl); // Redirect to callback URL or home
     } catch (error) {
+      console.error(error);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -46,43 +61,14 @@ const LoginPage = () => {
   };
 
   return (
-    <Page>
+    <Card maxWidth="sm:max-w-md">
       <h1 className="text-xl font-bold text-gray-900">Log in to your account</h1>
 
       <button
         onClick={() => signIn('google')}
         className="w-full inline-flex items-center justify-center py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 bg-white rounded-lg border hover:bg-gray-100"
       >
-        <svg
-          className="w-5 h-5 mr-2"
-          viewBox="0 0 21 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clipPath="url(#clip0)">
-            <path
-              d="M20.308 10.23c0-.68-.056-1.364-.173-2.03h-9.43v3.85h5.401a4.857 4.857 0 01-1.999 2.038v2.498h3.223c1.892-1.742 2.98-4.314 2.98-7.357z"
-              fill="#3F83F8"
-            />
-            <path
-              d="M10.702 20c2.697 0 4.972-0.885 6.629-2.414l-3.223-2.498c-.896.61-2.053.955-3.401.955-2.609 0-4.821-1.76-5.615-4.126H1.766v2.576C3.464 17.87 6.922 20 10.702 20z"
-              fill="#34A853"
-            />
-            <path
-              d="M5.089 11.917c-.418-1.242-.418-2.586 0-3.829V5.512H1.767a9.983 9.983 0 000 8.982l3.322-2.576z"
-              fill="#FBBC04"
-            />
-            <path
-              d="M10.702 3.958c1.426 0 2.804.537 3.837 1.522l2.855-2.855c-1.808-1.697-4.207-2.63-6.691-2.63C6.921 0 3.464 2.132 1.766 5.512L5.088 8.088c.79-2.37 3.006-4.13 5.615-4.13z"
-              fill="#EA4335"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0">
-              <rect width="20" height="20" fill="white" />
-            </clipPath>
-          </defs>
-        </svg>
+        <GoogleIcon/>
         Sign in with Google
       </button>
 
@@ -130,7 +116,9 @@ const LoginPage = () => {
           />
         </div>
 
-        <FormButton isLoading={isLoading}>Sign in</FormButton>
+        <FormButton isLoading={isLoading} onClick={handleLogin}>
+          Sign in
+        </FormButton>
 
         <p className="text-sm font-light text-gray-500">
           Don’t have an account yet?{' '}
@@ -142,7 +130,7 @@ const LoginPage = () => {
           </a>
         </p>
       </form>
-    </Page>
+    </Card>
   );
 };
 

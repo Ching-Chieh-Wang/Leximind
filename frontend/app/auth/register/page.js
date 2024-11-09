@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import ErrorMsg from '@/components/ErrorMsg';
-import Page from '@/components/Page';
-import FormButton from '@/components/FormButton'
+import ErrorMsg from '@/components/msg/ErrorMsg';
+import Card from '@/components/Card';
+import FormButton from '@/components/buttons/FormButton'
 
 export default function RegisterPage() {
   const { data: session, status, update } = useSession();
@@ -14,17 +14,19 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
-    update();
+    update()
     if (status === 'authenticated') {
       router.push('/'); // Redirect to profile or home page
     }
-  }, [status, session]);
+  }, [status, session,router]);
 
   // State to store field-specific errors
   const [fieldErrors, setFieldErrors] = useState({});
 
-  const router = useRouter();
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -71,7 +73,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <Page>
+    <Card maxWidth="sm:max-w-md">
       <h1 className="text-xl font-bold text-gray-900">Register your account</h1>
 
           {/* Show general error message */}
@@ -129,7 +131,7 @@ export default function RegisterPage() {
               {fieldErrors.password && <ErrorMsg>{fieldErrors.password}</ErrorMsg>}
             </div>
 
-            <FormButton href="/auth/login" isLoading={isLoading}>
+            <FormButton onClick={handleRegister} isLoading={isLoading}>
               Register
             </FormButton>
 
@@ -140,6 +142,6 @@ export default function RegisterPage() {
               </a>
             </p>
           </form>
-      </Page>
+      </Card>
   );
 }
