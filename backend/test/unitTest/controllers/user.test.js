@@ -214,77 +214,96 @@ describe('User Controller', () => {
       mockReq.body = {
         username: 'newusername',
         email: 'newemail@example.com',
-        image: 'new-image.url.com'  // Including image in the request body
+        image: 'new-image.url.com'
       };
-
+  
       const updatedUser = {
         id: 'user-id-123',
         username: 'newusername',
         email: 'newemail@example.com',
-        image: 'new-image.url.com'  // Ensuring the updated user object has the new image
+        image: 'new-image.url.com'
       };
-
+  
       userModel.update.mockResolvedValue(updatedUser);
-
+  
       await update(mockReq, mockRes);
-
-      // Updated function call to include image parameter
+  
       expect(userModel.update).toHaveBeenCalledWith(
         'user-id-123',
         'newusername',
         'newemail@example.com',
         'new-image.url.com'
       );
-
+  
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ user: updatedUser });
     });
-
+  
     it('should return 204 if no changes made', async () => {
-      // Simulate no changes by using the same username, email, and image as in the user object
       mockReq.body = {
         username: 'testuser',
         email: 'test@example.com',
         image: 'default-image.url.com'
       };
-
+      mockReq.user = {
+        id: 'user-id-123',
+        username: 'testuser',
+        email: 'test@example.com',
+        image: 'default-image.url.com',
+        login_provider: 'credentials'
+      };
+  
       await update(mockReq, mockRes);
-
+  
       expect(mockRes.status).toHaveBeenCalledWith(204);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'No changes made to the user profile' });
     });
-
+  
     it('should return 409 if email is already in use', async () => {
-      const error = { code: '23505' }; // PostgreSQL unique constraint violation
+      const error = { code: '23505' };
       mockReq.body = {
         username: 'newuser',
         email: 'newemail@example.com',
         image: 'new-image.url.com'
       };
-
+      mockReq.user = {
+        id: 'user-id-123',
+        username: 'testuser',
+        email: 'test@example.com',
+        image: 'default-image.url.com',
+        login_provider: 'credentials'
+      };
+  
       userModel.update.mockRejectedValue(error);
-
+  
       await update(mockReq, mockRes);
-
+  
       expect(mockRes.status).toHaveBeenCalledWith(409);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Email already in use. Please use a different email.' });
     });
-
+  
     it('should return 404 if user not found during update', async () => {
       mockReq.body = {
         username: 'newuser',
         email: 'newemail@example.com',
         image: 'new-image.url.com'
       };
-
+      mockReq.user = {
+        id: 'user-id-123',
+        username: 'testuser',
+        email: 'test@example.com',
+        image: 'default-image.url.com',
+        login_provider: 'credentials'
+      };
+  
       userModel.update.mockResolvedValue(null);
-
+  
       await update(mockReq, mockRes);
-
+  
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'User not found.' });
     });
-
+  
     it('should return 500 on server error', async () => {
       const error = new Error('Server error');
       mockReq.body = {
@@ -292,13 +311,40 @@ describe('User Controller', () => {
         email: 'newemail@example.com',
         image: 'new-image.url.com'
       };
-
+      mockReq.user = {
+        id: 'user-id-123',
+        username: 'testuser',
+        email: 'test@example.com',
+        image: 'default-image.url.com',
+        login_provider: 'credentials'
+      };
+  
       userModel.update.mockRejectedValue(error);
-
+  
       await update(mockReq, mockRes);
-
+  
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Server error' });
+    });
+  
+    it('should return 400 if Google user tries to update email', async () => {
+      mockReq.body = {
+        username: 'newusername',
+        email: 'newemail@example.com', // Attempting to update email
+        image: 'new-image.url.com'
+      };
+      mockReq.user = {
+        id: 'user-id-123',
+        username: 'testuser',
+        email: 'test@example.com',
+        image: 'default-image.url.com',
+        login_provider: 'google' // Google login provider
+      };
+  
+      await update(mockReq, mockRes);
+  
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: 'Email cannot be updated for Google accounts.' });
     });
   });
 

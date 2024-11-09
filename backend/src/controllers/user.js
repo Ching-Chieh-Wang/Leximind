@@ -95,6 +95,7 @@ const googleLoginOrRegister = async (req, res) => {
       { expiresIn: '1h' }  // Set token expiration for added security
     );
 
+
     // Send back the app-specific token and user details
     res.status(200).json({ token: appToken, user });
   } catch (err) {
@@ -123,10 +124,17 @@ const update = async (req, res) => {
   const user = req.user;
 
   try {
+    // Check if login_provider is Google and if email is being changed
+    if (user.login_provider === 'google' && email !== user.email) {
+      return res.status(400).json({ message: 'Email cannot be updated for Google accounts.' });
+    }
+
+    // Check if no changes were made to the profile
     if (username === user.username && email === user.email && image === user.image) {
       return res.status(204).json({ message: 'No changes made to the user profile' });
     }
 
+    // Perform the update operation
     const updatedUser = await userModel.update(user.id, username, email, image);
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found.' });
@@ -141,7 +149,6 @@ const update = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 const remove = async (req, res) => {
   const userId = req.user.id;
 
