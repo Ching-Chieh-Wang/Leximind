@@ -1,167 +1,212 @@
 // models/word.js
 const db = require('../db/db');
 
-// Function to create the words table
+/**
+ * Create the words table
+ */
 const createTable = async () => {
   const query = `
-    CREATE TABLE IF NOT EXISTS words (
-      id SERIAL PRIMARY KEY,
-      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      collection_id INT REFERENCES collections(id) ON DELETE CASCADE,
-      name VARCHAR(255) NOT NULL,
-      description TEXT NOT NULL,
-      img_path TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  `;
+  CREATE TABLE IF NOT EXISTS words (
+    id SERIAL PRIMARY KEY,
+    collection_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    img_path TEXT,
+    is_memorized BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (id, collection_id)
+  );
+
+  CREATE OR REPLACE VIEW collection_word_stats AS
+  SELECT 
+      collections.id AS collection_id,
+      COUNT(words.id) AS word_cnt,
+      COUNT(words.id) FILTER (WHERE words.is_memorized = FALSE) AS not_memorized_cnt
+  FROM 
+      collections
+  LEFT JOIN 
+      words ON collections.id = words.collection_id
+  GROUP BY 
+      collections.id;
+
+  CREATE INDEX IF NOT EXISTS idx_words_collection ON words (collection_id);
+  CREATE INDEX IF NOT EXISTS idx_words_collection_memorized_false ON words (collection_id) WHERE is_memorized = FALSE;
+`;
   await db.query(query);
-  console.log('Words table created successfully');
+  console.log('Collections table and collection_word_stats view created successfully');
+};
+/**
+ * Create a new word
+ */
+
+const create = async ({ user_id, collection_id, name, description, img_path, label_ids }) => {
+  const query = `
+    WITH new_word AS (
+      INSERT INTO words (collection_id, name, description, img_path)
+      SELECT $2, $3, $4, $5
+      FROM collections
+      WHERE id = $2 AND user_id = $1 
+      RETURNING id
+    ), insert_labels AS (
+      INSERT INTO word_labels (word_id, label_id)
+      SELECT new_word.id, unnest($6::int[])
+      FROM new_word
+      WHERE array_length($6::int[], 1) > 0
+    )
+    SELECT new_word.id FROM new_word;
+  `;
+  const result = await db.query(query, [user_id, collection_id, name, description, img_path, label_ids]);
+  return result.rows[0]?.id || null;
+};
+  
+
+/**
+ * Remove a word by ID with ownership validation through collection's user_id
+ */
+const remove = async (user_id, collection_id, word_id) => {
+  const query = `
+    DELETE FROM words
+    WHERE id = $3
+      AND collection_id = $2
+      AND EXISTS (
+        SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
+      )
+    RETURNING id;
+  `;
+  const result = await db.query(query, [user_id, collection_id, word_id]);
+  return result.rowCount > 0; // Returns true if a row was deleted, false otherwise
 };
 
-// Function to create a new word with transaction handling
-const create = async ({ name, description, img_path, user_id, collection_id, label_ids }) => {
-  return await db.executeTransaction(async (client) => {
-    // Validate label_ids if provided
-    if (Array.isArray(label_ids) && label_ids.length > 0) {
-      // Check that all provided label_ids belong to the user and are in the specified collection
-      const labelCheckResult = await client.query(
-        'SELECT id FROM labels WHERE id = ANY($1) AND user_id = $2 AND collection_id = $3;',
-        [label_ids, user_id, collection_id]
-      );
 
-      const existingLabelIds = labelCheckResult.rows.map(row => row.id);
-      const invalidLabelIds = label_ids.filter(id => !existingLabelIds.includes(id));
-
-      // If there are any invalid labels, throw an error to roll back the transaction
-      if (invalidLabelIds.length > 0) {
-        throw new Error(`Labels not owned by the user or not in the collection: ${invalidLabelIds.join(', ')}`);
-      }
-    }
-
-    // Insert the new word
-    const result = await client.query(
-      `INSERT INTO words (name, description, img_path, user_id, collection_id)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *;`,
-      [name, description, img_path, user_id, collection_id]
-    );
-
-    const newWord = result.rows[0];
-
-    // Manage label associations if label_ids are provided
-    if (Array.isArray(label_ids) && label_ids.length > 0) {
-      for (const label_id of label_ids) {
-        await client.query(
-          `INSERT INTO word_labels (word_id, label_id)
-           VALUES ($1, $2)
-           ON CONFLICT (word_id, label_id) DO NOTHING;`,
-          [newWord.id, label_id]
-        );
-      }
-    }
-
-    return newWord;
-  });
+/**
+ * Update a word by ID with ownership validation through collection's user_id
+ */
+const update = async (user_id, collection_id, word_id, name, description, img_path) => {
+  const query = `
+    UPDATE words
+    SET 
+      name = COALESCE($1, name), 
+      description = COALESCE($2, description), 
+      img_path = COALESCE($3, img_path)
+    WHERE id = $4
+      AND collection_id = $5
+      AND EXISTS (
+        SELECT 1 FROM collections WHERE id = $5 AND user_id = $1
+      )
+    RETURNING id;
+  `;
+  const result = await db.query(query, [name, description, img_path, word_id, collection_id, user_id]);
+  return result.rows[0] || null; // Returns the updated word's id if successful, otherwise null
 };
 
-// Function to update a word by ID with transaction handling
-const update = async (id, { name, description, img_path }) => {
-    // Update the word
-    const result = await db.query(
-      `UPDATE words SET name = $1, description = $2, img_path = $3 WHERE id = $4 RETURNING *;`,
-      [name,description ,img_path,id]
-    );
-    return result.rows[0];
-};
-
-// Function to remove a word by ID with transaction handling
-const remove = async (id) => {
-    // Delete the word and return the deleted word's details
-    const result = await db.query(
-      'DELETE FROM words WHERE id = $1 RETURNING collection_id, order_index;',
-      [id]
-    );
-
-    return result.rows[0];
-};
-
-// Function to get paginated words by collection ID
-const getPaginated = async (collection_id, offset = 0, limit = 50) => {
-  const result = await db.query(
-    `SELECT words.*,
+const getPaginated = async (user_id, collection_id, limit = 50, offset = 0) => {
+  const query = `
+    SELECT 
+      w.id,
+      w.name,
+      w.description,
+      w.img_path,
+      w.is_memorized,
       COALESCE(
-        json_agg(
-          DISTINCT jsonb_build_object(
-            'id', labels.id,
-            'name', labels.name
-          )
-        ) FILTER (WHERE labels.id IS NOT NULL), '[]'
-      ) AS labels
-      FROM words
-      LEFT JOIN word_labels ON words.id = word_labels.word_id
-      LEFT JOIN labels ON word_labels.label_id = labels.id
-      WHERE words.collection_id = $1
-      GROUP BY words.id
-      ORDER BY words.created_at
-      LIMIT $2 OFFSET $3;`,
-    [collection_id, limit, offset]
-  );
+        array_agg(DISTINCT wl.label_id), '{}'
+      ) AS label_ids
+    FROM words w
+    LEFT JOIN word_labels wl ON w.id = wl.word_id
+    WHERE w.collection_id IN (
+      SELECT id FROM collections WHERE id = $2 AND user_id = $1
+    )
+    GROUP BY w.id
+    ORDER BY w.created_at DESC
+    LIMIT $3 OFFSET $4;
+  `;
+  const result = await db.query(query, [user_id, collection_id, limit, offset]);
+  return result.rows;
+};
+
+const getPaginatedByLabelId = async (user_id, collection_id, label_id, limit = 50, offset = 0) => {
+  const query = `
+    SELECT 
+      w.id,
+      w.name,
+      w.description,
+      w.img_path,
+      w.is_memorized,
+      COALESCE(array_agg(DISTINCT wl2.label_id), '{}') AS label_ids
+    FROM words w
+    JOIN word_labels wl ON w.id = wl.word_id AND wl.label_id = $3
+    LEFT JOIN word_labels wl2 ON w.id = wl2.word_id
+    WHERE w.collection_id IN (
+      SELECT id FROM collections WHERE id = $2 AND user_id = $1
+    )
+    GROUP BY w.id
+    ORDER BY w.created_at DESC
+    LIMIT $4 OFFSET $5;
+  `;
+  const result = await db.query(query, [user_id, collection_id, label_id, limit, offset]);
   return result.rows;
 };
 
 
-// Function to get paginated words by collection ID and label ID
-const getPaginatedByLabelId = async (collection_id, label_id, offset = 0, limit = 50) => {
-  const result = await db.query(
-    `SELECT words.*,
+/**
+ * Get paginated words by searching prefix within a collection with ownership validation
+ */
+const getPaginatedBySearchingPrefix = async (user_id, collection_id, searchQuery, limit = 50, offset = 0) => {
+  const formattedQuery = `${searchQuery}%`; // Prefix match
+
+  const query = `
+    SELECT 
+      w.id,
+      w.name,
+      w.description,
+      w.img_path,
+      w.is_memorized,
       COALESCE(
-        json_agg(
-          DISTINCT jsonb_build_object(
-            'id', labels.id,
-            'name', labels.name
-          )
-        ) FILTER (WHERE labels.id IS NOT NULL), '[]'
-      ) AS labels
-      FROM words
-      JOIN word_labels ON words.id = word_labels.word_id
-      LEFT JOIN labels ON word_labels.label_id = labels.id
-      WHERE words.collection_id = $1 AND word_labels.label_id = $2
-      GROUP BY words.id
-      ORDER BY words.created_at
-      LIMIT $3 OFFSET $4;`,
-    [collection_id, label_id, limit, offset]
-  );
+        array_agg(DISTINCT l.id) FILTER (WHERE l.id IS NOT NULL), '{}'
+      ) AS label_ids
+    FROM words w
+    LEFT JOIN word_labels wl ON w.id = wl.word_id
+    LEFT JOIN labels l ON wl.label_id = l.id
+    WHERE EXISTS (
+        SELECT 1 FROM collections WHERE id = $1 AND user_id = $3
+      )
+      AND w.collection_id = $1
+      AND w.name ILIKE $2 
+    GROUP BY w.id
+    ORDER BY w.created_at DESC
+    LIMIT $4 OFFSET $5;
+  `;
+  const result = await db.query(query, [collection_id, formattedQuery, user_id, limit, offset]);
   return result.rows;
 };
 
-
-
-// Function to search words by prefix within a specific collection
-const searchByPrefix = async (collection_id, prefix) => {
-  const result = await db.query(
-    `SELECT * FROM words 
-      WHERE collection_id = $1 
-      AND (name ILIKE $2 OR description ILIKE $2)
-      ORDER BY created_at;`,
-    [collection_id, `${prefix}%`]
-  );
-  return result.rows; // Return the list of words that match the prefix in either name or description
+/**
+ * Toggle the is_memorized status of a word with ownership validation
+ */
+const changeIsMemorizedStatus = async (user_id, collection_id, word_id) => {
+  const query = `
+    UPDATE words
+    SET is_memorized = NOT is_memorized 
+    WHERE 
+      EXISTS (
+        SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
+      )
+      AND id = $3
+      AND collection_id = $2 
+    RETURNING is_memorized;
+  `;
+  const result = await db.query(query, [user_id, collection_id, word_id]);
+  
+  // Return the updated is_memorized status or null if no row was updated
+  return result.rows[0]?.is_memorized || null;
 };
-
-// Function to get a word by ID
-const getById = async (id) => {
-  const result = await db.query('SELECT * FROM words WHERE id = $1;', [id]);
-  return result.rows[0];
-};
-
 
 module.exports = {
   createTable,
   create,
-  update,
   remove,
-  searchByPrefix,
+  update,
   getPaginated,
   getPaginatedByLabelId,
-  getById
+  getPaginatedBySearchingPrefix,
+  changeIsMemorizedStatus
 };

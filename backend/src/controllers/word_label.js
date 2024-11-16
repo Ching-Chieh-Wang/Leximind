@@ -1,51 +1,53 @@
 const wordLabelModel = require('../models/word_label');
 
-// Get all words associated with a specific label
-const getPaginatedWordsByLabelId = async (req, res) => {
-  try {
-    const label_id = req.label.id;
-    const offset = parseInt(req.query.offset, 10) || 0;
-    const limit = parseInt(req.query.limit, 10) || 50;
-    const words = await wordLabelModel.getPaginatedWordsByLabelId(label_id,offset,limit);
-    res.status(200).json({ words ,offset, limit});
-  } catch (err) {
-    console.error('Error fetching words by label:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Add a word to a label (Handling duplicate association via unique constraint)
+// Add a word to a label with handling for collection mismatch and duplicate association
 const addWordToLabel = async (req, res) => {
   try {
-    const label_id = req.label.id;
-    const word_id = req.word.id;
+    const user_id=req.user_id;
+    const {label_id, word_id, collection_id} = req.params;
 
-    // Add the word to the label
-    const association = await wordLabelModel.addWordToLabel(label_id, word_id);
-    if(!association){
-      return res.status(404).json({ message: 'Word-label association not found' });
+    // Attempt to add the word to the label
+    const addCuccess = await wordLabelModel.addWordToLabel(user_id, label_id, word_id,collection_id);
+    if(!addCuccess){
+      // If no result is returned, respond with a 404 indicating the label or word was not found
+      return res.status(404).json({ message: 'Label or word not found' });
     }
-
-    res.status(201).json({ message: 'Word added to label successfully', association });
+    res.status(201).json({ message: 'Word added to label successfully' });
   } catch (err) {
-    // Check for unique constraint violation (PostgreSQL error code '23505')
     if (err.code === '23505') {
+      // Unique constraint violation for duplicate association
       return res.status(409).json({ message: 'This word is already associated with the label' });
+    }
+    if (err.code === '23502') {
+      // User not authorized to operato other's words and labels
+      return res.status(401).json({ message: 'User or collection not found' });
+    }
+    if (err.code === '23503') {
+      // User not authorized to operato other's words and labels
+      return res.status(401).json({ message: 'Label or word not found' });
+    }
+    if (err.code === '23514') {
+      // Collection mismatch violation
+      return res.status(400).json({ message: 'Word and label must belong to the same collection' });
     }
     console.error('Error adding word to label:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Remove a word from a label (Combining label and word existence check)
+// Remove a word from a label with existence checks
 const removeWordFromLabel = async (req, res) => {
   try {
-    const label_id=req.label.id;
-    const word_id=req.word.id;
-    const association = await wordLabelModel.removeWordFromLabel(label_id, word_id);
-    if(!association){
-      return res.status(404).json({ message: 'Word-label association not found' });
+    const user_id=req.user_id;
+    const {label_id, word_id, collection_id} = req.params;
+
+    // Attempt to remove the word from the label
+    const removeSuccess = await wordLabelModel.removeWordFromLabel(user_id, label_id, word_id, collection_id);
+
+    if (!removeSuccess) {
+      return res.status(404).json({ message: 'User, word, label ,collection or Word-label association not found' });
     }
+
     res.status(200).json({ message: 'Word removed from label successfully' });
   } catch (err) {
     console.error('Error removing word from label:', err);
@@ -54,7 +56,6 @@ const removeWordFromLabel = async (req, res) => {
 };
 
 module.exports = {
-  getPaginatedWordsByLabelId,
   addWordToLabel,
   removeWordFromLabel,
 };

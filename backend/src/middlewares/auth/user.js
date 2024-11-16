@@ -12,14 +12,7 @@ const authorizeUser = async (req, res, next) => {
       // Verify the token (ignoring expiration for testing purposes)
       const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
 
-      // Fetch the user from the database, but exclude the password
-      const user = await userModel.getById(decoded.id);
-
-      if (!user) {
-        return res.status(401).json({ message: 'User not found, invalid token' });
-      }
-
-      req.user = user; // Attach user to the request without the password
+      req.user_id = decoded.id; // Attach user to the request without the password
 
       next(); // Proceed to the next middleware or route handler
     } catch (err) {

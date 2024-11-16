@@ -80,13 +80,9 @@ const googleLoginOrRegister = async (req, res) => {
     const username = payload.name;  // Full name
     const image = payload.picture;  // Profile picture URL
 
-    // Check if the user already exists in the database
-    let user = await userModel.getByEmail(email);
-
-    // If the user doesn't exist, create a new one
-    if (!user) {
-      user = await userModel.create(username, email, 'google', 'user', '', image);
-    }
+    // Try to create the user if they don't already exist
+    const user= await userModel.create(username, email, 'google', 'user', '', image);
+    
 
     // Generate a JWT token with user details for session management
     const appToken = jwt.sign(
@@ -112,35 +108,32 @@ const googleLoginOrRegister = async (req, res) => {
 
 
 const getProfile = async (req, res) => {
-  const user = req.user;
-  if (!user) {
-    return res.status(500).json({ message: 'Server error.' });
+  try{
+    const user_id = req.user_id;
+    const user= await userModel.getById(user_id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  }catch (err) {
+    console.error('Error geting user profile:', err);
+    res.status(500).json({ message: 'Server error' });
   }
-  res.status(200).json({ user });
+
 };
 
 const update = async (req, res) => {
   const { username, email, image } = req.body;
-  const user = req.user;
+  const user_id = req.user_id;
 
   try {
-    // Check if login_provider is Google and if email is being changed
-    if (user.login_provider === 'google' && email !== user.email) {
-      return res.status(400).json({ message: 'Email cannot be updated for Google accounts.' });
-    }
-
-    // Check if no changes were made to the profile
-    if (username === user.username && email === user.email && image === user.image) {
-      return res.status(204).json({ message: 'No changes made to the user profile' });
-    }
-
     // Perform the update operation
-    const updatedUser = await userModel.update(user.id, username, email, image);
-    if (!updatedUser) {
+    const isUpdateSucess = await userModel.update(user_id, username, email, image);
+    if (!isUpdateSucess) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    res.status(200).json({ user: updatedUser });
+    res.status(200).json({message: "User update successfully" });
   } catch (err) {
     if (err.code === '23505') {
       return res.status(409).json({ message: 'Email already in use. Please use a different email.' });
@@ -150,11 +143,11 @@ const update = async (req, res) => {
   }
 };
 const remove = async (req, res) => {
-  const userId = req.user.id;
+  const user_id = req.user_id;
 
   try {
-    const deletedUser = await userModel.remove(userId);
-    if (!deletedUser) {
+    const isDeleteSuccess = await userModel.remove(user_id);
+    if (!isDeleteSuccess) {
       return res.status(404).json({ message: 'User not found' });
     }
 

@@ -1,6 +1,6 @@
 const WordModel = require('../../models/word');
 
-const checkValidWordId = async (req, res, next) => {
+const validateWordId = async (req, res, next) => {
   const { word_id } = req.params;
 
   // Check if word_id is a valid number, an integer, and a positive number
@@ -13,19 +13,7 @@ const checkValidWordId = async (req, res, next) => {
   if (Number(word_id) > MAX_ID_VALUE) {
     return res.status(400).json({ message: 'Invalid word ID. Exceeds maximum allowed value for SERIAL.' });
   }
-
-  try {
-    const word = await WordModel.getById(word_id);
-    if (!word) {
-      return res.status(404).json({ message: 'Word not found' });
-    }
-
-    // Word exists, proceed to the next middleware or route handler
-    next();
-  } catch (err) {
-    console.error('Error checking word existence:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
+  next();
 };
 
-module.exports = {checkValidWordId} ;
+module.exports = { validateWordId} ;
