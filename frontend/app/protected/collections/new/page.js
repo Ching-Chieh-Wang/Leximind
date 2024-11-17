@@ -16,7 +16,6 @@ const NewCollectionPage = () => {
   const [description, setDescription] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -28,7 +27,6 @@ const NewCollectionPage = () => {
     e.preventDefault();
     setIsLoading(true);
     setFieldErrors({});
-    setSuccessMessage(null);
 
     try {
       const token = session?.accessToken;
@@ -41,8 +39,6 @@ const NewCollectionPage = () => {
         },
         body: JSON.stringify({ name, description }),
       });
-
-      const data = await response.json();
 
       if (!response.ok) {
         const errors = {};
@@ -57,9 +53,10 @@ const NewCollectionPage = () => {
         return;
       }
 
-      setSuccessMessage('Collection created successfully!');
+      alert('Collection created successfully!');
       router.push('/protected/collections'); // Redirect to collections page after creation
     } catch (error) {
+      console.error(error)
       setFieldErrors({ general: 'Something went wrong. Please try again later.' });
     } finally {
       setIsLoading(false);
@@ -69,9 +66,6 @@ const NewCollectionPage = () => {
   return (
     <Card className="w-full px-6 pb-8 mt-8 sm:max-w-xl sm:rounded-lg">
       <h2 className="pl-6 text-2xl font-bold sm:text-xl">Create New Collection</h2>
-
-      {/* Show success message */}
-      {successMessage && <SuccessMsg>{successMessage}</SuccessMsg>}
 
       {/* Show general error message */}
       {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}

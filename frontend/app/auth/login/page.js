@@ -45,13 +45,16 @@ const LoginPage = () => {
         email,
         password,
       });
+      console.log(result)
 
       if (result.error) {
         setError(result.error);
       }
-      const callbackUrl = searchParams.get('callbackUrl') || '/';
-      setIsRedirected(true); // Set redirection flag to true
-      router.push(callbackUrl); // Redirect to callback URL or home
+      else{
+        const callbackUrl = searchParams.get('callbackUrl') || '/';
+        setIsRedirected(true); // Set redirection flag to true
+        router.push(callbackUrl); // Redirect to callback URL or home
+      }
     } catch (error) {
       console.error(error);
       setError('An unexpected error occurred. Please try again.');
@@ -61,9 +64,7 @@ const LoginPage = () => {
   };
 
   return (
-    <Card maxWidth="sm:max-w-md">
-      <h1 className="text-xl font-bold text-gray-900">Log in to your account</h1>
-
+    <Card maxWidth="sm:max-w-md" title="Log in to your account">
       <button
         onClick={() => signIn('google')}
         className="w-full inline-flex items-center justify-center py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 bg-white rounded-lg border hover:bg-gray-100"

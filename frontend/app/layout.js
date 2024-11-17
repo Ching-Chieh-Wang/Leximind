@@ -10,11 +10,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <SessionProvider>
-          <div className="bg-white md:mb-[400px] lg:mb-[300px]  isolate">
-            <Background/>
-            
-            <div className=" relative  w-full">
-              <Nav/>
+          <div className="bg-white md:mb-[400px] lg:mb-[300px] isolate fixed-layout">
+            <Background />
+            <div className="relative w-full">
+              <Nav />
               {children}
             </div>
           </div>

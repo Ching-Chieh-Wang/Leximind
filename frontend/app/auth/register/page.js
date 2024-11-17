@@ -73,8 +73,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <Card maxWidth="sm:max-w-md">
-      <h1 className="text-xl font-bold text-gray-900">Register your account</h1>
+    <Card maxWidth="sm:max-w-md" title="Register your account">
 
           {/* Show general error message */}
           {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}

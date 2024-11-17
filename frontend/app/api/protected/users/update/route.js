@@ -12,7 +12,7 @@ export async function PUT(req) {
       console.error("Unauthorized access - session or token missing");
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
-
+    const body=await req.json();
 
     // Forward the request to the backend with the token and parsed body
     const res = await fetch(`${process.env.BACKEND_API_URL}/api/users`, {
@@ -21,10 +21,8 @@ export async function PUT(req) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.user.accessToken}`,
       },
-      body: JSON.stringify(await req.json()), // Forwarding parsed request body
+      body: JSON.stringify(body), // Forwarding parsed request body
     });
-
-    // Parse the JSON response from the backend
     const data = await res.json();
 
     // Return the backend response data and status

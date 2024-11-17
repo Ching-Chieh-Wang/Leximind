@@ -25,7 +25,7 @@ const Nav = () => {
       src={session?.user?.image || '/assets/images/logo.jpg'}
       width={40}
       height={40}
-      className="rounded-full cursor-pointer"
+      className="w-10 h-10 rounded-full cursor-pointer"
       alt="Profile"
     />
   );
@@ -51,7 +51,7 @@ const Nav = () => {
         {session ? (
           <div className="flex items-center space-x-4">
             {/* Manage Account Button */}
-            <Link href='protected/collections' className="inline-flex h-10 items-center justify-center rounded-md border border-gray-400 bg-gray-100 px-4 font-medium text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 hover:bg-gray-300 text-xs sm:text-sm md:text-base lg:text-lg gap-x-1 sm:gap-x-2 md:gap-x-3">
+            <Link href='/protected/collections' className="inline-flex h-10 items-center justify-center rounded-md border border-gray-400 bg-gray-100 px-4 font-medium text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 hover:bg-gray-300 text-xs sm:text-sm md:text-base lg:text-lg gap-x-1 sm:gap-x-2 md:gap-x-3">
               <CollectionIcon />
               Collections
             </Link>

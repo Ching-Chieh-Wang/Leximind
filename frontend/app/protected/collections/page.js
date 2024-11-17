@@ -6,42 +6,74 @@ import { useRouter } from 'next/navigation';
 import Collections from '@/components/Collection/Collections';
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
 import DropdownItem from '@/components/DropdownMenu/DropdownItem';
+import Card from '@/components/Card';
 
 const CollectionsPage = () => {
-  const { data:session, status } = useSession();
+  const { data: session, status } = useSession();
   const [collections, setCollections] = useState([]);
+  const [filteredCollections, setFilteredCollections] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortType, setSortType] = useState('lastViewTime');
+  const [sortType, setSortType] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const router=useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/'); // Redirect to login if unauthenticated
     }
-  }, [status, session]);
+  }, [status, router]);
 
-  const fetchCollections = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`api/protected/collections?sort=${sortType}&search=${searchQuery}`);
-      const data = await response.json();
-      setCollections(data);
-    } catch (error) {
-      console.error('Failed to load collections:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    const filtered = collections.filter((collection) =>
+      collection.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredCollections(filtered);
+  };
+
+  const handleSort = (type) => {
+    setSortType(type);
+    const sorted = [...filteredCollections].sort((a, b) => {
+      if (type === 'name') return a.name.localeCompare(b.name);
+      if (type === 'createdAt') return new Date(a.createdAt) - new Date(b.createdAt);
+      if (type === 'lastViewTime') return new Date(b.lastViewTime) - new Date(a.lastViewTime);
+      return 0;
+    });
+    setFilteredCollections(sorted);
   };
 
   useEffect(() => {
+    const fetchCollections = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/protected/collections');
+        const data = await response.json();
+        if (response.ok) {
+          setCollections(data.collections);
+          setFilteredCollections(data.collections); // Initialize filtered collections
+        } else {
+          console.error("Failed to load collections:", data);
+        }
+      } catch (error) {
+        console.error('Failed to load collections:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchCollections();
-  }, [searchQuery, sortType]);
+  }, []);
+
+  useEffect(() => {
+    handleSearch(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    handleSort(sortType);
+  }, [sortType]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <h1 className="text-3xl font-bold text-gray-800">Collections</h1>
+    <Card fullWidth={true} title="My Collections">
 
       {/* Search and Sort Section */}
       <div className="flex justify-between items-center space-x-4">
@@ -50,24 +82,15 @@ const CollectionsPage = () => {
           type="text"
           placeholder="Search collections..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           className="flex-1 p-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
         {/* Sort Dropdown */}
         <DropdownMenu button={<div className="p-2 border rounded-md border-gray-300 bg-gray-50 hover:bg-gray-100">Sort</div>}>
-          <DropdownItem
-            onClick={() => setSortType('name')}
-            label="Name"
-          />
-          <DropdownItem
-            onClick={() => setSortType('createdAt')}
-            label="Created At"
-          />
-          <DropdownItem
-            onClick={() => setSortType('lastViewTime')}
-            label="Last Viewed"
-          />
+          <DropdownItem onClick={() => handleSort('name')} label="Name" />
+          <DropdownItem onClick={() => handleSort('createdAt')} label="Created At" />
+          <DropdownItem onClick={() => handleSort('lastViewTime')} label="Last Viewed" />
         </DropdownMenu>
       </div>
 
@@ -77,13 +100,12 @@ const CollectionsPage = () => {
       ) : (
         <Collections
           title="All Collections"
-          collections={collections}
-          apiRoute='api/protected/collections'
-          isAllowShowmore={true}
-          addButtonUrl='/protected/collections/new'
+          type="user"
+          collections={filteredCollections}
+          addButtonUrl="/protected/collections/new"
         />
       )}
-    </div>
+    </Card>
   );
 };
 

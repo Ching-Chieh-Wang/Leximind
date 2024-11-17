@@ -2,3 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (max-width: 300px) {
+    /* Prevent dynamic resizing, allow scrolling */
+    html, body {
+      width: 345px;
+      overflow-x: scroll;
+    }
+  
+    /* Fix layout width to 300px */
+    .fixed-layout {
+      width: 345px;
+      overflow-x: auto;
+    }
+}
