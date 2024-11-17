@@ -69,11 +69,12 @@ const getAllByUserIdSortedByLastViewedAt = async (user_id) => {
       collections.id,
       collections.name,
       collections.description,
-      collections.last_viewed_at AS lastViewTime,
-      collections.is_public AS isPublic,
-      collections.view_cnt AS viewCnt,
-      collections.save_cnt AS saveCnt,
-      COALESCE(collection_word_stats.word_cnt, 0) AS wordsCnt,
+      collections.last_viewed_at AS last_viewed_at,
+      collections.is_public AS is_public,
+      collections.view_cnt AS view_cnt,
+      collections.save_cnt AS save_cnt,
+      collections.created_at AS created_at,
+      COALESCE(collection_word_stats.word_cnt, 0) AS word_cnt,
       COALESCE(collection_word_stats.not_memorized_cnt, 0) AS not_memorized_cnt
     FROM 
       collections
