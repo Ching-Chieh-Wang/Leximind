@@ -56,7 +56,7 @@ const update = async (user_id, username, email, image) => {
       RETURNING id;
     `;
   const result = await db.query(query, [username, email, image, user_id]);
-  return result.rowsCount>0; // Return updated data, or null if no rows updated
+  return result.rows[0]||0; // Return updated data, or null if no rows updated
 };
 
 // Remove user by ID
