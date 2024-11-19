@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
-  const { username, email, password } = await req.json();
+  const body = await req.json();
 
   try {
     // Forward the request directly to the backend API
@@ -11,7 +11,7 @@ export async function POST(req) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify(body),
     });
 
     // Convert the backend response into NextResponse to return it
