@@ -4,20 +4,19 @@ import { SessionProvider } from 'next-auth/react';
 import Nav from '@/components/Nav';
 import '@/styles/globals.css';
 import Background from '@/components/Background';
-import { WarningProvider } from '@/context/WarningContext';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
         <SessionProvider>
-          <WarningProvider>
-              <Background />
-              <div className="relative p-2.5 sm:p-4">
-                <Nav />
-                {children}
-              </div>
-          </WarningProvider>
+          <div className="bg-white md:mb-[400px] lg:mb-[300px] isolate fixed-layout">
+            <Background />
+            <div className="relative w-full">
+              <Nav />
+              {children}
+            </div>
+          </div>
         </SessionProvider>
       </body>
     </html>

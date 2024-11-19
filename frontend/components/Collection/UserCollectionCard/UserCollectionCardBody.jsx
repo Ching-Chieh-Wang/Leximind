@@ -1,16 +1,12 @@
 import { formatDistanceToNow } from 'date-fns';
 import ProgressBar from '@/components/ProgressBar';
-import { useCollections } from '@/context/CollectionContext';
 
-const UserCollectionCardBody = ({index}) => {
-  const {collections} =useCollections();
-  const {
-    description,
-    created_at,
-    word_cnt,
-    not_memorized_cnt,
-
-  }= collections[index];
+const UserCollectionCardBody = ({
+  description,
+  created_at,
+  not_memorized_cnt,
+  word_cnt
+}) => {
   const formattedCreatedAt = formatDistanceToNow(new Date(created_at), { addSuffix: true });
 
   return (

@@ -9,6 +9,7 @@ export async function PUT(req) {
 
     // Check if the session or token is available
     if (!session || !session.user?.accessToken) {
+      console.error("Unauthorized access - session or token missing");
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
     const body=await req.json();
@@ -23,8 +24,9 @@ export async function PUT(req) {
       body: JSON.stringify(body), // Forwarding parsed request body
     });
     const data = await res.json();
+
     // Return the backend response data and status
-    return NextResponse.json(data,{ status: res.status });
+    return NextResponse.json(data, { status: res.status });
 
   } catch (error) {
     console.error('Error updating profile:', error);

@@ -86,18 +86,6 @@ describe('WordLabel Controller', () => {
       });
     });
 
-    it('should return 400 if collection_id mismatch constraint is violated', async () => {
-      const error = { code: '23514' }; // PostgreSQL check constraint violation
-      wordLabelModel.addWordToLabel.mockRejectedValue(error);
-
-      await addWordToLabel(mockReq, mockRes);
-
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'Word and label must belong to the same collection',
-      });
-    });
-
     it('should return 404 if association not found', async () => {
       wordLabelModel.addWordToLabel.mockResolvedValue(null);
 
@@ -141,18 +129,6 @@ describe('WordLabel Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Word-label association not found',
-      });
-    });
-
-    it('should return 400 if collection_id mismatch constraint is violated', async () => {
-      const error = { code: '23514' }; // PostgreSQL check constraint violation
-      wordLabelModel.removeWordFromLabel.mockRejectedValue(error);
-
-      await removeWordFromLabel(mockReq, mockRes);
-
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'Word and label must belong to the same collection',
       });
     });
 

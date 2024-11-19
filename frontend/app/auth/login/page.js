@@ -4,7 +4,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Card from '@/components/Card';
-import ErrorMsg from '@/components/Msg/ErrorMsg';
+import ErrorMsg from '@/components/msg/ErrorMsg';
 import FormButton from '@/components/buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
 
@@ -35,7 +35,7 @@ const LoginPage = () => {
   }, [status, session]);
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent default browser form submission
+    e.preventDefault();
     setIsLoading(true);
     setError(null); // Reset previous error
 
@@ -45,6 +45,7 @@ const LoginPage = () => {
         email,
         password,
       });
+      console.log(result)
 
       if (result.error) {
         setError(result.error);
@@ -63,8 +64,7 @@ const LoginPage = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-    <Card title="Log in to your account">
+    <Card maxWidth="sm:max-w-md" title="Log in to your account">
       <button
         onClick={() => signIn('google')}
         className="w-full inline-flex items-center justify-center py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 bg-white rounded-lg border hover:bg-gray-100"
@@ -81,9 +81,12 @@ const LoginPage = () => {
 
       {error && <ErrorMsg>{error}</ErrorMsg>}
 
-
+      <form className="space-y-6" onSubmit={handleLogin}>
         <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor="email"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             Your email
           </label>
           <input
@@ -114,7 +117,7 @@ const LoginPage = () => {
           />
         </div>
 
-        <FormButton isLoading={isLoading} >
+        <FormButton isLoading={isLoading} onClick={handleLogin}>
           Sign in
         </FormButton>
 
@@ -127,9 +130,8 @@ const LoginPage = () => {
             Sign up
           </a>
         </p>
-
+      </form>
     </Card>
-    </form>
   );
 };
 

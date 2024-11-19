@@ -17,6 +17,8 @@ const register = async (req, res) => {
     // Create the new user
     const newUser = await userModel.create(username, email, 'credential', 'user', hashedPassword);
 
+    console.log(newUser)
+
     if (!newUser) {
       return res.status(500).json({ message: 'Error creating user' });
     }
