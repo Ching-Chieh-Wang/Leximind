@@ -1,8 +1,7 @@
 // components/FormButton.js
-export default function FormButton({ onClick, isLoading, loadingText = 'Loading...', children }) {
+export default function FormButton({  isLoading, loadingText = 'Loading...', children }) {
   return (
     <button
-      onClick={!isLoading ? onClick : null} // Prevents click if loading
       type="submit"
       className={`text-white bg-teal-600 py-1.5 px-4 rounded font-bold w-full ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
       disabled={isLoading} // Also disables button in loading state

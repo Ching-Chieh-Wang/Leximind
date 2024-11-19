@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/Card';
-import ErrorMsg from '@/components/msg/ErrorMsg';
-import SuccessMsg from '@/components/msg/SuccessMsg';
+import ErrorMsg from '@/components/Msg/ErrorMsg';
+import SuccessMsg from '@/components/Msg/SuccessMsg';
 import Image from 'next/image';
 import FormButton from '@/components/buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
@@ -46,9 +46,12 @@ const ProfilePage = () => {
     setIsLoading(true);
     setFieldErrors({});
     setSuccessMessage(null);
-
     try {
-      const response = await fetch('/api/protected/users/update', {
+      if(session.user.username==username&&session.user.email==email){
+        setSuccessMessage('Profile updated successfully!');
+        return;
+      }
+      const res = await fetch('/api/protected/users/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -56,17 +59,22 @@ const ProfilePage = () => {
         body: JSON.stringify({ username, email, image }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        const errors = {};
-        if (data.errors) {
+      
+      if (!res.ok) {
+        const data= await res.json();
+        console.log(data)
+        if (res.status === 400 && data.errors) {
+          // Handle field-specific errors
+          const errors = {};
           data.errors.forEach((error) => {
-            errors[error.path] = error.msg;
+            if (!errors[error.path]) {
+              errors[error.path] = error.msg; // Store only the first error for each field
+            }
           });
           setFieldErrors(errors);
         } else {
-          setFieldErrors({ general: data.message || 'Update failed. Please try again.' });
+          // Handle general errors
+          setFieldErrors({ general: data.message || 'Registration failed. Please try again.' });
         }
         return;
       }
@@ -100,7 +108,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <form>
+    <form onSubmit={handleSave}>
       <Card title="Public Profile">
         <div className="flex flex-col items-center space-y-5 sm:flex-row sm:space-y-0">
           <div className="transition-all opacity-50 -inset-px bg-gradient-to-r from-red-400 from-0% via-yellow-400 via-50% to-green-400 to-100% rounded-full blur-lg group-hover:opacity-100"></div>
@@ -140,7 +148,7 @@ const ProfilePage = () => {
         {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
 
         <div>
-          <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">
+          <label className="block mb-2 text-sm font-medium text-gray-900">
             Username
           </label>
           <input
@@ -148,13 +156,13 @@ const ProfilePage = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
-            placeholder="Username"
+            placeholder={session?.user?.username}
           />
           {fieldErrors.username && <ErrorMsg>{fieldErrors.username}</ErrorMsg>}
         </div>
 
         <div>
-          <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
+          <label className="block mb-2 text-sm font-medium text-gray-900">
             Email
           </label>
           {session?.user?.login_provider === 'google' ? (
@@ -168,13 +176,13 @@ const ProfilePage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
-              placeholder="name@company.com"
+              placeholder={session?.user?.email}
             />
           )}
           {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
         </div>
 
-        <FormButton onClick={handleSave} isLoading={isLoading} loadingText="Saving...">
+        <FormButton  isLoading={isLoading} loadingText="Saving...">
           Save
         </FormButton>
       </Card>
