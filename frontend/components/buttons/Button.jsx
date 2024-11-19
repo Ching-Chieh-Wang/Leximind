@@ -5,7 +5,7 @@ const Button = ({ children, href, onClick, type = 'button' }) => {
     <div className="relative inline-flex group">
       <div className="absolute transition-all opacity-50 -inset-px bg-gradient-to-r from-red-400 via-yellow-400 to-green-400 rounded-full blur-lg group-hover:opacity-100"></div>
       <div className="relative inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-gray-900 rounded-full">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-xs sm:text-sm">
           {children}
         </div>
       </div>
@@ -16,7 +16,7 @@ const Button = ({ children, href, onClick, type = 'button' }) => {
   if (href) {
     return (
       <Link href={href}>
-         {buttonContent}
+        {buttonContent}
       </Link>
     );
   }
