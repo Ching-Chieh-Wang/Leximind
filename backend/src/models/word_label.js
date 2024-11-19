@@ -30,8 +30,7 @@ const addWordToLabel = async (user_id, label_id, word_id, collection_id) => {
 
   const result = await db.query(query, [user_id, label_id, word_id, collection_id]);
 
-  // Check if the result is empty
-  return result.rowCount !== 0
+  return result.rows[0]||null
 };
 
 // Remove a word from a label
@@ -46,8 +45,7 @@ const removeWordFromLabel = async (user_id, label_id, word_id, collection_id) =>
 
   const result = await db.query(query, [user_id, label_id, word_id, collection_id]);
 
-  // Check if the result is empty
-  return result.rowCount !== 0
+  return result.rows[0]||null
 };
 
 

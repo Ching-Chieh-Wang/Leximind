@@ -22,13 +22,11 @@ const create = async (username, email, login_provider, role, hashedPassword = ''
   const query = `
     INSERT INTO users (username, email, password, role, login_provider, image)
     VALUES ($1, $2, $3, $4, $5, $6)
-    ON CONFLICT (email)
-    DO UPDATE SET email = EXCLUDED.email
     RETURNING id, username, email, role, login_provider, image;
   `;
 
   const result = await db.query(query, [username, email, hashedPassword, role, login_provider, image]);
-  return result.rows[0];
+  return result.rows[0]||null;
 };
 
 // Get user by email without password
@@ -41,7 +39,7 @@ const getByEmail = async (email) => {
 // Get user with password by email (for login validation)
 const getUserWithPasswordByEmail = async (email) => {
   const result = await db.query('SELECT id,username,email,password, role,image,login_provider FROM users WHERE email = $1;', [email]);
-  return result.rows[0];
+  return result.rows[0]||null;
 };
 
 // Update user's username, email, and image
@@ -56,7 +54,7 @@ const update = async (user_id, username, email, image) => {
       RETURNING id;
     `;
   const result = await db.query(query, [username, email, image, user_id]);
-  return result.rows[0]||0; // Return updated data, or null if no rows updated
+  return result.rows[0]||null; // Return updated data, or null if no rows updated
 };
 
 // Remove user by ID
@@ -66,13 +64,13 @@ const remove = async (id) => {
     [id]
   );
 
-  return result.rowCount > 0; // Return true if deletion was successful, false otherwise
+  return result.rows[0]||null; // Return true if deletion was successful, false otherwise
 };
 
 // Get user by ID without password
 const getById = async (id) => {
   const result = await db.query('SELECT id, username, email, role, image, login_provider, created_at FROM users WHERE id = $1;', [id]);
-  return result.rows[0];
+  return result.rows[0]||null;
 };
 
 module.exports = { createTable, create, getByEmail, getUserWithPasswordByEmail, update, remove, getById };

@@ -56,7 +56,7 @@ const create = async ({ user_id, collection_id, name, description, img_path, lab
     SELECT new_word.id FROM new_word;
   `;
   const result = await db.query(query, [user_id, collection_id, name, description, img_path, label_ids]);
-  return result.rows[0]?.id || null;
+  return result.rows[0] || null;
 };
   
 
@@ -74,7 +74,7 @@ const remove = async (user_id, collection_id, word_id) => {
     RETURNING id;
   `;
   const result = await db.query(query, [user_id, collection_id, word_id]);
-  return result.rowCount > 0; // Returns true if a row was deleted, false otherwise
+  return result.rows[0]||null
 };
 
 

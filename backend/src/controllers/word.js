@@ -10,14 +10,14 @@ const create = async (req, res) => {
     const { name, description, img_path, label_ids } = req.body;
 
     // Create the new word
-    const word_id = await wordModel.create({ user_id,collection_id, name, description, img_path, label_ids });
-    if (!word_id) {
+    const result = await wordModel.create({ user_id,collection_id, name, description, img_path, label_ids });
+    if (!result) {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
 
     res.status(201).json({
       message: 'Word created successfully',
-      word_id: word_id,
+      word_id: result.id,
     });
   } catch (err) {
     if (err.code === '23502') { // Foreign key violation

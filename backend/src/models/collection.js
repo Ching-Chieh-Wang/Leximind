@@ -57,7 +57,7 @@ const update = async (user_id, collection_id, name, description, is_public) => {
 const remove = async (user_id, collection_id) => {
   const query = `DELETE FROM collections WHERE id = $1 AND user_id = $2 RETURNING id;`;
   const result = await db.query(query, [collection_id, user_id]);
-  return result.rowCount > 0;
+  return result.rows[0]||null;
 };
 
 /**

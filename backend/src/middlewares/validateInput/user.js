@@ -9,6 +9,7 @@ const usernameValidation = body('username')
 // Reusable validation rules for email
 const emailValidation = body('email')
   .trim()
+  .notEmpty().withMessage('Email is required')
   .isEmail().withMessage('Invalid email address')
   .isLength({ max: 60 }).withMessage('Email cannot be more than 60 characters long');
 
