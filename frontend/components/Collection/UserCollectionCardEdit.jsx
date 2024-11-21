@@ -90,12 +90,13 @@ const UserCollectionCardEdit = ({
         ></textarea>
 
         <div className="flex justify-end space-x-4 ">
+          <FormCancelButton onclick={()=>{setEditingIdx(null)}}>
+              Cancel
+            </FormCancelButton>
           <FormButton isLoading={isLoading}>
             Update
           </FormButton>
-          <FormCancelButton onclick={()=>{setEditingIdx(null)}}>
-            Cancel
-          </FormCancelButton>
+
         </div>
       </Card>
     </form>

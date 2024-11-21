@@ -1,7 +1,7 @@
 // components/FormButton.js
 export default function FormCancelButton({ children , onclick}) {
   return (
-    <button type="button" className="text-white bg-red-600 py-1.5 px-4 rounded font-bold w-full  " onClick={onclick}>
+    <button type="button" className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded w-full  " onClick={onclick}>
       {children}
     </button>
   );
