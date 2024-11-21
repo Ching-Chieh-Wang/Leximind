@@ -46,7 +46,6 @@ export default function RegisterPage() {
       });
 
 
-      console.log(res.ok)
       if (!res.ok) {
         const data = await res.json();
         if (res.status === 400 && data.errors) {
@@ -77,7 +76,7 @@ export default function RegisterPage() {
 
   return (
     <form onSubmit={handleRegister}>
-      <Card maxWidth="sm:max-w-md" title="Register your account">
+      <Card type='form' title="Register your account">
 
         {/* Show general error message */}
         {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
@@ -91,7 +90,7 @@ export default function RegisterPage() {
             type="text"
             id="username"
             value={username}
-            onChange={(e) => setUsername(e.target.value)} ß
+            onChange={(e) => setUsername(e.target.value)} 
             className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
             placeholder="Username"
             required

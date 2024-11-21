@@ -1,7 +1,7 @@
 // Mock the collection model before importing the controller
 jest.mock('@models/collection');
 
-const { create, getById, update, remove, getAllByUserIdSortedByLastViewTime } = require('@controllers/collection');
+const { create, getById, update, remove, getAllByUserIdSortedByLastViewTime,toggleVisibility,savePublicCollection,searchPublicCollections,} = require('@controllers/collection');
 const collectionModel = require('@models/collection');
 
 describe('Collection Controller Tests', () => {
@@ -44,7 +44,6 @@ describe('Collection Controller Tests', () => {
         name: 'Test Collection',
         description: 'A description for test collection',
         user_id: 'user-id-123',
-        author_id: 'user-id-123',
         is_public: true,
         save_cnt: 0,
       };
@@ -53,7 +52,7 @@ describe('Collection Controller Tests', () => {
 
       await create(mockReq, mockRes);
 
-      expect(collectionModel.create).toHaveBeenCalledWith('user-id-123', 'user-id-123', 'Test Collection', 'A description for test collection', true);
+      expect(collectionModel.create).toHaveBeenCalledWith('user-id-123', 'Test Collection', 'A description for test collection', true);
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Collection created successfully',
@@ -119,13 +118,25 @@ describe('Collection Controller Tests', () => {
 
   describe('update', () => {
     it('should update the collection when changes are made', async () => {
+      // Set up mock request body and expected updated collection
       mockReq.body = { name: 'Updated Collection', description: 'Updated Description', is_public: false };
-      const updatedCollection = { id: 'collection-id-456', ...mockReq.body, save_cnt: 1 };
+      const updatedCollection = { id: 'collection-id-456', ...mockReq.body };
+    
+      // Mock the model function to return the updated collection object
       collectionModel.update.mockResolvedValue(updatedCollection);
-
+    
+      // Call the controller function
       await update(mockReq, mockRes);
-
-      expect(collectionModel.update).toHaveBeenCalledWith('collection-id-456', 'Updated Collection', 'Updated Description', false);
+    
+      // Check that the model's update function was called with the correct arguments
+      expect(collectionModel.update).toHaveBeenCalledWith(
+        'collection-id-456', 
+        'Updated Collection', 
+        'Updated Description', 
+        false
+      );
+    
+      // Verify that the response status and JSON payload are correct
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Collection updated successfully',
@@ -173,8 +184,7 @@ describe('Collection Controller Tests', () => {
 
   describe('remove', () => {
     it('should delete the collection successfully', async () => {
-      const deletedCollection = { id: 'collection-id-456', name: 'Deleted Collection', description: 'Deleted Description' };
-      collectionModel.remove.mockResolvedValue(deletedCollection);
+      collectionModel.remove.mockResolvedValue(true);
 
       await remove(mockReq, mockRes);
 
@@ -182,7 +192,6 @@ describe('Collection Controller Tests', () => {
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Collection deleted successfully',
-        collection: deletedCollection,
       });
     });
 
@@ -234,4 +243,6 @@ describe('Collection Controller Tests', () => {
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'Server error' });
     });
   });
+
+
 });

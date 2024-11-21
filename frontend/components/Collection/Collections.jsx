@@ -1,30 +1,62 @@
-// components/collection/Collection.js
-import GlobalCollectionCardBody from './GlobalCollectionCard/GlobalCollectionCardBody';
+// components/Collection/Collections.jsx
+import { useState } from 'react';
+import { useCollections } from '@/context/CollectionContext';
+import GlobalCollectionCard from './GlobalCollectionCard';
 import UserCollectionCard from './UserCollectionCard';
-import Link from 'next/link';
+import UserCollectionCardEdit from './UserCollectionCardEdit';
 
-const Collections = ({ collections, type = 'user', addButtonUrl = null }) => {
+const Collections = ({ type = 'user', handleAddCollection }) => {
+  const { collections, editingIdx ,setEditingIdx} = useCollections(); // Access collections from context
+
   return (
-    <div className="w-full max-w-7xl space-y-6">
-      {/* Project Cards */}
-      <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 p-1 md:p-4 xl:p-5">
-        {collections.map((collection) => (
-          type === 'user' ? (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-cols-fr">
+      {collections.map((collection, index) => {
+        if (index === editingIdx) {
+          return (
+            <UserCollectionCardEdit
+              key={collection.id}
+              index={index}
+              title="Edit Collection"
+              defaultName={collections[index].name}
+              defaultDescription={collections[index].description}
+               className="w-full max-w-sm mx-auto"
+    
+            />
+          );
+        }
+
+        if (type === 'global') {
+          return (
+            <GlobalCollectionCard
+              key={collection.id}
+              index={index}
+            />
+          );
+        }
+
+        if (type === 'user') {
+          return (
             <UserCollectionCard
               key={collection.id}
-              collection={collection}
+              index={index}
             />
-          ) : (
-            <GlobalCollectionCardBody
-              key={collection.id}
-              collection={collection}
-            />
-          )
-        ))}
-        {/* Add New Collection Card */}
-        {addButtonUrl && (
-          <Link href={addButtonUrl}>
-            <div className='bg-white mt-4 mb-4 border-2 border-dashed border-blue-300 rounded-lg shadow-md  flex flex-col items-center justify-center' style={{ height: '96%' }}>
+          );
+        }
+
+        return null; // Handle unexpected cases
+      })}
+
+      {/* Add New Collection Card */}
+      {type === 'user' && (
+        editingIdx==-1 ? (
+          <UserCollectionCardEdit
+            title="Create New Collection"
+          />
+        ) : (
+          <button onClick={() => {setEditingIdx(-1)}} >
+            <div
+              className="min-h-[364.5px] bg-white  border-2 border-dashed border-blue-300 rounded-lg shadow-md flex flex-col items-center justify-center "
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -42,9 +74,9 @@ const Collections = ({ collections, type = 'user', addButtonUrl = null }) => {
               </svg>
               <span className="text-blue-500">Add New Collection</span>
             </div>
-          </Link>
-        )}
-      </div>
+          </button>
+        )
+      )}
     </div>
   );
 };

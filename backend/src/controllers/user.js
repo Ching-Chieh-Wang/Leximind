@@ -15,12 +15,12 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the new user
-    const newUser = await userModel.create(username, email, 'credential', 'user', hashedPassword);
-
-    console.log(newUser)
-
-    if (!newUser) {
+    const user = await userModel.create(username, email, 'credential', 'user', hashedPassword);
+    if(!user){
       return res.status(500).json({ message: 'Error creating user' });
+    }
+    if (!newUser.is_new_user) {
+      return res.status(409).json({ message: 'Email already in use. Please use a different email.' });
     }
 
     // Generate a JWT token
@@ -29,9 +29,6 @@ const register = async (req, res) => {
     // Respond with the token and user details
     res.status(201).json({ token, user: newUser });
   } catch (err) {
-    if (err.code === '23505') {
-      return res.status(409).json({ message: 'Email already in use. Please use a different email.' });
-    }
     console.error('Error registering user:', err);
     res.status(500).json({ message: 'Server error' });
   }
@@ -81,11 +78,11 @@ const googleLoginOrRegister = async (req, res) => {
     const email = payload.email;
     const username = payload.name;  // Full name
     const image = payload.picture;  // Profile picture URL
-
-    // Try to create the user if they don't already exist
-    const user= await userModel.create(username, email, 'google', 'user', '', image);
     
-
+    const user= await userModel.create(username, email, 'google', 'user', '', image);
+    if(!user){
+      return res.status(500).json({ message: 'Error creaing or retrieving user' });
+    }
     // Generate a JWT token with user details for session management
     const appToken = jwt.sign(
       { id: user.id, role: user.role },

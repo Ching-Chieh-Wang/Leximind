@@ -14,7 +14,7 @@ export default withAuth(
             },
         },
         pages: {
-            signIn: '/auth/login', // Redirect to login if unauthenticated
+            signIn: '/login', // Redirect to login if unauthenticated
         },
     }
 );

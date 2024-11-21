@@ -2,37 +2,22 @@
 import UserCollectionCardHeader from './UserCollectionCard/UserCollectionCardHeader';
 import UserCollectionCardBody from './UserCollectionCard/UserCollectionCardBody';
 import UserCollectionCardFooter from './UserCollectionCard/UserCollectionCardFooter';
+import Card from '../Card';
 
-const UserCollectionCard = ({ collection }) => {
-  const {
-    id,
-    name,
-    description,
-    created_at,
-    is_public,
-    not_memorized_cnt,
-    word_cnt,
-    view_cnt,
-    save_cnt,
-    last_viewed_at
-  } = collection;
+const UserCollectionCard = ({ index }) => {
+
 
   return (
-    <div className="bg-white border rounded-lg shadow-md mt-4">
+    <Card type='card'>
       {/* Header */}
-      <UserCollectionCardHeader name={name} isPublic={is_public} viewCnt={view_cnt} saveCnt={save_cnt} id={id}/>
+      <UserCollectionCardHeader index={index}/>
 
       {/* Body */}
-      <UserCollectionCardBody
-        description={description}
-        not_memorized_cnt={not_memorized_cnt}
-        created_at={created_at}
-        word_cnt={word_cnt}
-      />
+      <UserCollectionCardBody index={index}/>
 
       {/* Footer */}
-      <UserCollectionCardFooter last_viewed_at={last_viewed_at} id={id}/>
-    </div>
+      <UserCollectionCardFooter index={index}/>
+    </Card>
   );
 };
 

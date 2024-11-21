@@ -1,5 +1,3 @@
-// components/DropdownItem.jsx
-
 import Link from 'next/link';
 
 const DropdownItem = ({ children, href, icon, label, onClick }) => {

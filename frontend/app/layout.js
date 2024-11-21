@@ -1,24 +1,23 @@
-'use client';
 
-import { SessionProvider } from 'next-auth/react';
-import Nav from '@/components/Nav';
 import '@/styles/globals.css';
 import Background from '@/components/Background';
+import Providers from '@/components/Providers';
+import Nav from '@/components/Nav/Nav';
 
-export default function RootLayout({ children }) {
+const RootLayout = async ({ children }) => {
   return (
     <html lang="en">
       <body>
-        <SessionProvider>
-          <div className="bg-white md:mb-[400px] lg:mb-[300px] isolate fixed-layout">
-            <Background />
-            <div className="relative w-full">
-              <Nav />
-              {children}
-            </div>
-          </div>
-        </SessionProvider>
+        <Background />
+        <div className="relative p-2.5 sm:p-4">
+          <Providers>
+            <Nav/>
+            {children}
+          </Providers>
+        </div>
       </body>
     </html>
   );
 }
+
+export default RootLayout;

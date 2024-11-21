@@ -11,7 +11,7 @@ import FormButton from '@/components/buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
 
 const ProfilePage = () => {
-  const { data: session, update, status } = useSession();
+  const { data: session, status,update } = useSession();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [newImage, setNewImage] = useState(null);
@@ -23,12 +23,12 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
+      router.push('/login')
     }
     if (session) {
       setUsername(session.user.username);
       setEmail(session.user.email);
-      setImage(session.user.image||'/assets/images/logo.jpg')
+      setImage(session.user.image || '/assets/images/logo.jpg')
     }
   }, [session, status]);
 
@@ -47,7 +47,7 @@ const ProfilePage = () => {
     setFieldErrors({});
     setSuccessMessage(null);
     try {
-      if(session.user.username==username&&session.user.email==email){
+      if (session.user.username == username && session.user.email == email) {
         setSuccessMessage('Profile updated successfully!');
         return;
       }
@@ -59,9 +59,9 @@ const ProfilePage = () => {
         body: JSON.stringify({ username, email, image }),
       });
 
-      
+
       if (!res.ok) {
-        const data= await res.json();
+        const data = await res.json();
         console.log(data)
         if (res.status === 400 && data.errors) {
           // Handle field-specific errors
@@ -101,6 +101,7 @@ const ProfilePage = () => {
       setSuccessMessage('Profile updated successfully!');
       router.refresh(); // Refresh to reflect updates
     } catch (error) {
+      console.error(error)
       setFieldErrors({ general: 'Something went wrong. Please try again later.' });
     } finally {
       setIsLoading(false);
@@ -109,11 +110,10 @@ const ProfilePage = () => {
 
   return (
     <form onSubmit={handleSave}>
-      <Card title="Public Profile">
-        <div className="flex flex-col items-center space-y-5 sm:flex-row sm:space-y-0">
-          <div className="transition-all opacity-50 -inset-px bg-gradient-to-r from-red-400 from-0% via-yellow-400 via-50% to-green-400 to-100% rounded-full blur-lg group-hover:opacity-100"></div>
+      <Card type='form' title="Public Profile">
+        <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
           <Image
-            className="object-cover w-40 h-40 p-1 rounded-full ring-2 ring-indigo-300 dark:ring-indigo-500"
+            className="object-cover w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 p-1 rounded-full ring-2 ring-indigo-300 hover:ring-indigo-500"
             src={image}
             alt="Image"
             width={160}
@@ -129,7 +129,7 @@ const ProfilePage = () => {
               />
               <button
                 type="button"
-                className="py-3.5 px-7 text-base font-medium text-indigo-100 bg-[#202142] rounded-lg border border-indigo-200 hover:bg-indigo-900"
+                className="p-3 text-base font-medium text-indigo-100 bg-[#202142] rounded-lg border border-indigo-200 hover:bg-indigo-900"
               >
                 Change picture
               </button>
@@ -137,7 +137,7 @@ const ProfilePage = () => {
             <button
               type="button"
               onClick={() => setImage('/default-profile.png')}
-              className="py-3.5 px-7 text-base font-medium text-indigo-900 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-100"
+              className="p-3 text-base font-medium text-indigo-900 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-100"
             >
               Delete picture
             </button>
@@ -182,7 +182,7 @@ const ProfilePage = () => {
           {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
         </div>
 
-        <FormButton  isLoading={isLoading} loadingText="Saving...">
+        <FormButton isLoading={isLoading} loadingText="Saving...">
           Save
         </FormButton>
       </Card>

@@ -1,16 +1,11 @@
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 
 export async function PUT(req) {
   try {
     // Retrieve the session to access the token
     const session = await getServerSession(authOptions);
-
-    // Check if the session or token is available
-    if (!session || !session.user?.accessToken) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
     const body=await req.json();
 
     // Forward the request to the backend with the token and parsed body

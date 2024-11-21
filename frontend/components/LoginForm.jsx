@@ -1,38 +1,31 @@
 'use client';
 
-import { signIn, useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Card from '@/components/Card';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
 import FormButton from '@/components/buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
 
-const LoginPage = () => {
-  const { data: session, status, update } = useSession();
+const LoginForm = () => {
+  const { data: session, status,update } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams(); // Access query parameters
-  const [isRedirected, setIsRedirected] = useState(false); // Track redirection state
-
-
-  // If the user is already authenticated, redirect them
-  useEffect(() => {
-    if (!isRedirected) {
-      update();
-      // Redirect only when session status is 'authenticated' and not already redirected
-      if (status === 'authenticated') {
-        // Call update to sync the session state across tabs
-
-        const callbackUrl = searchParams.get('callbackUrl') || '/';
-        setIsRedirected(true); // Set redirection flag to true
-        router.push(callbackUrl); // Redirect to callback URL or home
-      }
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  useEffect(()=>{
+    update();
+    if(status==='authenticated'){
+      router.push(callbackUrl)
     }
-  }, [status, session]);
+  }
+    ,[session,status,router]
+  )
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent default browser form submission
@@ -40,20 +33,20 @@ const LoginPage = () => {
     setError(null); // Reset previous error
 
     try {
-      const result = await signIn('credentials', {
+      const res = await signIn('credentials', {
         redirect: false,
         email,
         password,
       });
 
-      if (result.error) {
-        setError(result.error);
+
+      if (!res.ok) {
+        setError("An unexpected error occurred. Please try again");
+        return;
       }
-      else{
-        const callbackUrl = searchParams.get('callbackUrl') || '/';
-        setIsRedirected(true); // Set redirection flag to true
-        router.push(callbackUrl); // Redirect to callback URL or home
-      }
+
+      router.push(callbackUrl); // Redirect to callback URL or home
+      router.refresh();
     } catch (error) {
       console.error(error);
       setError('An unexpected error occurred. Please try again.');
@@ -61,12 +54,14 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <form onSubmit={handleLogin}>
-    <Card title="Log in to your account">
+    <Card type='form' title="Log in to your account">
       <button
-        onClick={() => signIn('google')}
+        type="button"
+        onClick={()=>{signIn('google',{redirect:false})}}
         className="w-full inline-flex items-center justify-center py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 bg-white rounded-lg border hover:bg-gray-100"
       >
         <GoogleIcon/>
@@ -133,4 +128,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginForm;
