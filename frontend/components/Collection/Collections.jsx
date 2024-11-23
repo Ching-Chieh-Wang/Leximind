@@ -1,26 +1,20 @@
-// components/Collection/Collections.jsx
-import { useState } from 'react';
+'use client'
 import { useCollections } from '@/context/CollectionContext';
 import GlobalCollectionCard from './GlobalCollectionCard';
 import UserCollectionCard from './UserCollectionCard';
 import UserCollectionCardEdit from './UserCollectionCardEdit';
+import CreateIcon from '../icons/CreateIcon';
 
-const Collections = ({ type = 'user', handleAddCollection }) => {
+const Collections = ({ type = 'user' }) => {
   const { collections, editingIdx ,setEditingIdx} = useCollections(); // Access collections from context
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-cols-fr">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+
       {collections.map((collection, index) => {
         if (index === editingIdx) {
           return (
             <UserCollectionCardEdit
               key={collection.id}
-              index={index}
-              title="Edit Collection"
-              defaultName={collections[index].name}
-              defaultDescription={collections[index].description}
-               className="w-full max-w-sm mx-auto"
-    
             />
           );
         }
@@ -48,31 +42,15 @@ const Collections = ({ type = 'user', handleAddCollection }) => {
 
       {/* Add New Collection Card */}
       {type === 'user' && (
-        editingIdx==-1 ? (
-          <UserCollectionCardEdit
-            title="Create New Collection"
-          />
+        editingIdx==collections.length ? (
+          <UserCollectionCardEdit/>
         ) : (
-          <button onClick={() => {setEditingIdx(-1)}} >
+          <button onClick={() => {setEditingIdx(collections.length)}} >
             <div
-              className="min-h-[364.5px] bg-white  border-2 border-dashed border-blue-300 rounded-lg shadow-md flex flex-col items-center justify-center "
+              className=" bg-white h-full w-full border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center text-blue-500"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-6 w-6 text-blue-500 mb-2"
-              >
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              <span className="text-blue-500">Add New Collection</span>
+              <CreateIcon size={35}/>
+              Add New Collection
             </div>
           </button>
         )

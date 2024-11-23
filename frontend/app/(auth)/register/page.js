@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
 import Card from '@/components/Card';
 import FormButton from '@/components/buttons/FormButton'
-import { useWarning } from '@/context/WarningContext';
+import { useDialog } from '@/context/DialogContext';
 
 export default function RegisterPage() {
   const { data: session, status, update } = useSession();
@@ -14,7 +14,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { showWarning } = useWarning();
+  const { showDialog } = useDialog();
 
   const router = useRouter();
 
@@ -33,7 +33,6 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Clear previous errors
     setFieldErrors({});
 
 
@@ -63,9 +62,9 @@ export default function RegisterPage() {
         }
         return;
       }
-      showWarning("Register sucessfully! Please log in.")
       // Redirect the user to the login page after successful registration
-      router.push('/auth/login');
+      router.push('/login');
+      showDialog("Register sucessfully!", "Please log in.",'success')
 
     } catch (error) {
       setFieldErrors({ general: error.message });

@@ -62,7 +62,6 @@ const ProfilePage = () => {
 
       if (!res.ok) {
         const data = await res.json();
-        console.log(data)
         if (res.status === 400 && data.errors) {
           // Handle field-specific errors
           const errors = {};

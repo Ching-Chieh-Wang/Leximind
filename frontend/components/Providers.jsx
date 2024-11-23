@@ -1,14 +1,14 @@
 'use client'; // Mark this as a client component
 
 import { SessionProvider } from 'next-auth/react';
-import { WarningProvider } from '@/context/WarningContext';
+import { DialogProvider } from '@/context/DialogContext';
 
-const Providers = ({ children, initialSession }) => {
+const Providers = ({ children }) => {
   return (
-    <SessionProvider session={initialSession}>
-      <WarningProvider>
+    <SessionProvider >
+      <DialogProvider>
         {children}
-      </WarningProvider>
+      </DialogProvider>
     </SessionProvider>
   );
 };

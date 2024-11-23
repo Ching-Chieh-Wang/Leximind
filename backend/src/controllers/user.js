@@ -19,15 +19,15 @@ const register = async (req, res) => {
     if(!user){
       return res.status(500).json({ message: 'Error creating user' });
     }
-    if (!newUser.is_new_user) {
+    if (!user.is_new_user) {
       return res.status(409).json({ message: 'Email already in use. Please use a different email.' });
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
 
     // Respond with the token and user details
-    res.status(201).json({ token, user: newUser });
+    res.status(201).json({ token, user: user });
   } catch (err) {
     console.error('Error registering user:', err);
     res.status(500).json({ message: 'Server error' });

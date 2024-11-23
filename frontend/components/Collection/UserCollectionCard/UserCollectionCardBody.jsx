@@ -1,39 +1,32 @@
-import { formatDistanceToNow } from 'date-fns';
-import ProgressBar from '@/components/ProgressBar';
+'use client'
 import { useCollections } from '@/context/CollectionContext';
 
-const UserCollectionCardBody = ({index}) => {
-  const {collections} =useCollections();
+
+const UserCollectionCardBody = ({ index }) => {
+  const { collections } = useCollections();
   const {
     description,
-    created_at,
-    word_cnt,
-    not_memorized_cnt,
+  } = collections[index];
 
-  }= collections[index];
-  const formattedCreatedAt = formatDistanceToNow(new Date(created_at), { addSuffix: true });
+
+
+
 
   return (
-    <div className="px-4 pb-4 flex-grow">
+    <div className="flex-grow">
       {/* Project Description */}
-      <p className="text-sm text-gray-600 mb-4 line-clamp-3" style={{ minHeight: '4.5em' }}>
-        {description}
-      </p>
-
-      {/* Memorized Text and Count */}
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-sm text-gray-500">{word_cnt === 0 ? "Empty" : "Memorized"}</span>
-        <span className="text-sm text-gray-500">{word_cnt - not_memorized_cnt}/{word_cnt}</span>
-      </div>
-
-      {/* Status Bar */}
-      <ProgressBar percentage={ ((word_cnt - not_memorized_cnt) / word_cnt) * 100} />
-
-      {/* Footer Section */}
-      <div className="px-4 py-2 border-t border-gray-200 flex justify-end items-center space-x-2">
-        <span className="text-sm text-gray-500 truncate flex-grow overflow-hidden">
-          Created {formattedCreatedAt}
-        </span>
+      <div className='flex-grow'>
+        <p
+          className="text-sm text-gray-600 "
+          style={{
+            maxHeight: '5.5em', // Limit height to approximately 3 lines
+            overflowY: 'auto',  // Enable vertical scrolling
+            overflowWrap: 'break-word', // Handle long words
+            paddingRight: '0.5em', // Add padding to the right of the scrollable area
+          }}
+        >
+          {description}
+        </p>
       </div>
     </div>
   );

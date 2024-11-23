@@ -12,9 +12,8 @@ const commonClasses = `
     return (
       <Link href={href} passHref>
         <li className={commonClasses}>
-          {children}
           {icon}
-          <span>{label}</span>
+          <span>{children}</span>
         </li>
       </Link>
     );
@@ -22,9 +21,8 @@ const commonClasses = `
     // Render as a button with appropriate styles
     return (
       <li onClick={onClick} className={commonClasses}>
-        {children}
         {icon}
-        <span>{label}</span>
+        <span>{children}</span>
       </li>
     );
   }

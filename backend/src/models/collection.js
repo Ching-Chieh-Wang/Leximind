@@ -14,8 +14,8 @@ const createTable = async () => {
       is_public BOOLEAN DEFAULT FALSE,
       view_cnt INT DEFAULT 0,
       save_cnt INT DEFAULT 0,    
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      last_viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      last_viewed_at TIMESTAMPTZ DEFAULT NULL
     );
     `;
   await db.query(query);
@@ -29,7 +29,7 @@ const createTable = async () => {
 const create = async (user_id, name, description, is_public) => {
   const query = `
     INSERT INTO collections (user_id, name, description, is_public) 
-    VALUES ($1, $2, $3, $4) RETURNING id;
+    VALUES ($1, $2, $3, $4) RETURNING id, created_at;
   `;
   const result = await db.query(query, [user_id, name, description, is_public]);
   return result.rows[0] || null;

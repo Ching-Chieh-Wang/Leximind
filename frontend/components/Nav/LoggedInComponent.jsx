@@ -35,11 +35,7 @@ const LoggedInComponent = ({user}) => {
                     </div>
                 </DropdownItem>
                 <hr className="my-2" />
-                <DropdownItem
-                    href="/protected/profile"
-                    icon={<ProfileIcon size="14" />}
-                    label="Profile"
-                />
+                <DropdownItem href="/protected/profile" icon={<ProfileIcon size="14" />}>Profile</DropdownItem>
                 <LogOutDropDownItem/>
             </DropdownMenu>
         </>

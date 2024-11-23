@@ -8,8 +8,7 @@ const LogOutDropDownItem = () => {
         <DropdownItem
             onClick={()=>signOut({redirect:false})}
             icon={<LogoutIcon size="14" />}
-            label="Logout"
-        />
+        >Logout</DropdownItem>
     )
 }
 

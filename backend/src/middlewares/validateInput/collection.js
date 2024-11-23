@@ -5,8 +5,7 @@ const validateCollectionInput = [
   body('name')
     .trim()
     .notEmpty().withMessage('Collection name is required')
-    .isLength({ max: 100 }).withMessage('Collection name cannot be more than 100 characters long')
-    .matches(/^[A-Za-z0-9 ]+$/).withMessage('Collection name can only contain letters, numbers, and spaces'),
+    .isLength({ max: 50 }).withMessage('Collection name cannot be more than 50 characters long'),
 
   body('description')
     .trim()
