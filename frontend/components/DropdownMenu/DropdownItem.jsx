@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const DropdownItem = ({ children, href, icon, label, onClick }) => {
+const DropdownItem = ({ children, href, icon, onClick }) => {
   // Define common classes for both Link and button
 const commonClasses = `
     flex items-center text-sm font-medium text-gray-600

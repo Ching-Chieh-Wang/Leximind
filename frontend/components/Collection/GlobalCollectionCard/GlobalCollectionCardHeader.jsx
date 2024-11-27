@@ -8,7 +8,7 @@ const GlobalCollectionCardHeader = ({ name ,isPublic}) => {
   return (
     <div className="flex justify-between items-center m-4">
       {/* Project Title */}
-      <h3 className="flex-1 text-lg font-semibold text-gray-800 truncate w-full">
+      <h3 className="flex-1 text-xl md:text-2xl font-semibold text-gray-800 truncate w-full">
         {name}
       </h3>
 

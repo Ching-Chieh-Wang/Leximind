@@ -4,17 +4,19 @@ import Background from '@/components/Background';
 import Providers from '@/components/Providers';
 import Nav from '@/components/Nav/Nav';
 
-const RootLayout = async ({ children }) => {
+const RootLayout = ({ children }) => {
   return (
     <html lang="en">
       <body>
         <Background />
-        <div className="relative p-2.5 sm:p-4">
+
           <Providers>
-            <Nav/>
+          <div className="p-2.5 sm:p-4">
+            <Nav />
             {children}
+            </div>
           </Providers>
-        </div>
+
       </body>
     </html>
   );

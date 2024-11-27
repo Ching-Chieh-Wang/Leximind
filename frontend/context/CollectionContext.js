@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+'use client'
+import  { createContext, useContext, useState } from 'react';
 
 // Create the context
 const CollectionsContext = createContext();
@@ -10,7 +11,7 @@ export const CollectionsProvider = ({ children }) => {
 
   // Add a collection optimistically
   const addCollection = (newCollection) => {
-    setCollections((prev) => [newCollection, ...prev]); // Adding at the top for immediate display
+    setCollections((prev) => [...prev,newCollection]); // Adding at the top for immediate display
   };
 
   // Update a collection optimistically

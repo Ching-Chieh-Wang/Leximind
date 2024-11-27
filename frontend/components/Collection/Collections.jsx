@@ -8,7 +8,7 @@ import CreateIcon from '../icons/CreateIcon';
 const Collections = ({ type = 'user' }) => {
   const { collections, editingIdx ,setEditingIdx} = useCollections(); // Access collections from context
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+    <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 auto-rows-fr">
 
       {collections.map((collection, index) => {
         if (index === editingIdx) {
@@ -47,7 +47,7 @@ const Collections = ({ type = 'user' }) => {
         ) : (
           <button onClick={() => {setEditingIdx(collections.length)}} >
             <div
-              className=" bg-white h-full w-full border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center text-blue-500"
+              className=" bg-white min-h-[340px] border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center text-blue-500"
             >
               <CreateIcon size={35}/>
               Add New Collection

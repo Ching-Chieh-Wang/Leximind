@@ -14,7 +14,6 @@ export async function GET(req) {
         Authorization: `Bearer ${session.user.accessToken}`,
       },
     });
-
     const result=await res.json();
 
     return NextResponse.json(result, { status: res.status })

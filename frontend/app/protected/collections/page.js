@@ -8,15 +8,19 @@ import Collections from '@/components/Collection/Collections';
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
 import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import Card from '@/components/Card';
+import { useDialog } from '@/context/DialogContext';
+import { SortIcon } from '@/components/icons/SortIcon';
+import SearchIcon from '@/components/icons/SearchIcon';
+import { DropdownIcon } from '@/components/icons/DropdownIcon';
 
-const CollectionsPageContent = () => {
+const CollectionsPage = () => {
+  const { showDialog } = useDialog();
   const { status } = useSession();
   const router = useRouter();
-
+  const [fetchedCollections, setFetchedCollections] = useState([]);
   const {
     collections,
     setCollections,
-    addCollection,
   } = useCollections();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,105 +41,100 @@ const CollectionsPageContent = () => {
             'Content-Type': 'application/json', // Ensure the content type is JSON
           },
         });
-        if (!response.ok) {
-          throw new Error('Failed to fetch collections');
-        }
         const data = await response.json(); // Parse the JSON response
-        setCollections(data.collections || []); // Set collections in context
+        if (!response.ok) {
+          console.log("Error fetching collections:", data.message);
+          showDialog('Error!', 'Something went wrong, please try again later.');
+        }
+
+        setFetchedCollections(data.collections || []);
+        setCollections(data.collections || [])
       } catch (error) {
-        console.error('Error fetching collections:', error);
+        console.error(error);
+        showDialog('Error!', 'Something went wrong, please try again later.');
       }
     };
-  
-    fetchCollections(); // Call the function here correctly
-  }, []); // Dependency array ensures this runs only once on component mount
 
-  const handleSearchAndSort = () => {
-    let updatedCollections = [...collections];
+    fetchCollections();
+    setSortType('Recently viewed first~') // Avoid trigger sorting
+  }, []);
 
-    // Search Filter
-    if (searchQuery) {
-      updatedCollections = updatedCollections.filter((collection) =>
-        collection.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    else{
-      updatedCollections=collections;
-    }
-
-    // Sorting
-    if (sortType) {
-      updatedCollections = updatedCollections.sort((a, b) => {
-        if (sortType === 'name') return a.name.localeCompare(b.name);
-        if (sortType === 'createdAt') return new Date(a.createdAt) - new Date(b.createdAt);
-        if (sortType === 'lastViewTime') return new Date(b.lastViewTime) - new Date(a.lastViewTime);
-        return 0;
-      });
-    }
-
-    setCollections(updatedCollections);
-  };
 
   useEffect(() => {
-    handleSearchAndSort(); // Trigger search and sort when dependencies change
-  }, [searchQuery, sortType]);
 
-  const handleAddCollection = async (name, description, is_public) => {
-    try {
-      const response = await fetch('/api/protected/collections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, description, is_public }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to add collection');
-      }
-
-      const newCollection = await response.json();
-      addCollection(newCollection); // Add new collection optimistically
-
-      alert('Collection added successfully!');
-    } catch (error) {
-      console.error('Error adding collection:', error);
-      alert(`Error: ${error.message}`);
+    // Search Filter
+    if (searchQuery.length != 0) {
+      console.log(searchQuery)
+      setCollections([...fetchedCollections].filter((collection) =>
+        collection.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+      console.log(collections)
+      setSortType('Recently viewed first~') // Avoid trigger sorting
     }
-  };
+    else setCollections([...fetchedCollections])
+  }, [searchQuery]);
+
+  useEffect(() => {
+    console.log(sortType)
+    setCollections([...collections].sort((a, b) => {
+      if (sortType === 'A-Z') return a.name.localeCompare(b.name);
+      if (sortType === 'Newest first') return new Date(a.created_at) - new Date(b.created_at);
+      if (sortType === 'Recently viewed first') return new Date(b.last_viewed_at) - new Date(a.last_viewed_at);
+
+      return 0;
+    }));
+    console.log(collections)
+  }, [sortType]);
+
+  const sortDropDownButton = (
+    <div
+      className=" inline-flex  items-center font-bold whitespace-nowrap rounded-lg text-sm    px-1 sm:px-2 md:px-4 py-2  gap-2  bg-gray-200 "
+    >
+      <SortIcon />
+      <span className="font-normal text-primary-text hidden md:inline-block">
+        Sort By:
+      </span>
+      <span className="text-ellipsis hidden sm:inline-block">
+        {sortType } {/* Show current sort type */}
+      </span>
+      <DropdownIcon />
+    </div>
+  )
+
 
   return (
-    <Card type='page' title="My Collections">
+    <Card type="page" title="My Collections">
       {/* Search and Sort Section */}
-      <div className="flex justify-between items-center">
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search collections..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 p-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+      <div className="shadow-lg shadow-indigo-200">
+        <Card type="card" >
+          {/* Dropdown (Sort Button) */}
+          <div className='flex items-center  gap-x-2 gap-y-4'>
+            <DropdownMenu button={sortDropDownButton}>
+              <DropdownItem onClick={() => { setSortType('A-Z')  }}>A-Z</DropdownItem>
+              <DropdownItem onClick={() => { setSortType('Newest first')}}>Newest first</DropdownItem>
+              <DropdownItem onClick={() => { setSortType('Recently viewed first') }}>Recently viewed first'</DropdownItem>
+            </DropdownMenu>
 
-        {/* Sort Dropdown */}
-        <DropdownMenu button={<div className="p-2 border rounded-md border-gray-300 bg-gray-50 hover:bg-gray-100">Sort</div>}>
-          <DropdownItem onClick={() => setSortType('name')} label="Name" />
-          <DropdownItem onClick={() => setSortType('createdAt')} label="Created At" />
-          <DropdownItem onClick={() => setSortType('lastViewTime')} label="Last Viewed" />
-        </DropdownMenu>
+
+            <div className=" h-9 w-0.5 bg-indigo-400"></div>
+
+            {/* Search Input */}
+            <SearchIcon size="25" />
+            <input
+              className="w-full bg-transparent focus:outline-none placeholder:text-gray-500 text-clip truncate"
+              placeholder="Search collections..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </Card>
       </div>
 
-      {/* Collections Component */}
-      <Collections type="user" handleAddCollection={handleAddCollection} />
+      {/* Display Collections */}
+      <Collections type="user" />
     </Card>
   );
 };
 
-const CollectionsPage = () => (
-  <CollectionsProvider>
-    <CollectionsPageContent />
-  </CollectionsProvider>
-);
+export default CollectionsPage
 
-export default CollectionsPage;

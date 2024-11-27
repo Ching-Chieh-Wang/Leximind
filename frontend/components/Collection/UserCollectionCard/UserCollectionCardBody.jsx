@@ -17,9 +17,9 @@ const UserCollectionCardBody = ({ index }) => {
       {/* Project Description */}
       <div className='flex-grow'>
         <p
-          className="text-sm text-gray-600 "
+          className="text-md text-gray-600 "
           style={{
-            maxHeight: '5.5em', // Limit height to approximately 3 lines
+            maxHeight: '10.5em', // Limit height to approximately 3 lines
             overflowY: 'auto',  // Enable vertical scrolling
             overflowWrap: 'break-word', // Handle long words
             paddingRight: '0.5em', // Add padding to the right of the scrollable area

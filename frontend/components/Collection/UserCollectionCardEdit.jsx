@@ -103,7 +103,6 @@ const UserCollectionCardEdit = ({
     <form onSubmit={handleUpsert}>
       <Card type='card' title={editingIdx == collectionCnt ? 'Create new collection' : 'Update collection'}>
         {/* Name Input */}
-        <>
         <div>
           <label className="block mb-2 text-sm font-medium text-gray-900">
             Name
@@ -112,14 +111,13 @@ const UserCollectionCardEdit = ({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg  w-full p-2.5"
             placeholder="name@company.com"
             required
             autoComplete="on"
           />
         </div>
         {fieldErrors.name && <ErrorMsg>{fieldErrors.name}</ErrorMsg>}
-        </>
 
         {/* Description Input */}
         <div>
@@ -128,10 +126,10 @@ const UserCollectionCardEdit = ({
         </label>
         <textarea
           id="description"
-          rows="4"
+          rows="2"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg h-24 w-full p-2.5"
           placeholder="Enter collection description"
 
         ></textarea>

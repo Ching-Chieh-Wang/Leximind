@@ -41,7 +41,7 @@ const LoginForm = () => {
 
 
       if (!res.ok) {
-        setError(res.message || "An unexpected error occurred. Please try again");
+        setError(res.error || "An unexpected error occurred. Please try again");
         return;
       }
 

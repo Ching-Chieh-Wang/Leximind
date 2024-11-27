@@ -50,7 +50,7 @@ const UserCollectionCardHeader = ({ index }) => {
     <>
       <div className="flex justify-between items-center ">
         {/* Project Title */}
-        <h3 className="flex-1 text-lg font-semibold text-gray-800  " style={{ overflowWrap: 'break-word' }}>
+        <h3 className="flex-1 text-xl md:text-2xl font-semibold text-gray-800  " style={{ overflowWrap: 'break-word' }}>
           {name}
         </h3>
 
