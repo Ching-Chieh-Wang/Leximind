@@ -1,4 +1,5 @@
 import Button from '@/components/buttons/Button';
+import ToggleButton from '@/components/buttons/ToggleButton';
 import GetStartedIcon from '@/components/icons/GetStartedIcon';
 import RecentlyViewedCollections from '@/components/RecentlyViewedCollections';
 
@@ -16,6 +17,7 @@ const HomePage = () => {
       <br />
 
       <Button href="/protected/collections">Get Started! <GetStartedIcon /></Button>
+
 
       {/* Render Recently Viewed Collections if user is logged in */}
       {/* <RecentlyViewedCollections /> */}

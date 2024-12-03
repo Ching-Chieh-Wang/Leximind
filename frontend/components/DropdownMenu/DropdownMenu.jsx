@@ -19,7 +19,8 @@ const DropdownMenu = ({ button, children }) => {
     const handleClickOutside = (event) => {
       if (
         buttonRef.current &&
-        !buttonRef.current.contains(event.target)
+        !buttonRef.current.contains(event.target) &&
+        !event.target.closest('[data-keep-open="true"]') // Keep the dropdown open if `data-keep-open="true"`
       ) {
         setIsOpen(false);
       }

@@ -7,6 +7,7 @@ const {validateCollectionId} =require('../middlewares/validateId/collection')
 const {
   create,
   update,
+  updateAuthorize,
   remove,
   getAllByUserIdSortedByLastViewedAt,
   searchPublicCollections,
@@ -17,6 +18,9 @@ router.post('/', authorizeUser, validateCollectionInput, create);
 
 // Route for updating a specific collection (requires authentication and ownership check)
 router.put('/:collection_id', authorizeUser, validateCollectionId , validateCollectionInput, update);
+
+// Route for updating a specific collection (requires authentication and ownership check)
+router.put('/:collection_id/authorize', authorizeUser, validateCollectionId , updateAuthorize);
 
 // Route for deleting a specific collection (requires authentication and ownership check)
 router.delete('/:collection_id', authorizeUser, validateCollectionId, remove);

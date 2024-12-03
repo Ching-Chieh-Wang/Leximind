@@ -64,26 +64,22 @@ const CollectionsPage = () => {
 
     // Search Filter
     if (searchQuery.length != 0) {
-      console.log(searchQuery)
       setCollections([...fetchedCollections].filter((collection) =>
         collection.name.toLowerCase().includes(searchQuery.toLowerCase())
       ));
-      console.log(collections)
       setSortType('Recently viewed first~') // Avoid trigger sorting
     }
     else setCollections([...fetchedCollections])
   }, [searchQuery]);
 
   useEffect(() => {
-    console.log(sortType)
     setCollections([...collections].sort((a, b) => {
       if (sortType === 'A-Z') return a.name.localeCompare(b.name);
-      if (sortType === 'Newest first') return new Date(a.created_at) - new Date(b.created_at);
+      if (sortType === 'Newest first') return new Date(b.created_at) - new Date(a.created_at);
       if (sortType === 'Recently viewed first') return new Date(b.last_viewed_at) - new Date(a.last_viewed_at);
 
       return 0;
     }));
-    console.log(collections)
   }, [sortType]);
 
   const sortDropDownButton = (

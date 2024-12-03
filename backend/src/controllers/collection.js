@@ -45,6 +45,29 @@ const update = async (req, res) => {
   }
 };
 
+// Function to update a specific collection by ID
+const updateAuthorize = async (req, res) => {
+  try {
+    const user_id = req.user_id;
+    const { collection_id } = req.params;
+    const {  is_public } = req.body;
+
+    const isUpdateSucess = await collectionModel.update(user_id, collection_id, null,null,is_public);
+
+    if (!isUpdateSucess) {
+      return res.status(404).json({ message: 'User or Collection not found' });
+    }
+
+    res.status(200).json({ message: 'Collection updated successfully' });
+  } catch (err) {
+    if (err.code === '23503') { // Foreign key violation
+      return res.status(400).json({ message: 'Invalid user ID provided' });
+    }
+    console.error('Error updating collection authorization:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Function to delete a collection by ID
 const remove = async (req, res) => {
   try {
@@ -117,6 +140,7 @@ const searchPublicCollections = async (req, res) => {
 module.exports = {
   create,
   update,
+  updateAuthorize,
   remove,
   getAllByUserIdSortedByLastViewedAt,
   searchPublicCollections,

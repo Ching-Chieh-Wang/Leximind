@@ -8,6 +8,7 @@ import Card from '@/components/Card';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
 import FormButton from '@/components/buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
+import ToggleButton from './buttons/ToggleButton';
 
 const LoginForm = () => {
   const { data: session, status,update } = useSession();
@@ -122,7 +123,6 @@ const LoginForm = () => {
             Sign up
           </a>
         </p>
-
     </Card>
     </form>
   );
