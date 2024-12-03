@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 const DropdownMenu = ({ button, children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef(null);
+  const menuRef= useRef(null);
 
   // Toggle dropdown menu
   const toggleDropdown = (e) => {
@@ -50,6 +51,24 @@ const DropdownMenu = ({ button, children }) => {
     };
   }, [isOpen]);
 
+   // Adjust dropdown position dynamically
+   useEffect(() => {
+    if (isOpen && menuRef.current) {
+      const menuRect = menuRef.current.getBoundingClientRect();
+      const windowWidth = window.innerWidth;
+
+      if (menuRect.left < 0) {
+        // Dropdown is overflowing to the left
+        menuRef.current.style.left = `0px`;
+        menuRef.current.style.right = 'auto';
+      } else if (menuRect.right > windowWidth) {
+        // Dropdown is overflowing to the right
+        menuRef.current.style.left = 'auto';
+        menuRef.current.style.right = `0px`;
+      }
+    }
+  }, [isOpen]);
+
   return (
     <div className="relative inline-block text-left">
       <button onClick={toggleDropdown} ref={buttonRef}>
@@ -58,7 +77,8 @@ const DropdownMenu = ({ button, children }) => {
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="origin-top-right absolute right-0 mt-1 shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 rounded-md" // Added 'rounded-md' here
+          ref={menuRef}
+          className="origin-top-right absolute left-auto right-0 mt-1 shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 rounded-md" // Added 'rounded-md' here
           aria-orientation="vertical"
         >
           <ul className="py-2">
