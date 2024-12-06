@@ -1,13 +1,13 @@
 import Button from '@/components/buttons/Button';
-import ToggleButton from '@/components/buttons/ToggleButton';
 import GetStartedIcon from '@/components/icons/GetStartedIcon';
-import RecentlyViewedCollections from '@/components/RecentlyViewedCollections';
+import { CollectionsProvider } from '@/context/CollectionContext';
+import RecentlyViewedCollectionsComponent from '@/components/Collection/RecentlyViewedCollectionsComponent';
 
 const HomePage = () => {
   return (
-    <main className="text-center py-16 ">
+    <main className="flex-col text-center py-16 space-y-8">
       <h1 className=" text-3xl md:text-5xl font-bold text-gray-800">Master Your Vocabulary with LexiMind</h1>
-      <p className="text-sm md:text-lg text-gray-600 mt-4">
+      <p className="text-sm md:text-lg text-gray-600 ">
         LexiMind is your personal vocabulary-building companion. 
         <br /><br />Using an intuitive, card-based approach, we make memorizing words effortless and effective. 
         <br />Whether you're prepping for exams, learning a new language,
@@ -20,7 +20,10 @@ const HomePage = () => {
 
 
       {/* Render Recently Viewed Collections if user is logged in */}
-      {/* <RecentlyViewedCollections /> */}
+      <CollectionsProvider>
+        <RecentlyViewedCollectionsComponent />
+      </CollectionsProvider>
+
     </main>
   );
 };

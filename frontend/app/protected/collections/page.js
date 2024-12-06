@@ -1,30 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useCollections, CollectionsProvider } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionContext';
 import Collections from '@/components/Collection/Collections';
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
 import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import Card from '@/components/Card';
-import { useDialog } from '@/context/DialogContext';
 import { SortIcon } from '@/components/icons/SortIcon';
-import SearchIcon from '@/components/icons/SearchIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
+import SearchBar from '@/components/SearchBar';
 
 const CollectionsPage = () => {
-  const { showDialog } = useDialog();
-  const { status } = useSession();
-  const router = useRouter();
-  const [fetchedCollections, setFetchedCollections] = useState([]);
   const {
     collections,
-    setCollections,
+    fetchCollections,
+    sortCollections,
+    filterCollections,
+    isLoading,
+    error,
   } = useCollections();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortType, setSortType] = useState('');
+  const { status } = useSession()
+  const [sortType, setSortType] = useState('Recently viewed first~');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -32,105 +30,68 @@ const CollectionsPage = () => {
     }
   }, [status]);
 
+  // Fetch collections on mount
   useEffect(() => {
-    const fetchCollections = async () => {
-      try {
-        const response = await fetch('/api/protected/collections', {
-          method: 'GET', // Explicitly specify the HTTP method
-          headers: {
-            'Content-Type': 'application/json', // Ensure the content type is JSON
-          },
-        });
-        const data = await response.json(); // Parse the JSON response
-        if (!response.ok) {
-          console.log("Error fetching collections:", data.message);
-          showDialog('Error!', 'Something went wrong, please try again later.');
-        }
-
-        setFetchedCollections(data.collections || []);
-        setCollections(data.collections || [])
-      } catch (error) {
-        console.error(error);
-        showDialog('Error!', 'Something went wrong, please try again later.');
-      }
-    };
-
-    fetchCollections();
-    setSortType('Recently viewed first~') // Avoid trigger sorting
+    console.log(collections)
+    fetchCollections('/api/protected/collections');
   }, []);
 
-
+  // Sort collections when sortType changes
   useEffect(() => {
-
-    // Search Filter
-    if (searchQuery.length != 0) {
-      setCollections([...fetchedCollections].filter((collection) =>
-        collection.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ));
-      setSortType('Recently viewed first~') // Avoid trigger sorting
-    }
-    else setCollections([...fetchedCollections])
-  }, [searchQuery]);
-
-  useEffect(() => {
-    setCollections([...collections].sort((a, b) => {
-      if (sortType === 'A-Z') return a.name.localeCompare(b.name);
-      if (sortType === 'Newest first') return new Date(b.created_at) - new Date(a.created_at);
-      if (sortType === 'Recently viewed first') return new Date(b.last_viewed_at) - new Date(a.last_viewed_at);
-
-      return 0;
-    }));
+    sortCollections(sortType);
   }, [sortType]);
 
+  const handleSearch = (searchQuery) => {
+    setSortType('Recently viewed first~')
+    filterCollections(searchQuery);
+  }
+
+
   const sortDropDownButton = (
-    <div
-      className=" inline-flex  items-center font-bold whitespace-nowrap rounded-lg text-sm    px-1 sm:px-2 md:px-4 py-2  gap-2  bg-gray-200 "
-    >
+    <div className="inline-flex items-center font-bold whitespace-nowrap rounded-lg text-sm px-1 sm:px-2 md:px-4 py-2 gap-2 bg-gray-200">
       <SortIcon />
       <span className="font-normal text-primary-text hidden md:inline-block">
         Sort By:
       </span>
       <span className="text-ellipsis hidden sm:inline-block">
-        {sortType } {/* Show current sort type */}
+        {sortType || 'None'} {/* Show current sort type or 'None' if empty */}
       </span>
       <DropdownIcon />
     </div>
-  )
-
+  );
 
   return (
     <Card type="page" title="My Collections">
-      {/* Search and Sort Section */}
-      <div className="shadow-lg shadow-indigo-200">
-        <Card type="card" >
-          {/* Dropdown (Sort Button) */}
-          <div className='flex items-center  gap-x-2 gap-y-4'>
-            <DropdownMenu button={sortDropDownButton}>
-              <DropdownItem onClick={() => { setSortType('A-Z')  }}>A-Z</DropdownItem>
-              <DropdownItem onClick={() => { setSortType('Newest first')}}>Newest first</DropdownItem>
-              <DropdownItem onClick={() => { setSortType('Recently viewed first') }}>Recently viewed first'</DropdownItem>
-            </DropdownMenu>
+      {/* Dropdown (Sort Button) */}
+      <div className="flex items-center justify-between gap-x-2 gap-y-4">
+        <DropdownMenu button={sortDropDownButton}>
+          <DropdownItem onClick={() => setSortType('A-Z')}>A-Z</DropdownItem>
+          <DropdownItem onClick={() => setSortType('Newest first')}>
+            Newest first
+          </DropdownItem>
+          <DropdownItem onClick={() => setSortType('Recently viewed first')}>
+            Recently viewed first
+          </DropdownItem>
+        </DropdownMenu>
 
-
-            <div className=" h-9 w-0.5 bg-indigo-400"></div>
-
-            {/* Search Input */}
-            <SearchIcon size="25" />
-            <input
-              className="w-full bg-transparent focus:outline-none placeholder:text-gray-500 text-clip truncate"
-              placeholder="Search collections..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </Card>
+        <div className="w-1/3 items-end">
+          <SearchBar
+            handleSearch={handleSearch}
+            isHandleSearchOnChange={true}
+          />
+        </div>
       </div>
 
-      {/* Display Collections */}
-      <Collections type="user" />
+      {/* Display Loading, Error, or Collections */}
+      {isLoading ? (
+        <div className="text-center mt-4">Loading collections...</div>
+      ) : error ? (
+        <div className="text-center mt-4 text-red-500">Error: {error}</div>
+      ) : (
+          <Collections type="user" collections={collections} />
+      )}
     </Card>
   );
 };
 
-export default CollectionsPage
-
+export default CollectionsPage;

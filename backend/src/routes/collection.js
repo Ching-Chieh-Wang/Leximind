@@ -9,9 +9,12 @@ const {
   update,
   updateAuthorize,
   remove,
-  getAllByUserIdSortedByLastViewedAt,
+  getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
 } = require('../controllers/collection');
+
+// Route for searching public collections with pagination (does not require authentication)
+router.get('/search', validatePagination, searchPublicCollections);
 
 // Route for creating a new collection (requires authentication and input validation)
 router.post('/', authorizeUser, validateCollectionInput, create);
@@ -26,9 +29,8 @@ router.put('/:collection_id/authorize', authorizeUser, validateCollectionId , up
 router.delete('/:collection_id', authorizeUser, validateCollectionId, remove);
 
 // Route for getting all collections of a user
-router.get('/', authorizeUser, getAllByUserIdSortedByLastViewedAt);
+router.get('/', authorizeUser, validatePagination, getPaginatedByUserIdSortedByLastViewedAt);
 
-// Route for searching public collections with pagination (does not require authentication)
-router.get('/search', validatePagination, searchPublicCollections);
+
 
 module.exports = router;

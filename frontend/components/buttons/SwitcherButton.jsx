@@ -13,7 +13,7 @@ const SwitcherButton = ({onBody, offBody,status, onOn=()=>{}, onOff=()=>{}}) => 
 
   return (
     <div data-keep-open="true" onClick={(e) => e.stopPropagation()} >
-      <label className=' shadow-card relative inline-flex cursor-pointer select-none items-center justify-center rounded-md h-10 p-1  border-4 border-orange-200'>
+      <label className=' shadow-card relative inline-flex cursor-pointer select-none items-center justify-center rounded-md h-10 p-1  border-4 border-orange-200 '>
         <input
           type='checkbox'
           className='sr-only'

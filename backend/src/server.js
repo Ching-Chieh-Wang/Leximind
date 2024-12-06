@@ -19,9 +19,9 @@ connectToDatabase()
     app.use(express.json()); // For parsing application/json
 
     // API Routes
+    app.use('/api/collections', collectionRoutes); // Collection-related routes
     app.use('/api/collections/:collection_id/', wordRoutes); // Words related to a specific collection
     app.use('/api/collections/:collection_id/labels', labelRoutes); // Labels related to a specific collection
-    app.use('/api/collections', collectionRoutes); // Collection-related routes
     app.use('/api/collections/:collection_id/', wordLabelRoutes); // Word-label relationships
     app.use('/api/users', userRoutes); // User-related routes
     

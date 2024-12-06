@@ -95,12 +95,14 @@ const remove = async (req, res) => {
 };
 
 // Function to get all collections for the authenticated user, sorted by last viewed time
-const getAllByUserIdSortedByLastViewedAt = async (req, res) => {
+const getPaginatedByUserIdSortedByLastViewedAt = async (req, res) => {
   try {
     const user_id = req.user_id;
+    const offset = req.offset;
+    const limit = req.limit;
 
-    const collections = await collectionModel.getAllByUserIdSortedByLastViewedAt(user_id);
-
+    const collections = await collectionModel.getPaginatedByUserIdSortedByLastViewedAt(user_id,offset,limit);
+    
     res.status(200).json({ collections });
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation
@@ -142,6 +144,6 @@ module.exports = {
   update,
   updateAuthorize,
   remove,
-  getAllByUserIdSortedByLastViewedAt,
+  getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
 };

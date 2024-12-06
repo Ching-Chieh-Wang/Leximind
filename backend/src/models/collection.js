@@ -63,8 +63,8 @@ const remove = async (user_id, collection_id) => {
 /**
  * Get all collections for a user sorted by last viewed time, including word and memorized counts
  */
-const getAllByUserIdSortedByLastViewedAt = async (user_id) => {
-  const query = `
+const getPaginatedByUserIdSortedByLastViewedAt = async (user_id, offset = null, limit = null) => {
+  let query = `
     SELECT 
       collections.id,
       collections.name,
@@ -83,9 +83,21 @@ const getAllByUserIdSortedByLastViewedAt = async (user_id) => {
     WHERE 
       collections.user_id = $1
     ORDER BY 
-      collections.last_viewed_at DESC;
+      collections.last_viewed_at DESC
   `;
-  const result = await db.query(query, [user_id]);
+
+  // Append LIMIT and OFFSET only if they are provided
+  const params = [user_id];
+  if (limit !== null) {
+    query += ` LIMIT $2`;
+    params.push(limit);
+  }
+  if (offset !== null) {
+    query += ` OFFSET $3`;
+    params.push(offset);
+  }
+
+  const result = await db.query(query, params);
   return result.rows;
 };
 
@@ -99,9 +111,9 @@ const searchPublicCollections = async (searchQuery, limit, offset) => {
       collections.id,
       collections.name,
       collections.description,
-      collections.view_cnt AS viewCnt,
-      collections.save_cnt AS saveCnt,
-      COALESCE(collection_word_stats.word_cnt, 0) AS wordCnt
+      collections.view_cnt AS view_cnt,
+      collections.save_cnt AS save_cnt,
+      COALESCE(collection_word_stats.word_cnt, 0) AS word_cnt
     FROM 
       collections
     LEFT JOIN 
@@ -124,6 +136,6 @@ module.exports = {
   create,
   update,
   remove,
-  getAllByUserIdSortedByLastViewedAt,
+  getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
 };

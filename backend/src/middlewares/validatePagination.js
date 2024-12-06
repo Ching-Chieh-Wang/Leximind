@@ -1,9 +1,12 @@
 const validatePagination = (req, res, next) => {
   const { page, limit } = req.query;
 
-  // Ensure both page and limit are provided
+  if (page === undefined && limit === undefined) {
+    return next();
+  }
+  // Ensure both page and limit are provided or both not
   if (page === undefined || limit === undefined) {
-    return res.status(400).json({ message: '"page" and "limit" are required query parameters' });
+    return res.status(400).json({ message: '"page" and "limit" togethered are required query parameters' });
   }
 
   // Ensure page is a positive integer

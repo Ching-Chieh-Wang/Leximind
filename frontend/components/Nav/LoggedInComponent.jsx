@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link';
 import Image from 'next/image';
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
@@ -19,12 +18,13 @@ const LoggedInComponent = ({user}) => {
     )
     return (
         <>
+            
             <Link
                 href="/protected/collections"
-                className="inline-flex items-center justify-center h-10 rounded-md border border-gray-400 bg-gray-100 px-1 sm:px-2 md:px-3 font-medium text-slate-900 text-xs sm:text-sm md:text-base lg:text-lg gap-x-2 hover:bg-gray-300"
+                className="inline-flex items-center justify-center h-10 rounded-md border border-gray-400 bg-gray-100 px-1 sm:px-2 md:px-3 font-medium text-slate-90 lg:text-lg gap-x-2 hover:bg-gray-300"
             >
                 <CollectionIcon />
-                Collections
+                <h1 className="hidden sm:block">Collections</h1>
             </Link>
 
             <DropdownMenu button={dropdownButton}>
@@ -35,7 +35,8 @@ const LoggedInComponent = ({user}) => {
                     </div>
                 </DropdownItem>
                 <hr className="my-2" />
-                <DropdownItem href="/protected/profile" icon={<ProfileIcon size="14" />}>Profile</DropdownItem>
+                <DropdownItem href="/protected/profile" icon={<ProfileIcon  />}>Profile</DropdownItem>
+                <DropdownItem href="/protected/collections" icon={<CollectionIcon  />}>My Collection</DropdownItem>
                 <LogOutDropDownItem/>
             </DropdownMenu>
         </>

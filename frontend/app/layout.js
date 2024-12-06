@@ -9,14 +9,12 @@ const RootLayout = ({ children }) => {
     <html lang="en">
       <body>
         <Background />
-
           <Providers>
           <div className="p-2.5 sm:p-4">
             <Nav />
             {children}
             </div>
           </Providers>
-
       </body>
     </html>
   );

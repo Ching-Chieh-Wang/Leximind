@@ -1,35 +1,22 @@
 // components/CollectionCard.jsx
-import GlobalCollectionCardHeader from "./GlobalCollectionCard/GlobalCollectionCardHeader";
-import GlobalCollectionCardBody from "./GlobalCollectionCard/GlobalCollectionCardBody";
-import GlobalCollectionCardFooter from "./GlobalCollectionCard/GlobalCollectionCardFooter";
+import GlobalCollectionCardHeader from './GlobalCollectionCard/GlobalCollectionCardHeader';
+import GlobalCollectionCardFooter from './GlobalCollectionCard/GlobalCollectionCardFooter';
+import Card from '../Card';
+import CollectionCardBody from './CollectionCardBody';
 
-const GlobalCollectionCard = ({
-  id,
-  name,
-  description,
-  username,
-  userImg,
-  wordsCnt,
-  viewCnt,
-  saveCnt,
-}) => {
+const UserCollectionCard = ({ index }) => {
   return (
-    <div className="bg-white border rounded-lg shadow-md mt-4">
-      {/* Header */}
-      <GlobalCollectionCardHeader name={name} viewCnt={viewCnt} saveCnt={saveCnt}/>
+    <Card type="card">
+      
+      <GlobalCollectionCardHeader index={index} />
 
-      {/* Body */}
-      <GlobalCollectionCardBody
-        description={description}
-        username={username}
-        profileImg={profileImg}
-        wordsCnt={wordsCnt}
-      />
+      <CollectionCardBody index={index} />
 
-      {/* Footer */}
-      <GlobalCollectionCardFooter  id={id}/>
-    </div>
+      <GlobalCollectionCardFooter index={index} />
+    </Card>
   );
 };
 
-export default GlobalCollectionCard;
+
+
+export default UserCollectionCard;

@@ -1,12 +1,10 @@
-'use client'
-const { CollectionsProvider } = require("@/context/CollectionContext");
-
-const collectionsLayout = ({ children }) => {
-    return (
-        <CollectionsProvider>
-            {children}
-        </CollectionsProvider>
-    );
+import { CollectionsProvider } from "@/context/CollectionContext"
+const CollectionsLayout = ({children}) => {
+  return (
+    <CollectionsProvider>
+        {children}
+    </CollectionsProvider>
+  )
 }
 
-export default collectionsLayout
+export default CollectionsLayout

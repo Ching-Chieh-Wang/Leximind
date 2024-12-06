@@ -28,7 +28,7 @@ const Collections = ({ type = 'user' }) => {
           );
         }
 
-        if (type === 'user') {
+        if (type === 'user'|| type==='demo') {
           return (
             <UserCollectionCard
               key={collection.id}
@@ -46,9 +46,7 @@ const Collections = ({ type = 'user' }) => {
           <UserCollectionCardEdit/>
         ) : (
           <button onClick={() => {setEditingIdx(collections.length)}} >
-            <div
-              className=" bg-white min-h-[340px] h-full  w-full border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center text-blue-500"
-            >
+            <div className=" bg-white min-h-[340px] h-full  w-full border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center text-blue-500">
               <CreateIcon size={35}/>
               Add New Collection
             </div>

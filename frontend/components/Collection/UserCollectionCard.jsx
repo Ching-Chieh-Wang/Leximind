@@ -1,6 +1,6 @@
 // components/CollectionCard.jsx
 import UserCollectionCardHeader from './UserCollectionCard/UserCollectionCardHeader';
-import UserCollectionCardBody from './UserCollectionCard/UserCollectionCardBody';
+import CollectionCardBody from './CollectionCardBody';
 import { UserCollectionStatus } from './UserCollectionCard/UserCollectionStatus';
 import UserCollectionCardFooter from './UserCollectionCard/UserCollectionCardFooter';
 import Card from '../Card';
@@ -11,7 +11,7 @@ const UserCollectionCard = ({ index }) => {
       
       <UserCollectionCardHeader index={index} />
 
-      <UserCollectionCardBody index={index} />
+      <CollectionCardBody index={index} />
 
       <UserCollectionStatus index={index} />
 
