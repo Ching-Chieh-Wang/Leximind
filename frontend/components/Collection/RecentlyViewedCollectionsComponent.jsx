@@ -13,7 +13,7 @@ const RecentlyViewedCollectionsComponent = () => {
 
   return collections && collections.length !== 0 ? (
     <Card type="page" title="Recently viewed collections">
-      <Collections type="demo" />
+      <Collections />
     </Card>
   ) : null;
 };

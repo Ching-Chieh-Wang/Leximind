@@ -2,7 +2,7 @@ import Button from "@/components/buttons/Button";
 import { useCollections } from '@/context/CollectionContext';
 
 const UserCollectionCardFooter = ({index}) => {
-  const { collections } = useCollections();
+  if(index==undefined){console.error("index must provide")}  const { collections } = useCollections();
   const {id}=collections[index];
 
   return (

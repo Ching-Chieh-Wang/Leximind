@@ -17,9 +17,10 @@ import DownloadIcon from '@/components/icons/DownloadIcon';
 import ShareIcon from '@/components/icons/ShareIcon';
 
 const UserCollectionCardHeader = ({ index }) => {
+  if(index==undefined){console.error("index must provide")}
   const {
     collections,
-    setEditingIdx,
+    startUpdateCollectionSession,
     updateAuthority,
     removeCollection,
   } = useCollections();
@@ -46,58 +47,18 @@ const UserCollectionCardHeader = ({ index }) => {
     }
   };
 
-  const handleAuthorizeChange = async () => {
-    try {
-      const response = await fetch(`/api/protected/collections/${id}/authorize`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ is_public: !isPublic }),
-      });
-      if (!response.ok) {
-        showDialog('Error', 'Unexpected error! Please try again later.');
-        return;
-      }
-      setIsPublic((prev) => !prev);
-      // Update the authority in the context
-      updateAuthority(index, !isPublic);
-    } catch (error) {
-      console.error('Error updating collection authority:', error);
-      showDialog(
-        'Error',
-        'An unexpected error occurred while updating the collection.'
-      );
-    }
-  };
-
   const handleDelete = () => {
-    const setHandleOk = async () => {
-      const response = await fetch(`/api/protected/collections/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Remove the collection from the context using index
-        removeCollection(index);
-        setEditingIdx(-1);
-      } else {
-        showDialog(
-          'Error',
-          'Something went wrong. Please try again later.',
-          'warning'
-        );
-      }
-    };
     showDialog(
       'Warning!',
       `Deleting ${name}? You will lose all of your words by deleting this. This action cannot be undone.`,
       'warning',
-      setHandleOk
-    );
+      removeCollection(`/api/protected/collections/${id}`, index));
+  };
+
+  const handleAuthorizeChange = async (e) => {
+    const updatedIsPublic = e.target.checked;
+    setIsPublic(updatedIsPublic); 
+    updateAuthority(`/api/protected/collections/${id}/authorize`, index, updatedIsPublic);
   };
 
   return (
@@ -142,9 +103,8 @@ const UserCollectionCardHeader = ({ index }) => {
                   Public
                 </div>
               }
-              status={isPublic}
-              onOn={handleAuthorizeChange}
-              onOff={handleAuthorizeChange}
+              checked={isPublic}
+              onChange={handleAuthorizeChange}
             />
           </DropdownItem>
 
@@ -153,7 +113,7 @@ const UserCollectionCardHeader = ({ index }) => {
             <DropdownItem icon={<ShareIcon />}>Share</DropdownItem>
           )}
           <DropdownItem
-            onClick={() => setEditingIdx(index)}
+            onClick={() => startUpdateCollectionSession(index)}
             icon={<EditIcon />}
           >
             Edit

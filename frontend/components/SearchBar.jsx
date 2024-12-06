@@ -19,11 +19,8 @@ const SearchBar = ({ handleSearch = () => {}, isHandleSearchOnChange = false }) 
     };
 
     return (
-        <form onSubmit={handleSubmit} className="w-auto">
-            <div
-                className="bg-white items-center justify-between flex rounded-full shadow-lg p-1.5"
-                style={{ top: "5px" }}
-            >
+        <form onSubmit={handleSubmit}>
+            <div className="bg-white items-center  flex rounded-full shadow-lg p-1.5 ">
                 <input
                     className="font-bold uppercase rounded-full py-2 w-full pl-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline lg:text-sm text-xs"
                     type="text"

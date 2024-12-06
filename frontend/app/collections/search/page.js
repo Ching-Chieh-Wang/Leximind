@@ -17,7 +17,7 @@ const CollectionSearchPage = () => {
     collections ?
       (<Card type="page" title={`Search collection: "${searchQuery}"`}>
         {/* Display Collections */}
-        <Collections type='global' />
+        <Collections />
       </Card>) : null
   )
 };

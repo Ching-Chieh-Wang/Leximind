@@ -29,10 +29,10 @@ const Nav = () => {
       </div>
 
       <div className="flex items-center space-x-2  sm:space-x-6">
-        <div className="hidden sm:block pl-6 md:pl-16">
+        <div className="[@media(max-width:480px)]:hidden pl-6 md:pl-16">
           <SearchCollectionComponent />
         </div>
-        <div className="sm:hidden">
+        <div className="hidden [@media(max-width:480px)]:block">
           <Link href="/collections/search">
             <SearchIcon size={22} />
           </Link>

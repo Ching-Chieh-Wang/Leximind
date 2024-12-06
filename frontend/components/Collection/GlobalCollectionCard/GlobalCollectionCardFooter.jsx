@@ -6,7 +6,7 @@ import WordIcon from "@/components/icons/WordIcon";
 import { useCollections } from '@/context/CollectionContext';
 
 const GlobalCollectionCardFooter = ({ index }) => {
-  const{collections}=useCollections();
+  if(index==undefined){console.error("index must provide")}  const{collections}=useCollections();
   const{id,word_cnt,view_cnt, save_cnt}=collections[index];
   return (
     <div className="relative flex justify-between items-center">

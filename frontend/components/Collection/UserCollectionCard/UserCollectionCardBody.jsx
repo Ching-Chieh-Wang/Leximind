@@ -1,17 +1,9 @@
 'use client'
 import { useCollections } from '@/context/CollectionContext';
 
-
-const CollectionCardBody = ({ index }) => {
-  const { collections } = useCollections();
-  const {
-    description,
-  } = collections[index];
-
-
-
-
-
+const UserCollectionCardBody = ({ index }) => {
+  if(index==undefined){console.error("index must provide")}  const { collections } = useCollections();
+  const {description } = collections[index];
   return (
     <div className="flex-grow">
         <p
@@ -26,4 +18,4 @@ const CollectionCardBody = ({ index }) => {
   );
 };
 
-export default CollectionCardBody;
+export default UserCollectionCardBody;

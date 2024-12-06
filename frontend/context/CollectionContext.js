@@ -1,4 +1,5 @@
 'use client';
+
 import { createContext, useContext, useReducer } from 'react';
 import { useDialog } from '@/context/DialogContext';
 
@@ -10,137 +11,216 @@ const initialState = {
   collections: [],
   originalCollections: [],
   editingIdx: null,
-  isLoading: false,
+  type:'unknown',
+  status: 'none',
+  searchQuery:'',
+  sortType: 'none',
   error: null,
 };
 
 // Reducer function
 const collectionsReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_COLLECTIONS':
+    case 'SET_COLLECTIONS': {
+      const { collections } = action.payload;
       return {
         ...state,
-        collections: action.payload,
+        sortType: 'none',
+        status:'viewing',
+        editingIdx: -1,
+        collections,
+        originalCollections: collections,
       };
-    case 'ADD_COLLECTION':
+    }
+    case 'ADD_COLLECTION': {
+      const { collection } = action.payload;
       return {
         ...state,
-        collections: [...state.collections, action.payload],
-        originalCollections: [...state.originalCollections, action.payload],
+        sortType: 'none',
+        status: 'viewing',
+        editingIdx: -1,
+        collections: [...state.collections, collection],
+        originalCollections: [...state.originalCollections, collection],
       };
+    }
     case 'UPDATE_COLLECTION': {
-      const { index, collection } = action.payload;
-
+      const { updatedCollection } = action.payload;
+      
       // Update in collections using index
       const updatedCollections = [...state.collections];
-      updatedCollections[index] = collection;
-
+      updatedCollections[state.editingIdx] =updatedCollection;
+      
+      let updatedOriginalCollections;
       // Update in originalCollections using id
-      const updatedOriginalCollections = state.originalCollections.map((oriinalCollection) =>
-        oriinalCollection.id === collection.id ? collection : oriinalCollection
-      );
-
+      if (state.sortType === 'none') {
+        updatedOriginalCollections = [...updatedCollections];
+      } else {
+        updatedOriginalCollections = state.originalCollections.map((originalCollection) =>
+          originalCollection.id === updatedCollection.id
+            ? updatedCollection
+            : originalCollection
+        );
+      }
+      
       return {
         ...state,
+        status: 'viewing',
+        editingIdx: -1,
         collections: updatedCollections,
         originalCollections: updatedOriginalCollections,
       };
     }
     case 'REMOVE_COLLECTION': {
-      const { index, id } = action.payload;
-
-      // Remove from collections using index
       const updatedCollections = [
-        ...state.collections.slice(0, index),
-        ...state.collections.slice(index + 1),
+        ...state.collections.slice(0, state.index),
+        ...state.collections.slice(state.index + 1),
       ];
 
-      // Remove from originalCollections using id
-      const updatedOriginalCollections = state.originalCollections.filter(
-        (collection) => collection.id !== id
-      );
+      let updatedOriginalCollections;
+      if (state.sortType === 'none') {
+        updatedOriginalCollections = [...updatedCollections];
+      }
+      else {
+        updatedOriginalCollections = state.originalCollections.filter(
+          (collection) => collection.id !== id
+        );
+      }
 
       return {
         ...state,
+        status:'viewing',
+        editingIdx: -1,
         collections: updatedCollections,
         originalCollections: updatedOriginalCollections,
       };
     }
     case 'UPDATE_AUTHORITY': {
-      const { index, is_public } = action.payload;
-
-      // Update in collections using index
+      const { is_public } = action.payload;
       const updatedCollections = [...state.collections];
-      updatedCollections[index] = {
-        ...updatedCollections[index],
+      updatedCollections[state.editingIndex] = {
+        ...updatedCollections[state.editingIndex],
         is_public,
       };
 
-      // Update in originalCollections using id
-      const collectionId = updatedCollections[index].id;
-      const updatedOriginalCollections = state.originalCollections.map((collection) =>
-        collection.id === collectionId ? { ...collection, is_public } : collection
-      );
+      let updatedOriginalCollections;
+      if (state.sortType === 'none') {
+        updatedOriginalCollections = [...updatedCollections];
+      }
+      else {
+        updatedOriginalCollections = state.originalCollections.map((collection) =>
+          collection.id === updatedCollections[state.editingIdx].id
+            ? { ...collection, is_public }
+            : collection
+        );
+      }
 
       return {
         ...state,
+        status:'viewing',
+        editingIdx: -1,
         collections: updatedCollections,
         originalCollections: updatedOriginalCollections,
       };
     }
-    case 'SET_EDITING_IDX':
-      return { ...state, editingIdx: action.payload };
+    case 'SORT_COLLECTIONS': {
+      const { sortType, sortedCollections } = action.payload;
+      return { ...state, editingIdx: -1, status: 'viewing', sortType:sortType, collections:sortedCollections };
+    }
+    case 'SEARCH_COLLECTIONS':{
+      const {searchQuery,searchedCollections}=action.payload;
+      return { ...state, editingIdx: -1, status: 'viewing', sortType:'none',searchQuery:searchQuery, collections:searchedCollections };    }
+    case 'START_CREATE_COLLECTION_SESSION':
+      return { ...state, status: 'adding', editingIdx:-1 };
+    case 'START_UPDATE_COLLECTION_SESSION':
+      return { ...state, status: 'updating', editingIdx: action.payload };
     case 'FETCH_COLLECTIONS_REQUEST':
-      return { ...state, isLoading: true, error: null };
+      return { ...state, status: 'loading', error: null };
     case 'FETCH_COLLECTIONS_SUCCESS':
       return {
         ...state,
-        isLoading: false,
+        status: 'viewing',
         collections: action.payload,
         originalCollections: action.payload,
       };
     case 'FETCH_COLLECTIONS_FAILURE':
-      return { ...state, isLoading: false, error: action.payload };
+      return { ...state, status: 'error', error: action.payload };
     case 'RESET_COLLECTIONS':
-      return { ...state, collections: state.originalCollections };
+      return { ...state, status: 'viewing', collections: state.originalCollections };
+    case 'SET_COLLECTIONS_TYPE':
+      return {...state, type:action.payload};
+    case 'CANCEL_EDIT_COLLECTION':
+      return {...state, editingIdx:-1,status:'viewing'}
     default:
-      console.error("No method in collection reducer:", action.value)
+      console.error('No method in collection reducer:', action.type);
       return state;
   }
 };
 
 // Provider component
-export const CollectionsProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(collectionsReducer, initialState);
+export const CollectionsProvider = ({type,children}) => {
+  if(!type){
+    console.error("CollectionsProvider needs to provide type");
+  }
+
+  const [state, dispatch] = useReducer(collectionsReducer, {...initialState,type:type});
   const { showDialog } = useDialog();
 
-  // Actions
-  const setCollections = (collections) => {
-    dispatch({ type: 'SET_COLLECTIONS', payload: collections });
+  const fetchHelper = async (url, method, body = null) => {
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        ...(body && { body: JSON.stringify(body) }),
+      });
+
+      if (response.status === 204) return null; // Handle no-content responses
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showDialog('Error', `Unexpected error: ${data.message || 'Please try again later.'}`);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+      showDialog('Error', 'Network error! Please try again later.');
+      return null;
+    }
   };
 
-  const addCollection = (newCollection) => {
-    dispatch({ type: 'ADD_COLLECTION', payload: newCollection });
+  const createCollection = async (url, collection) => {
+    const newCollection = await fetchHelper(url, 'POST', collection);
+    if (newCollection) {
+      dispatch({ type: 'ADD_COLLECTION', payload: newCollection });
+    }
   };
 
-  const updateCollection = (index, updatedCollection) => {
-    dispatch({ type: 'UPDATE_COLLECTION', payload: { index, collection: updatedCollection } });
+  const updateCollection = async (url, name, description, is_public) => {
+    const isUpdateSuccess = await fetchHelper(url, 'PUT', {name,description,is_public});
+    const updatedCollection={...state.collections[state.editingIdx],name:name,description:description,is_public:is_public}
+    if (isUpdateSuccess) {
+      dispatch({ type: 'UPDATE_COLLECTION', payload: {  updatedCollection } });
+    }
   };
 
-  const removeCollection = (index) => {
-    const id = state.collections[index].id;
-    dispatch({ type: 'REMOVE_COLLECTION', payload: { index, id } });
+  const removeCollection = async (url, index, id) => {
+    const isRemoveSuccess = await fetchHelper(url, 'DELETE');
+    if (isRemoveSuccess) {
+      dispatch({ type: 'REMOVE_COLLECTION', payload: { index, id } });
+    }
   };
 
-  const updateAuthority = (index, is_public) => {
-    dispatch({ type: 'UPDATE_AUTHORITY', payload: { index, is_public } });
+  const updateAuthority = async (url, index, is_public) => {
+    const updateSuccess = await fetchHelper(url, 'PUT', { is_public });
+    if (updateSuccess) {
+      dispatch({ type: 'UPDATE_AUTHORITY', payload: { index, is_public } });
+    }
   };
 
-  const setEditingIdx = (idx) => {
-    dispatch({ type: 'SET_EDITING_IDX', payload: idx });
-  };
-
-  // Fetch collections
   const fetchCollections = async (url) => {
     if (!url) {
       console.error('URL must be provided');
@@ -150,73 +230,76 @@ export const CollectionsProvider = ({ children }) => {
 
     dispatch({ type: 'FETCH_COLLECTIONS_REQUEST' });
 
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error fetching collections:', data.message);
-        showDialog('Error!', 'Something went wrong, please try again later.');
-        dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: data.message });
-        return;
-      }
-
+    const data = await fetchHelper(url, 'GET');
+    if (data) {
       dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: data.collections || [] });
-    } catch (error) {
-      console.error(error);
-      showDialog('Error!', 'Something went wrong, please try again later.');
-      dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: error.message });
+    } else {
+      dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: 'Failed to fetch collections' });
     }
   };
 
-  // Sort collections
   const sortCollections = (sortType) => {
-    const sortedCollections = [...state.collections].sort((a, b) => {
-      if (sortType === 'A-Z') return a.name.localeCompare(b.name);
-      if (sortType === 'Newest first') return new Date(b.created_at) - new Date(a.created_at);
-      if (sortType === 'Recently viewed first') return new Date(b.last_viewed_at) - new Date(a.last_viewed_at);
-      return 0;
-    });
-    dispatch({ type: 'SET_COLLECTIONS', payload: sortedCollections });
+    if (sortType!='A-Z'&&sortType!='Newest first'&&sortType!='Recently viewed first'&&sortType!='None') {
+      console.error('SortType not supported:', sortType);
+      dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: 'SortType not suppport' });
+      return;
+    }
+    let sortedCollections;
+    if(sortType=='None'){
+      sortedCollections=[...state.originalCollections]
+    }
+    else{
+      sortedCollections = [...state.collections].sort((a, b) => {
+        if (sortType === 'A-Z') return a.name.localeCompare(b.name);
+        if (sortType === 'Newest first') return new Date(b.created_at) - new Date(a.created_at);
+        if (sortType === 'Recently viewed first') return new Date(b.last_viewed_at) - new Date(a.last_viewed_at);
+        return 0;
+      });
+    }
+
+    dispatch({ type: 'SORT_COLLECTIONS', payload: {sortType, sortedCollections} });
   };
 
-  // Filter collections
-  const filterCollections = (searchQuery) => {
-
-    if (searchQuery.length === 0) {
+  const searchCollections = (searchQuery) => {
+    if (!searchQuery) {
       dispatch({ type: 'RESET_COLLECTIONS' });
-    }
-    else {
-      // Filter based on the search query
-      const filteredCollections = state.originalCollections.filter((collection) =>
+    } else {
+      const searchedCollections = state.originalCollections.filter((collection) =>
         collection.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      dispatch({ type: 'SET_COLLECTIONS', payload: filteredCollections });
+      dispatch({ type: 'SEARCH_COLLECTIONS', payload: {searchQuery, searchedCollections} });
     }
   };
 
-  // Context value
+  const startUpdateCollectionSession = (index) => {
+    dispatch({ type: 'START_UPDATE_COLLECTION_SESSION', payload: index });
+  };
+
+  const startCreateCollectionSession = () => {
+    dispatch({ type: 'START_CREATE_COLLECTION_SESSION' });
+  };
+  const setCollectionsType = (type) => {
+    dispatch({ type: 'SET_COLLECTIONS_TYPE',payload:type });
+  };
+
+  const cancelEditCollection=()=>{
+    dispatch({ type: 'CANCEL_EDIT_COLLECTION' });
+  }
+
   const contextValue = {
-    collections: state.collections,
-    originalCollections: state.originalCollections,
-    editingIdx: state.editingIdx,
-    isLoading: state.isLoading,
-    error: state.error,
-    setCollections,
-    addCollection,
+    ...state,
+    type,
+    createCollection,
+    setCollectionsType,
     updateCollection,
     removeCollection,
     updateAuthority,
-    setEditingIdx,
     fetchCollections,
     sortCollections,
-    filterCollections,
+    searchCollections,
+    startUpdateCollectionSession,
+    startCreateCollectionSession,
+    cancelEditCollection
   };
 
   return (

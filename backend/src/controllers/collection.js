@@ -4,6 +4,7 @@ const collectionModel = require('../models/collection');
 const create = async (req, res) => {
   try {
     const { name, description, is_public } = req.body;
+    console.log(req.body)
     const user_id = req.user_id;
 
     const newCollectionData = await collectionModel.create(user_id, name, description, is_public);

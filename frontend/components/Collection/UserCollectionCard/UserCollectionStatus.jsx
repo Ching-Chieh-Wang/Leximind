@@ -1,7 +1,8 @@
 
 import ProgressBar from "@/components/ProgressBar"
 import { useCollections } from "@/context/CollectionContext"
-export const UserCollectionStatus = ({index}) => {
+const UserCollectionStatus = ({index}) => {
+    if(index==undefined){console.error("index must provide")}
     const {collections}= useCollections();
     const {word_cnt,not_memorized_cnt}=collections[index];
     return (
@@ -16,3 +17,5 @@ export const UserCollectionStatus = ({index}) => {
         </>
     )
 }
+
+export default UserCollectionStatus;

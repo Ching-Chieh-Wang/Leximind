@@ -1,13 +1,11 @@
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
 import DropdownItem from '@/components/DropdownMenu/DropdownItem';
-import EditIcon from '@/components/icons/EditIcon';
-import DeleteIcon from '@/components/icons/DeleteIcon';
 import KebabMenuIcon from '@/components/icons/KebabMenuIcon';
 import { useCollections } from '@/context/CollectionContext';
 import DownloadIcon from '@/components/icons/DownloadIcon';
-import ReportIcon from '@/components/icons/ReportIcon';
 
 const GlobalCollectionCardHeader = ({ index}) => {
+  if(index==undefined){console.error("index must provide")}
   const {collections}=useCollections();
   const {name, id}=collections[index];
   return (

@@ -4,7 +4,7 @@ import { CollectionsProvider } from '@/context/CollectionContext';
 
 const CollectionSearchLayout = ({ children }) => {
     return (
-        <CollectionsProvider>
+        <CollectionsProvider type='global'>
             {children}
         </CollectionsProvider>
     );

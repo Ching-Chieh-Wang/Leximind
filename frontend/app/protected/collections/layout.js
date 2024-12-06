@@ -1,7 +1,7 @@
 import { CollectionsProvider } from "@/context/CollectionContext"
 const CollectionsLayout = ({children}) => {
   return (
-    <CollectionsProvider>
+    <CollectionsProvider type='user'>
         {children}
     </CollectionsProvider>
   )

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import {  useEffect } from 'react';
 import { useCollections } from '@/context/CollectionContext';
 import Collections from '@/components/Collection/Collections';
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
@@ -12,17 +12,14 @@ import { DropdownIcon } from '@/components/icons/DropdownIcon';
 import SearchBar from '@/components/SearchBar';
 
 const CollectionsPage = () => {
+  const {status}=useSession();
+
   const {
-    collections,
+    sortType,
     fetchCollections,
     sortCollections,
-    filterCollections,
-    isLoading,
-    error,
+    searchCollections,
   } = useCollections();
-
-  const { status } = useSession()
-  const [sortType, setSortType] = useState('Recently viewed first~');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -31,19 +28,15 @@ const CollectionsPage = () => {
   }, [status]);
 
   // Fetch collections on mount
-  useEffect(() => {
-    console.log(collections)
-    fetchCollections('/api/protected/collections');
+  useEffect( () => {
+    const fetchData= async ()=>{
+      await fetchCollections('/api/protected/collections');
+    }
+    fetchData();
   }, []);
 
-  // Sort collections when sortType changes
-  useEffect(() => {
-    sortCollections(sortType);
-  }, [sortType]);
-
   const handleSearch = (searchQuery) => {
-    setSortType('Recently viewed first~')
-    filterCollections(searchQuery);
+    searchCollections(searchQuery);
   }
 
 
@@ -54,7 +47,7 @@ const CollectionsPage = () => {
         Sort By:
       </span>
       <span className="text-ellipsis hidden sm:inline-block">
-        {sortType || 'None'} {/* Show current sort type or 'None' if empty */}
+        {sortType=='none'?'Recently viewed first':sortType} 
       </span>
       <DropdownIcon />
     </div>
@@ -65,11 +58,11 @@ const CollectionsPage = () => {
       {/* Dropdown (Sort Button) */}
       <div className="flex items-center justify-between gap-x-2 gap-y-4">
         <DropdownMenu button={sortDropDownButton}>
-          <DropdownItem onClick={() => setSortType('A-Z')}>A-Z</DropdownItem>
-          <DropdownItem onClick={() => setSortType('Newest first')}>
+          <DropdownItem onClick={() => sortCollections('A-Z')}>A-Z</DropdownItem>
+          <DropdownItem onClick={() => sortCollections('Newest first')}>
             Newest first
           </DropdownItem>
-          <DropdownItem onClick={() => setSortType('Recently viewed first')}>
+          <DropdownItem onClick={() => sortCollections('Recently viewed first')}>
             Recently viewed first
           </DropdownItem>
         </DropdownMenu>
@@ -81,15 +74,7 @@ const CollectionsPage = () => {
           />
         </div>
       </div>
-
-      {/* Display Loading, Error, or Collections */}
-      {isLoading ? (
-        <div className="text-center mt-4">Loading collections...</div>
-      ) : error ? (
-        <div className="text-center mt-4 text-red-500">Error: {error}</div>
-      ) : (
-          <Collections type="user" collections={collections} />
-      )}
+      <Collections/>
     </Card>
   );
 };
