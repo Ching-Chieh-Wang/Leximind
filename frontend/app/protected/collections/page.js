@@ -9,10 +9,13 @@ import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import Card from '@/components/Card';
 import { SortIcon } from '@/components/icons/SortIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
+import { useRouter } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
 
 const CollectionsPage = () => {
   const {status}=useSession();
+  const router = useRouter();
+
 
   const {
     sortType,
