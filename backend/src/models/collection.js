@@ -113,11 +113,16 @@ const searchPublicCollections = async (searchQuery, limit, offset) => {
       collections.description,
       collections.view_cnt AS view_cnt,
       collections.save_cnt AS save_cnt,
-      COALESCE(collection_word_stats.word_cnt, 0) AS word_cnt
+      COALESCE(collection_word_stats.word_cnt, 0) AS word_cnt,
+      users.id AS user_id,
+      users.username AS username,
+      users.image AS user_image
     FROM 
       collections
     LEFT JOIN 
       collection_word_stats ON collections.id = collection_word_stats.collection_id
+    LEFT JOIN 
+      users ON collections.user_id = users.id
     WHERE 
       collections.is_public = true 
       AND collections.name ILIKE $1
