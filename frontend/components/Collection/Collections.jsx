@@ -5,6 +5,7 @@ import GlobalCollectionCard from './GlobalCollectionCard';
 import UserCollectionCard from './UserCollectionCard';
 import UserCollectionCardEdit from './UserCollectionCardEdit';
 import CreateIcon from '../icons/CreateIcon';
+import ErrorMsg from '../Msg/ErrorMsg';
 
 const Collections = () => {
   const { status, collections, editingIdx, startCreateCollectionSession, error,type} = useCollections(); // Access collections from context
@@ -15,7 +16,7 @@ const Collections = () => {
   }
 
   if (status === 'error') {
-    return <div className="text-center mt-4 text-red-500">Error: {error}</div>;
+    return <ErrorMsg >{error}</ErrorMsg>
   }
 
   return (

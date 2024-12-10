@@ -8,14 +8,13 @@ import Card from '@/components/Card';
 const CollectionSearchPage = () => {
   const { collections, fetchCollections } = useCollections();
   const searchParams = useSearchParams();
-  const searchQuery = searchParams.get('query')||'';
+  const searchQuery = searchParams.get('query').trim();
   useEffect(() => {
-    if(searchQuery) fetchCollections(`/api/collections/search?query=${searchQuery}&page=1&limit=50`)
-    else fetchCollections(`/api/collections/search?query=`)
+    fetchCollections(`/api/collections/search?query=${searchQuery}&page=1&limit=50`)
   }, [searchParams.get('query')]);
   return (
     collections ?
-      (<Card type="page" title={`Search collection: "${searchQuery}"`}>
+      (<Card type="page" title={ searchQuery =='' ? "Popular collections": `Search collection: "${searchQuery}"`}>
         {/* Display Collections */}
         <Collections />
       </Card>) : null

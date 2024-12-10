@@ -120,21 +120,11 @@ const searchPublicCollections = async (req, res) => {
     const { query } = req.query;
     const offset = req.offset;
     const limit = req.limit;
-
-    if (!query) {
-      return res.status(400).json({ message: 'Search query is required' });
-    }
-
+    
     const collections = await collectionModel.searchPublicCollections(query, limit, offset);
 
     res.status(200).json({ collections });
   } catch (err) {
-    if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'Invalid user ID provided' });
-    }
-    if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'Invalid user ID provided' });
-    }
     console.error('Error searching public collections:', err);
     res.status(500).json({ message: 'Server error' });
   }

@@ -125,7 +125,7 @@ const searchPublicCollections = async (searchQuery, limit, offset) => {
       users ON collections.user_id = users.id
     WHERE 
       collections.is_public = true 
-      AND collections.name ILIKE $1
+      ${formattedQuery ? `AND collections.name ILIKE $1` : ''}
     ORDER BY 
       collections.view_cnt DESC
     LIMIT $2 OFFSET $3;
@@ -136,6 +136,8 @@ const searchPublicCollections = async (searchQuery, limit, offset) => {
 
 
 
+
+
 module.exports = {
   createTable,
   create,
@@ -143,4 +145,5 @@ module.exports = {
   remove,
   getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
+  searchPublicCollections
 };
