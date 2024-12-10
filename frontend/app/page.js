@@ -2,6 +2,7 @@ import Button from '@/components/buttons/Button';
 import GetStartedIcon from '@/components/icons/GetStartedIcon';
 import { CollectionsProvider } from '@/context/CollectionContext';
 import RecentlyViewedCollectionsComponent from '@/components/Collection/RecentlyViewedCollectionsComponent';
+import FireIcon from '@/components/icons/FireIcon';
 
 const HomePage = () => {
   return (
@@ -17,7 +18,11 @@ const HomePage = () => {
       </p>
       <br />
 
-      <Button href="/protected/collections">Get Started! <GetStartedIcon /></Button>
+      <div className="flex justify-center align-middle gap-x-4 items-center">
+        <Button href="/protected/collections">Get Started! <GetStartedIcon /></Button>
+        <Button href="/collections/search?query=">Popular Collections <FireIcon /></Button>
+      </div>
+
 
 
       {/* Render Recently Viewed Collections if user is logged in */}
