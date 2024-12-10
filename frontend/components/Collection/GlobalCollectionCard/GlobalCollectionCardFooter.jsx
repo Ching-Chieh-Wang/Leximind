@@ -1,26 +1,30 @@
 'use client'
 import Button from "@/components/buttons/Button";
-import DownloadIcon from "@/components/icons/DownloadIcon";
-import ViewIcon from "@/components/icons/ViewIcon";
-import WordIcon from "@/components/icons/WordIcon";
+import Link from 'next/link';
+import Image from 'next/image';
 import { useCollections } from '@/context/CollectionContext';
 
 const GlobalCollectionCardFooter = ({ index }) => {
-  if(index==undefined){console.error("index must provide")}  const{collections}=useCollections();
-  const{id,word_cnt,view_cnt, save_cnt}=collections[index];
+  if (index == undefined) { console.error("index must provide") } const { collections } = useCollections();
+  const {username,user_image,user_id}=collections[index];
+
   return (
     <div className="relative flex justify-between items-center">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-sky-400 blur-xl overflow-hidden opacity-40 z-0 rounded-lg"></div>
 
-      {/* Last Seen */}
-      <div className="inline-flex justify-center items-center text-md text-gray-500  text-center space-x-5">
-        <WordIcon/><p>{word_cnt} words</p>
-        <ViewIcon/><p>{view_cnt} views</p>
-        <DownloadIcon/><p>{save_cnt} saves</p>
-      </div>
+      <Link href="#" className="flex items-center gap-x-4 justify-end p-3">
+        <h1 className='text-gray-500'>Created by {username}</h1>
+        <Image
+            src={user_image || '/assets/images/logo.jpg'}
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-full cursor-pointer"
+            alt="Profile"
+        />
+    </Link>
 
-        <Button className="text-xs sm:text-sm md:text-base">View All</Button>
+      <Button className="text-xs sm:text-sm md:text-base">View All</Button>
     </div>
   );
 };

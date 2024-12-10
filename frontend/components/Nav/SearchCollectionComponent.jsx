@@ -8,12 +8,8 @@ const SearchCollectionComponent = () => {
   const router = useRouter();
 
   const handleSearch = (searchValue) => {
-    if (searchValue.trim()) {
-      // Pass searchValue as a query parameter
-      router.push(`/collections/search?query=${encodeURIComponent(searchValue.trim())}`);
-    } else {
-      alert('Please enter a search term.');
-    }
+    // Pass searchValue as a query parameter
+    router.push(`/collections/search?query=${encodeURIComponent(searchValue.trim())}`);
   };
 
   const handleBlur = (e) => {
