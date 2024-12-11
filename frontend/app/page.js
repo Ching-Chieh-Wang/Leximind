@@ -1,12 +1,13 @@
 import Button from '@/components/buttons/Button';
 import GetStartedIcon from '@/components/icons/GetStartedIcon';
-import { CollectionsProvider } from '@/context/CollectionContext';
+import { CollectionsProvider } from '@/context/CollectionsContext';
 import RecentlyViewedCollectionsComponent from '@/components/Collection/RecentlyViewedCollectionsComponent';
 import FireIcon from '@/components/icons/FireIcon';
 
 const HomePage = () => {
   return (
-    <main className="flex-col text-center py-16 space-y-8">
+    < >
+      <div className="flex-col text-center py-16 space-y-8">
       <h1 className=" text-3xl md:text-5xl font-bold text-gray-800">Master Your Vocabulary with LexiMind</h1>
 
       <p className="text-sm md:text-lg text-gray-600 ">
@@ -17,6 +18,7 @@ const HomePage = () => {
         <br /><br />LexiMind adapts to your needs and helps you learn faster.
       </p>
       <br />
+      </div>
 
       <div className="flex justify-center align-middle gap-x-4 items-center">
         <Button href="/protected/collections">Get Started! <GetStartedIcon /></Button>
@@ -26,11 +28,11 @@ const HomePage = () => {
 
 
       {/* Render Recently Viewed Collections if user is logged in */}
-      <CollectionsProvider>
+      <CollectionsProvider type="user">
         <RecentlyViewedCollectionsComponent />
       </CollectionsProvider>
 
-    </main>
+    </>
   );
 };
 

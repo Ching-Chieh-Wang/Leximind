@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import {  useEffect } from 'react';
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 import Collections from '@/components/Collection/Collections';
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
 import DropdownItem from '@/components/DropdownMenu/DropdownItem';
@@ -23,12 +23,6 @@ const CollectionsPage = () => {
     sortCollections,
     searchCollections,
   } = useCollections();
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login'); // Redirect to login if unauthenticated
-    }
-  }, [status]);
 
   // Fetch collections on mount
   useEffect( () => {

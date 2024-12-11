@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 import GlobalCollectionCard from './GlobalCollectionCard';
 import UserCollectionCard from './UserCollectionCard';
 import UserCollectionCardEdit from './UserCollectionCardEdit';
@@ -19,6 +19,10 @@ const Collections = () => {
     return <ErrorMsg >{error}</ErrorMsg>
   }
 
+  if(collections.length==0){
+    return <div className="text-center mt-4">No result</div>;
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 auto-rows-fr">
       {collections.map((collection, index) => {
@@ -30,7 +34,7 @@ const Collections = () => {
           return <GlobalCollectionCard key={collection.id} index={index} />;
         }
 
-        if (type === 'user' || type === 'demo') {
+        if (type === 'user') {
           return <UserCollectionCard key={collection.id} index={index} />;
         }
 

@@ -1,5 +1,5 @@
 'use client'
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 
 const UserCollectionCardBody = ({ index }) => {
   if(index==undefined){console.error("index must provide")}  const { collections } = useCollections();

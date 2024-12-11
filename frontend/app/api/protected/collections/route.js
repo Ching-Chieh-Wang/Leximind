@@ -22,7 +22,7 @@ export async function GET(req) {
 
     // Construct the backend API URL with query parameters dynamically
     let backendUrl
-    if(page==null&&limit==null) backendUrl=`${process.env.BACKEND_API_URL}/api/collections`;
+    if(page==null&&limit==null) backendUrl=`${process.env.BACKEND_API_URL}/api/collections/`;
     else backendUrl=`${process.env.BACKEND_API_URL}/api/collections?page=${page}&limit=${limit}`
 
     const res = await fetch(backendUrl, {

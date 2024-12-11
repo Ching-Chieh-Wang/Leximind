@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import UserCollectionCardBody from '../UserCollectionCard/UserCollectionCardBody'
-import { useCollections } from '@/context/CollectionContext'
+import { useCollections } from '@/context/CollectionsContext'
 import DownloadIcon from "@/components/icons/DownloadIcon";
 import ViewIcon from "@/components/icons/ViewIcon";
 import WordIcon from "@/components/icons/WordIcon";

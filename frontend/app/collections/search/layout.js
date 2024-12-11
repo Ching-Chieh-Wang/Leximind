@@ -1,6 +1,6 @@
 
 import '@/styles/globals.css';
-import { CollectionsProvider } from '@/context/CollectionContext';
+import { CollectionsProvider } from '@/context/CollectionsContext';
 
 const CollectionSearchLayout = ({ children }) => {
     return (

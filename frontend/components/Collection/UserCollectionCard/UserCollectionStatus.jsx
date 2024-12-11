@@ -1,6 +1,6 @@
 
 import ProgressBar from "@/components/ProgressBar"
-import { useCollections } from "@/context/CollectionContext"
+import { useCollections } from "@/context/CollectionsContext"
 const UserCollectionStatus = ({index}) => {
     if(index==undefined){console.error("index must provide")}
     const {collections}= useCollections();

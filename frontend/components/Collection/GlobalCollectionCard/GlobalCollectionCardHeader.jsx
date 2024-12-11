@@ -1,7 +1,7 @@
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
 import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import KebabMenuIcon from '@/components/icons/KebabMenuIcon';
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 import DownloadIcon from '@/components/icons/DownloadIcon';
 
 const GlobalCollectionCardHeader = ({ index}) => {

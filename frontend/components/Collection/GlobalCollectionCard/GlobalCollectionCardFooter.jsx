@@ -2,7 +2,7 @@
 import Button from "@/components/buttons/Button";
 import Link from 'next/link';
 import Image from 'next/image';
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 
 const GlobalCollectionCardFooter = ({ index }) => {
   if (index == undefined) { console.error("index must provide") } const { collections } = useCollections();

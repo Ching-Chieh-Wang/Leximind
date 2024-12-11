@@ -1,23 +1,21 @@
 'use client';
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 import Collections from '@/components/Collection/Collections';
 import Card from '@/components/Card';
 
 const CollectionSearchPage = () => {
-  const { collections, fetchCollections } = useCollections();
+  const { fetchCollections } = useCollections();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('query');
   useEffect(() => {
     fetchCollections(`/api/collections/search?query=${searchQuery}&page=1&limit=50`)
   }, [searchParams.get('query')]);
   return (
-    collections ?
       (<Card type="page" title={ searchQuery =='' ? "Popular collections": `Search collection: "${searchQuery}"`}>
-        {/* Display Collections */}
         <Collections />
-      </Card>) : null
+      </Card>) 
   )
 };
 

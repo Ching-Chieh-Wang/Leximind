@@ -64,7 +64,7 @@ export default function RegisterPage() {
       }
       // Redirect the user to the login page after successful registration
       router.push('/login');
-      showDialog("Register sucessfully!", "Please log in.",'success')
+      showDialog({title:"Register sucessfully!", description:"Please log in.",type:'success'})
 
     } catch (error) {
       setFieldErrors({ general: error.message });

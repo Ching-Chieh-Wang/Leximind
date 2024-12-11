@@ -1,7 +1,7 @@
 
 import '@/styles/globals.css';
 import Background from '@/components/Background';
-import Providers from '@/components/Providers';
+import RootProviders from '@/components/RootProviders';
 import Nav from '@/components/Nav/Nav';
 
 const RootLayout = ({ children }) => {
@@ -9,12 +9,12 @@ const RootLayout = ({ children }) => {
     <html lang="en">
       <body>
         <Background />
-          <Providers>
+          <RootProviders>
           <div className="p-2.5 sm:p-4">
             <Nav />
             {children}
             </div>
-          </Providers>
+          </RootProviders>
       </body>
     </html>
   );

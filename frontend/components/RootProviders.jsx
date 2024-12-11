@@ -2,7 +2,7 @@
 import { SessionProvider } from 'next-auth/react';
 import { DialogProvider } from '@/context/DialogContext';
 
-const Providers = ({ children }) => {
+const RootProviders = ({ children }) => {
   return (
     <SessionProvider >
       <DialogProvider>
@@ -12,4 +12,4 @@ const Providers = ({ children }) => {
   );
 };
 
-export default Providers;
+export default RootProviders;

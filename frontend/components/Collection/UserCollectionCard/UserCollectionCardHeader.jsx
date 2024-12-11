@@ -5,7 +5,7 @@ import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import EditIcon from '@/components/icons/EditIcon';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import KebabMenuIcon from '@/components/icons/KebabMenuIcon';
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 import { useDialog } from '@/context/DialogContext';
 import { useState } from 'react';
 import ViewIcon from '@/components/icons/ViewIcon';
@@ -15,6 +15,7 @@ import GlobalIcon from '@/components/icons/GlobalIcon';
 import LockIcon from '@/components/icons/LockIcon';
 import DownloadIcon from '@/components/icons/DownloadIcon';
 import ShareIcon from '@/components/icons/ShareIcon';
+import Link from 'next/link';
 
 const UserCollectionCardHeader = ({ index }) => {
   if(index==undefined){console.error("index must provide")}
@@ -28,7 +29,7 @@ const UserCollectionCardHeader = ({ index }) => {
 
   const {
     name,
-    id,
+    id:collection_id,
     created_at,
     last_viewed_at,
     view_cnt,
@@ -49,28 +50,31 @@ const UserCollectionCardHeader = ({ index }) => {
 
   const handleDelete = () => {
     showDialog(
-      'Warning!',
-      `Deleting ${name}? You will lose all of your words by deleting this. This action cannot be undone.`,
-      'warning',
-      removeCollection(`/api/protected/collections/${id}`, index));
+      {title:'Warning!',
+      description:`Deleting ${name}? You will lose all of your words by deleting this. This action cannot be undone.`,
+      type:'warning',
+      onOk:()=>{removeCollection(`/api/protected/collections/${collection_id}`, index)},
+      onCancel:()=>{}
+    })
   };
 
   const handleAuthorizeChange = async (e) => {
     const updatedIsPublic = e.target.checked;
     setIsPublic(updatedIsPublic); 
-    updateAuthority(`/api/protected/collections/${id}/authorize`, index, updatedIsPublic);
+    updateAuthority(`/api/protected/collections/${collection_id}/authorize`, index, updatedIsPublic);
   };
 
   return (
     <>
       <div className="flex justify-between items-center ">
         {/* Project Title */}
-        <h3
-          className="flex-1 text-xl md:text-2xl font-semibold text-gray-800  "
+        <Link
+          href={`/protected/collections/${collection_id}`}
+          className="flex text-xl md:text-2xl font-semibold text-gray-800  hover:underline"
           style={{ overflowWrap: 'break-word' }}
         >
           {name}
-        </h3>
+        </Link>
 
         <DropdownMenu button={<KebabMenuIcon size={20} />}>
           {last_viewed_at && (

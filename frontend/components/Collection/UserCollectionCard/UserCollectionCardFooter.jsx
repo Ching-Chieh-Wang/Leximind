@@ -1,5 +1,5 @@
 import Button from "@/components/buttons/Button";
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 
 const UserCollectionCardFooter = ({index}) => {
   if(index==undefined){console.error("index must provide")}  const { collections } = useCollections();
@@ -14,7 +14,7 @@ const UserCollectionCardFooter = ({index}) => {
         {/* Buttons */}
         <div className="relative z-10 flex justify-center space-x-2">
           <Button className="text-xs sm:text-sm md:text-base">View All</Button>
-          <Button className="text-xs sm:text-sm md:text-base">View Unmemorized</Button>
+          <Button href={`/protected/collections/${id}`} className="text-xs sm:text-sm md:text-base">View Unmemorized</Button>
         </div>
       </div>
   );

@@ -11,7 +11,7 @@ import FormButton from '@/components/buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
 
 const ProfilePage = () => {
-  const { data: session, status,update } = useSession();
+  const { data: session,update } = useSession();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [newImage, setNewImage] = useState(null);
@@ -22,15 +22,12 @@ const ProfilePage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-    }
     if (session) {
       setUsername(session.user.username);
       setEmail(session.user.email);
       setImage(session.user.image || '/assets/images/logo.jpg')
     }
-  }, [session, status]);
+  }, [session]);
 
   // Handle image change
   const handleImageChange = (e) => {

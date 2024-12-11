@@ -1,7 +1,7 @@
-import { CollectionsProvider } from "@/context/CollectionContext"
+import { CollectionsProvider } from "@/context/CollectionsContext"
 const RecentlyViewedCollections = ({ children }) => {
   return (
-    <CollectionsProvider type='demo'>
+    <CollectionsProvider type='user'>
       {children}
     </CollectionsProvider>
   )

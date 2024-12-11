@@ -1,13 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Card from '../Card';
 import FormButton from '../buttons/FormButton';
 import FormCancelButton from '../buttons/FormCancelButton';
-import { useCollections } from '@/context/CollectionContext';
+import { useCollections } from '@/context/CollectionsContext';
 import ToggleButton from '../buttons/ToggleButton';
 
 const UserCollectionCardEdit = ({index}) => {
-  if(index==undefined){console.error("index must provide")}
   const {
     status,
     collections,
@@ -15,15 +14,15 @@ const UserCollectionCardEdit = ({index}) => {
     updateCollection,
     cancelEditCollection
   } = useCollections();
-  const [name, setName] = useState(
-    status==='adding' ? '' : collections[index].name
-  );
-  const [description, setDescription] = useState(
-    status==='adding' ? '' : collections[index].description
-  );
-  const [is_public,setIsPublic]=useState(
-    status==='adding' ? false : collections[index].is_public
-  );
+  const [name, setName] = useState(() => {
+    return collections[index]?.name || '';
+  });
+  const [description, setDescription] = useState(() => {
+    return collections[index]?.description || '';
+  });
+  const [is_public, setIsPublic] = useState(() => {
+    return collections[index]?.is_public || false;
+  });
 
   const handleIsPublicChange= (e)=>{
     setIsPublic(e.target.checked);
@@ -31,7 +30,7 @@ const UserCollectionCardEdit = ({index}) => {
 
   const handleUpsert = async (e) => {
     e.preventDefault();
-    if(status==='adding')createCollection('api/protected/collections')
+    if(status==='adding')createCollection('/api/protected/collections',name,description,is_public)
     else if(status==='updating')updateCollection(`/api/protected/collections/${collections[index].id}`,name,description,is_public)
   };
 

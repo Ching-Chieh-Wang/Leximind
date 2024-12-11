@@ -14,10 +14,12 @@ export const DialogProvider = ({ children }) => {
   const [description, setDescription] = useState(null);
   const [type, setType] = useState(null);
   const [handleOK, setHandleOk] = useState(null);
+  const [handleCancel, setHandleCancel] = useState(null);
 
-  const showDialog = (title, description, type = 'warning', onConfirm = null) => {
+  const showDialog = ({title, description, type = 'warning', onOk = null, onCancel=null}) => {
     setIsShow(true);
-    setHandleOk(() => onConfirm);
+    setHandleOk(() => onOk);
+    setHandleCancel(()=>onCancel)
     setTitle(title);
     setType(type);
     setDescription(description);
@@ -92,18 +94,21 @@ export const DialogProvider = ({ children }) => {
 
               {/* Dialog Footer */}
               <div className="flex space-x-4 mt-4">
-                {handleOK && (
-                  <FormCancelButton onClick={clearDialog}>Cancel</FormCancelButton>
+                {handleCancel && (
+                  <FormCancelButton onClick={()=>{
+                    handleCancel();
+                    clearDialog();
+                  }}>Cancel</FormCancelButton>
                 )}
-                <FormOKButton
+                {handleOK && <FormOKButton
                   onClick={() => {
-                    if (handleOK) handleOK();
+                    handleOK();
                     clearDialog();
                   }}
                   color={type === 'warning' ? 'red' : 'green'}
                 >
                   OK
-                </FormOKButton>
+                </FormOKButton>}
               </div>
             </Card>
           </div>
