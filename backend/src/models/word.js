@@ -35,10 +35,10 @@ const createTable = async () => {
   await db.query(query);
   console.log('Collections table and collection_word_stats view created successfully');
 };
+
 /**
  * Create a new word
  */
-
 const create = async ({ user_id, collection_id, name, description, img_path, label_ids }) => {
   const query = `
     WITH new_word AS (
@@ -46,19 +46,18 @@ const create = async ({ user_id, collection_id, name, description, img_path, lab
       SELECT $2, $3, $4, $5
       FROM collections
       WHERE id = $2 AND user_id = $1 
-      RETURNING id
+      RETURNING id AS id
     ), insert_labels AS (
       INSERT INTO word_labels (word_id, label_id)
       SELECT new_word.id, unnest($6::int[])
       FROM new_word
       WHERE array_length($6::int[], 1) > 0
     )
-    SELECT new_word.id FROM new_word;
+    SELECT id FROM new_word;
   `;
   const result = await db.query(query, [user_id, collection_id, name, description, img_path, label_ids]);
   return result.rows[0] || null;
 };
-  
 
 /**
  * Remove a word by ID with ownership validation through collection's user_id
@@ -71,12 +70,11 @@ const remove = async (user_id, collection_id, word_id) => {
       AND EXISTS (
         SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
       )
-    RETURNING id;
+    RETURNING id AS id;
   `;
   const result = await db.query(query, [user_id, collection_id, word_id]);
-  return result.rows[0]||null
+  return result.rows[0] || null;
 };
-
 
 /**
  * Update a word by ID with ownership validation through collection's user_id
@@ -93,44 +91,24 @@ const update = async (user_id, collection_id, word_id, name, description, img_pa
       AND EXISTS (
         SELECT 1 FROM collections WHERE id = $5 AND user_id = $1
       )
-    RETURNING id;
+    RETURNING id AS id;
   `;
   const result = await db.query(query, [name, description, img_path, word_id, collection_id, user_id]);
-  return result.rows[0] || null; // Returns the updated word's id if successful, otherwise null
+  return result.rows[0] || null;
 };
 
-const getPaginated = async (user_id, collection_id, limit = 50, offset = 0) => {
-  const query = `
-    SELECT 
-      w.id,
-      w.name,
-      w.description,
-      w.img_path,
-      w.is_memorized,
-      COALESCE(
-        array_agg(DISTINCT wl.label_id), '{}'
-      ) AS label_ids
-    FROM words w
-    LEFT JOIN word_labels wl ON w.id = wl.word_id
-    WHERE w.collection_id IN (
-      SELECT id FROM collections WHERE id = $2 AND user_id = $1
-    )
-    GROUP BY w.id
-    ORDER BY w.created_at DESC
-    LIMIT $3 OFFSET $4;
-  `;
-  const result = await db.query(query, [user_id, collection_id, limit, offset]);
-  return result.rows;
-};
 
-const getPaginatedByLabelId = async (user_id, collection_id, label_id, limit = 50, offset = 0) => {
+/**
+ * Get all words for a collection by label ID
+ */
+const getByLabelId = async (user_id, collection_id, label_id) => {
   const query = `
     SELECT 
-      w.id,
-      w.name,
-      w.description,
-      w.img_path,
-      w.is_memorized,
+      w.id AS id,
+      w.name AS name,
+      w.description AS description,
+      w.img_path AS img_path,
+      w.is_memorized AS is_memorized,
       COALESCE(array_agg(DISTINCT wl2.label_id), '{}') AS label_ids
     FROM words w
     JOIN word_labels wl ON w.id = wl.word_id AND wl.label_id = $3
@@ -140,29 +118,25 @@ const getPaginatedByLabelId = async (user_id, collection_id, label_id, limit = 5
     )
     GROUP BY w.id
     ORDER BY w.created_at DESC
-    LIMIT $4 OFFSET $5;
   `;
   const result = await db.query(query, [user_id, collection_id, label_id, limit, offset]);
   return result.rows;
 };
 
-
 /**
- * Get paginated words by searching prefix within a collection with ownership validation
+ * Search words by prefix within a collection
  */
-const getPaginatedBySearchingPrefix = async (user_id, collection_id, searchQuery, limit = 50, offset = 0) => {
-  const formattedQuery = `${searchQuery}%`; // Prefix match
+const searchByPrefix = async (user_id, collection_id, searchQuery, limit = 50, offset = 0) => {
+  const formattedQuery = `${searchQuery}%`;
 
   const query = `
     SELECT 
-      w.id,
-      w.name,
-      w.description,
-      w.img_path,
-      w.is_memorized,
-      COALESCE(
-        array_agg(DISTINCT l.id) FILTER (WHERE l.id IS NOT NULL), '{}'
-      ) AS label_ids
+      w.id AS id,
+      w.name AS name,
+      w.description AS description,
+      w.img_path AS img_path,
+      w.is_memorized AS is_memorized,
+      COALESCE(array_agg(DISTINCT l.id) FILTER (WHERE l.id IS NOT NULL), '{}') AS label_ids
     FROM words w
     LEFT JOIN word_labels wl ON w.id = wl.word_id
     LEFT JOIN labels l ON wl.label_id = l.id
@@ -180,7 +154,7 @@ const getPaginatedBySearchingPrefix = async (user_id, collection_id, searchQuery
 };
 
 /**
- * Toggle the is_memorized status of a word with ownership validation
+ * Toggle the is_memorized status of a word
  */
 const changeIsMemorizedStatus = async (user_id, collection_id, word_id) => {
   const query = `
@@ -192,11 +166,9 @@ const changeIsMemorizedStatus = async (user_id, collection_id, word_id) => {
       )
       AND id = $3
       AND collection_id = $2 
-    RETURNING is_memorized;
+    RETURNING is_memorized AS is_memorized;
   `;
   const result = await db.query(query, [user_id, collection_id, word_id]);
-  
-  // Return the updated is_memorized status or null if no row was updated
   return result.rows[0]?.is_memorized || null;
 };
 
@@ -205,8 +177,7 @@ module.exports = {
   create,
   remove,
   update,
-  getPaginated,
-  getPaginatedByLabelId,
-  getPaginatedBySearchingPrefix,
+  getByLabelId,
+  searchByPrefix,
   changeIsMemorizedStatus
 };

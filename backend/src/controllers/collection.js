@@ -4,7 +4,6 @@ const collectionModel = require('../models/collection');
 const create = async (req, res) => {
   try {
     const { name, description, is_public } = req.body;
-    console.log(req.body)
     const user_id = req.user_id;
 
     const newCollectionData = await collectionModel.create(user_id, name, description, is_public);
@@ -19,6 +18,21 @@ const create = async (req, res) => {
       return res.status(400).json({ message: 'User or collection not found' });
     }
     console.error('Error creating collection:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Function to get paginated words
+const getById = async (req, res) => {
+  try {
+    const user_id=req.user_id;
+    const { collection_id } = req.params;
+
+    // Fetch the paginated words
+    const collection = await collectionModel.getById(user_id, collection_id );
+    res.status(200).json({ message:"Collection get successfully" ,collection });
+  } catch (err) {
+    console.error('Error fetching all words:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -132,6 +146,7 @@ const searchPublicCollections = async (req, res) => {
 
 module.exports = {
   create,
+  getById,
   update,
   updateAuthorize,
   remove,

@@ -1,6 +1,4 @@
 const wordModel = require('../models/word');
-const wordLabelModel = require('../models/word_label');
-const collectionModel = require('../models/collection');
 
 // Function to create a new word
 const create = async (req, res) => {
@@ -66,39 +64,22 @@ const update = async (req, res) => {
   }
 };
 
-// Function to get paginated words
-const getPaginated = async (req, res) => {
-  try {
-    const user_id=req.user_id;
-    const { collection_id } = req.params;
-    const offset=req.offset;
-    const limit=req.limit;
-
-    // Fetch the paginated words
-    const words = await wordModel.getPaginated(user_id, collection_id,limit, offset );
-    res.status(200).json({ words });
-  } catch (err) {
-    console.error('Error fetching paginated words:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
 // Controller to get paginated words by label ID
-const getPaginatedByLabelId = async (req, res) => {
+const getByLabelId = async (req, res) => {
   try {
     const user_id=req.user_id;
     const { label_id,collection_id } = req.params;
     const { limit, offset } = req;
-    const words = await wordModel.getPaginatedByLabelId(user_id,collection_id, label_id, limit, offset);
+    const words = await wordModel.getByLabelId(user_id,collection_id, label_id, limit, offset);
     res.status(200).json({ words });
   } catch (err) {
-    console.error('Error fetching paginated words by label ID:', err);
+    console.error('Error fetching words by label ID:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
 // Controller to get paginated words by searching prefix within a collection
-const getPaginatedBySearchingPrefix = async (req, res) => {
+const searchByPrefix = async (req, res) => {
   try {
     const user_id=req.user_id;
     const { collection_id } = req.params;
@@ -109,10 +90,10 @@ const getPaginatedBySearchingPrefix = async (req, res) => {
       return res.status(400).json({ message: 'prefix parameter is required' });
     }
 
-    const words = await wordModel.getPaginatedBySearchingPrefix(user_id, collection_id, prefix, limit, offset);
+    const words = await wordModel.searchByPrefix(user_id, collection_id, prefix, limit, offset);
     res.status(200).json({ words });
   } catch (err) {
-    console.error('Error fetching paginated search results:', err);
+    console.error('Error searching words by prefix :', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -143,8 +124,7 @@ module.exports = {
   create,
   remove,
   update,
-  getPaginated,
-  getPaginatedByLabelId,
-  getPaginatedBySearchingPrefix,
+  getByLabelId,
+  searchByPrefix,
   changeIsMemorizedStatus
 };

@@ -60,6 +60,46 @@ const remove = async (user_id, collection_id) => {
   return result.rows[0]||null;
 };
 
+const getById = async (user_id, collection_id) => {
+  const query = `
+    WITH word_data AS (
+      SELECT 
+        w.collection_id,
+        w.id,
+        w.name,
+        w.description,
+        w.img_path,
+        w.is_memorized,
+        COALESCE(ARRAY_AGG(DISTINCT wl.label_id), '{}') AS label_ids
+      FROM words w
+      LEFT JOIN word_labels wl ON w.id = wl.word_id
+      GROUP BY w.collection_id, w.id
+    )
+    SELECT 
+      c.name AS collection_name,
+      stats.word_cnt AS word_cnt,
+      stats.not_memorized_cnt AS not_memorized_cnt,
+      JSON_AGG(
+        JSON_BUILD_OBJECT(
+          'id', wd.id,
+          'name', wd.name,
+          'description', wd.description,
+          'img_path', wd.img_path,
+          'is_memorized', wd.is_memorized,
+          'label_ids', wd.label_ids
+        )
+      ) AS words
+    FROM collections c
+    LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
+    LEFT JOIN word_data wd ON c.id = wd.collection_id
+    WHERE c.id = $1 AND c.user_id = $2
+    GROUP BY c.id, stats.word_cnt, stats.not_memorized_cnt;
+  `;
+  const result = await db.query(query, [collection_id, user_id]);
+
+  return result.rows[0];
+};
+
 /**
  * Get all collections for a user sorted by last viewed time, including word and memorized counts
  */
@@ -141,6 +181,7 @@ const searchPublicCollections = async (searchQuery, limit, offset) => {
 module.exports = {
   createTable,
   create,
+  getById,
   update,
   remove,
   getPaginatedByUserIdSortedByLastViewedAt,
