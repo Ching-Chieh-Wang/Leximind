@@ -13,10 +13,10 @@ const initialState = {
   collections: [],
   originalCollections: [],
   editingIdx: null,
-  type: 'unknown',
-  status: 'none',
-  searchQuery: '',
-  sortType: 'none',
+  type: null,
+  status: 'loading',
+  searchQuery: null,
+  sortType: null,
   error: null,
 };
 
@@ -27,10 +27,10 @@ const collectionsReducer = (state, action) => {
       const { newCollection } = action.payload;
       return {
         ...state,
-        sortType: 'none',
+        sortType: null,
         status: 'viewing',
-        editingIdx: -1,
-        collections: [newCollection, ...state.originalCollections,],
+        editingIdx: null,
+        collections: [newCollection, ...state.collections,],
         originalCollections: [newCollection, ...state.originalCollections,],
       };
     }
@@ -39,26 +39,14 @@ const collectionsReducer = (state, action) => {
 
       // Update in collections using index
       const updatedCollections = [...state.collections];
-      updatedCollections[state.editingIdx] = updatedCollection;
-
-      let updatedOriginalCollections;
-      // Update in originalCollections using id
-      if (state.sortType === 'none') {
-        updatedOriginalCollections = [...updatedCollections];
-      } else {
-        updatedOriginalCollections = state.originalCollections.map((originalCollection) =>
-          originalCollection.id === updatedCollection.id
-            ? updatedCollection
-            : originalCollection
-        );
-      }
+      updatedCollections[state.editingIdx].name=updatedCollection.name;
+      updatedCollections[state.editingIdx].description=updatedCollection.description;
+      updatedCollections[state.editingIdx].is_public=updatedCollection.is_public;
 
       return {
         ...state,
         status: 'viewing',
-        editingIdx: -1,
-        collections: updatedCollections,
-        originalCollections: updatedOriginalCollections,
+        editingIdx: null,
       };
     }
     case 'REMOVE_COLLECTION': {
@@ -70,7 +58,7 @@ const collectionsReducer = (state, action) => {
       ];
 
       let updatedOriginalCollections;
-      if (state.sortType === 'none') {
+      if (state.sortType===null&&state.searchQuery===null) {
         updatedOriginalCollections = [...updatedCollections];
       }
       else {
@@ -82,49 +70,32 @@ const collectionsReducer = (state, action) => {
       return {
         ...state,
         status: 'viewing',
-        editingIdx: -1,
+        editingIdx: null,
         collections: updatedCollections,
         originalCollections: updatedOriginalCollections,
       };
     }
     case 'UPDATE_AUTHORITY': {
-      const { is_public } = action.payload;
+      const { is_public,index } = action.payload;
       const updatedCollections = [...state.collections];
-      updatedCollections[state.editingIndex] = {
-        ...updatedCollections[state.editingIndex],
-        is_public,
-      };
-
-      let updatedOriginalCollections;
-      if (state.sortType === 'none') {
-        updatedOriginalCollections = [...updatedCollections];
-      }
-      else {
-        updatedOriginalCollections = state.originalCollections.map((collection) =>
-          collection.id === updatedCollections[state.editingIdx].id
-            ? { ...collection, is_public }
-            : collection
-        );
-      }
+      updatedCollections[index].is_public=is_public;
 
       return {
         ...state,
         status: 'viewing',
-        editingIdx: -1,
-        collections: updatedCollections,
-        originalCollections: updatedOriginalCollections,
+        editingIdx: null,
       };
     }
     case 'SORT_COLLECTIONS': {
       const { sortType, sortedCollections } = action.payload;
-      return { ...state, editingIdx: -1, status: 'viewing', sortType: sortType, collections: sortedCollections };
+      return { ...state, editingIdx: null, status: 'viewing', sortType: sortType, collections: sortedCollections };
     }
     case 'SEARCH_COLLECTIONS': {
       const { searchQuery, searchedCollections } = action.payload;
-      return { ...state, editingIdx: -1, status: 'viewing', sortType: 'none', searchQuery: searchQuery, collections: searchedCollections };
+      return { ...state, editingIdx: null, status: 'viewing', sortType: null, searchQuery: searchQuery, collections: searchedCollections };
     }
     case 'START_CREATE_COLLECTION_SESSION':
-      return { ...state, status: 'adding', editingIdx: -1 };
+      return { ...state, status: 'adding', editingIdx: null };
     case 'START_UPDATE_COLLECTION_SESSION':
       const { index } = action.payload
       return { ...state, status: 'updating', editingIdx: index };
@@ -140,11 +111,11 @@ const collectionsReducer = (state, action) => {
     case 'FETCH_COLLECTIONS_FAILURE':
       return { ...state, status: 'error', error: action.payload };
     case 'RESET_COLLECTIONS':
-      return { ...state, status: 'viewing', sortType: 'none', editingIdx: -1, collections: state.originalCollections };
+      return { ...state, status: 'viewing', sortType: null, editingIdx: null, collections: state.originalCollections };
     case 'SET_COLLECTIONS_TYPE':
       return { ...state, type: action.payload };
     case 'CANCEL_EDIT_COLLECTION':
-      return { ...state, editingIdx: -1, status: 'viewing' }
+      return { ...state, editingIdx: null, status: 'viewing' }
     default:
       console.error('No method in collection reducer:', action.type);
       return state;
@@ -189,18 +160,18 @@ export const CollectionsProvider = ({ type, children }) => {
     }
   };
 
-  const createCollection = async (url, name, description, is_public) => {
-    const data = await fetchHelper(url, 'POST', { name, description, is_public });
+  const createCollection = async (url, collection) => {
+    const data = await fetchHelper(url, 'POST', collection);
     if (data) {
-      const newCollection = { id: data.id, name, description, is_public, view_cnt: 0, last_viewed_at: null, save_cnt: 0, created_at: data.created_at, word_cnt: 0 }
+      const newCollection = { ...collection, id: data.id, view_cnt: 0, last_viewed_at: null, save_cnt: 0, created_at: data.created_at, word_cnt: 0 }
       dispatch({ type: 'CREATE_COLLECTION', payload: { newCollection } });
     }
 
   };
 
-  const updateCollection = (url, name, description, is_public) => {
-    fetchHelper(url, 'PUT', { name, description, is_public });
-    const updatedCollection = { ...state.collections[state.editingIdx], name: name, description: description, is_public: is_public }
+  const updateCollection = (url, collection) => {
+    fetchHelper(url, 'PUT', collection);
+    const updatedCollection = { ...state.collections[state.editingIdx], name: collection.name, description: collection.description, is_public: collection.is_public }
     dispatch({ type: 'UPDATE_COLLECTION', payload: { updatedCollection } });
   };
 

@@ -1,8 +1,11 @@
-import React from 'react'
+import Card from '@/components/Card'
+import CollectionComponent from '@/components/Collection/Collection'
 
 const CollectionPage = () => {
   return (
-    <div>page</div>
+    <Card type='page'>
+      <CollectionComponent/>
+    </Card>
   )
 }
 

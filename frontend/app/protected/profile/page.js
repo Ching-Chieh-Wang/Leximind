@@ -7,7 +7,7 @@ import Card from '@/components/Card';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
 import SuccessMsg from '@/components/Msg/SuccessMsg';
 import Image from 'next/image';
-import FormButton from '@/components/buttons/FormButton';
+import FormButton from '@/components/Buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
 
 const ProfilePage = () => {

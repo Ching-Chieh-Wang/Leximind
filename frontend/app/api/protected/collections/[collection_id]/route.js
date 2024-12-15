@@ -6,7 +6,7 @@ export async function GET(req,{params}) {
   try {
     const session = await getServerSession(authOptions);
 
-    const backendUrl=`${process.env.BACKEND_API_URL}/api/collections/${params.collection_id}/words`
+    const backendUrl=`${process.env.BACKEND_API_URL}/api/collections/${params.collection_id}`
 
     const res = await fetch(backendUrl, {
       method: 'GET',
@@ -15,7 +15,6 @@ export async function GET(req,{params}) {
         Authorization: `Bearer ${session.user.accessToken}`,
       },
     });
-
     const result = await res.json();
     return NextResponse.json(result, { status: res.status });
   } catch (error) {

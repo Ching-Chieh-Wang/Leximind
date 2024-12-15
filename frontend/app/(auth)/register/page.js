@@ -5,8 +5,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
 import Card from '@/components/Card';
-import FormButton from '@/components/buttons/FormButton'
+import FormButton from '@/components/Buttons/FormButton'
 import { useDialog } from '@/context/DialogContext';
+import VerticalLayout from '@/components/VerticalLayout';
 
 export default function RegisterPage() {
   const { data: session, status, update } = useSession();
@@ -64,7 +65,7 @@ export default function RegisterPage() {
       }
       // Redirect the user to the login page after successful registration
       router.push('/login');
-      showDialog({title:"Register sucessfully!", description:"Please log in.",type:'success'})
+      showDialog({ title: "Register sucessfully!", description: "Please log in.", type: 'success' })
 
     } catch (error) {
       setFieldErrors({ general: error.message });
@@ -81,7 +82,7 @@ export default function RegisterPage() {
         {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
 
 
-        <div>
+        <VerticalLayout spacing="space-y-0.5">
           <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">
             Your username
           </label>
@@ -89,16 +90,16 @@ export default function RegisterPage() {
             type="text"
             id="username"
             value={username}
-            onChange={(e) => setUsername(e.target.value)} 
+            onChange={(e) => setUsername(e.target.value)}
             className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
             placeholder="Username"
             required
           />
           {/* Display field-specific error for username */}
           {fieldErrors.username && <ErrorMsg>{fieldErrors.username}</ErrorMsg>}
-        </div>
+        </VerticalLayout>
 
-        <div>
+        <VerticalLayout spacing="space-y-0.5">
           <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
             Your email
           </label>
@@ -113,9 +114,9 @@ export default function RegisterPage() {
           />
           {/* Display field-specific error for email */}
           {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
-        </div>
+        </VerticalLayout>
 
-        <div>
+        <VerticalLayout spacing="space-y-0.5">
           <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
             Password
           </label>
@@ -130,7 +131,7 @@ export default function RegisterPage() {
           />
           {/* Display field-specific error for password */}
           {fieldErrors.password && <ErrorMsg>{fieldErrors.password}</ErrorMsg>}
-        </div>
+        </VerticalLayout>
 
         <FormButton onClick={handleRegister} isLoading={isLoading}>
           Register

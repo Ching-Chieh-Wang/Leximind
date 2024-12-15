@@ -14,7 +14,7 @@ const ProtectedLayout = ({children}) => {
         }
       }, [session, status]);
   return (
-    <div>{children}</div>
+    <>{children}</>
   )
 }
 

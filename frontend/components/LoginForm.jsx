@@ -6,12 +6,13 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Card from '@/components/Card';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
-import FormButton from '@/components/buttons/FormButton';
+import FormButton from '@/components/Buttons/FormButton';
 import GoogleIcon from '@/components/icons/Google';
-import ToggleButton from './buttons/ToggleButton';
+import ToggleButton from './Buttons/ToggleButton';
+import VerticalLayout from './VerticalLayout';
 
 const LoginForm = () => {
-  const { data: session, status,update } = useSession();
+  const { data: session, status, update } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -19,13 +20,13 @@ const LoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams(); // Access query parameters
   const callbackUrl = searchParams.get('callbackUrl') || '/';
-  useEffect(()=>{
+  useEffect(() => {
     update();
-    if(status==='authenticated'){
+    if (status === 'authenticated') {
       router.push(callbackUrl)
     }
   }
-    ,[session,status,router]
+    , [session, status, router]
   )
 
   const handleLogin = async (e) => {
@@ -55,30 +56,30 @@ const LoginForm = () => {
       setIsLoading(false);
     }
   };
-  
+
 
   return (
     <form onSubmit={handleLogin}>
-    <Card type='form' title="Log in to your account">
-      <button
-        type="button"
-        onClick={()=>{signIn('google',{redirect:false})}}
-        className="w-full inline-flex items-center justify-center py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 bg-white rounded-lg border hover:bg-gray-100"
-      >
-        <GoogleIcon/>
-        Sign in with Google
-      </button>
+      <Card type='form' title="Log in to your account">
+        <button
+          type="button"
+          onClick={() => { signIn('google', { redirect: false }) }}
+          className="w-full inline-flex items-center justify-center py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 bg-white rounded-lg border hover:bg-gray-100"
+        >
+          <GoogleIcon />
+          Sign in with Google
+        </button>
 
-      <div className="flex items-center">
-        <div className="w-full h-0.5 bg-gray-200"></div>
-        <div className="px-5 text-center text-gray-500">or</div>
-        <div className="w-full h-0.5 bg-gray-200"></div>
-      </div>
+        <div className="flex items-center">
+          <div className="w-full h-0.5 bg-gray-200"></div>
+          <div className="px-5 text-center text-gray-500">or</div>
+          <div className="w-full h-0.5 bg-gray-200"></div>
+        </div>
 
-      {error && <ErrorMsg>{error}</ErrorMsg>}
+        {error && <ErrorMsg>{error}</ErrorMsg>}
 
 
-        <div>
+        <VerticalLayout spacing='space-y-0.5'>
           <label className="block mb-2 text-sm font-medium text-gray-900">
             Your email
           </label>
@@ -91,8 +92,8 @@ const LoginForm = () => {
             required
             autoComplete="on"
           />
-        </div>
-        <div>
+        </VerticalLayout>
+        <VerticalLayout spacing='space-y-0.5'>
           <label
             htmlFor="password"
             className="block mb-2 text-sm font-medium text-gray-900"
@@ -108,14 +109,14 @@ const LoginForm = () => {
             required
             autoComplete="on"
           />
-        </div>
+        </VerticalLayout>
 
         <FormButton isLoading={isLoading} >
           Sign in
         </FormButton>
 
         <p className="text-sm font-light text-gray-500">
-          Don’t have an account yet?{' '}
+          Don’t have an account yet?{'  '}
           <a
             href="/auth/register"
             className="font-medium text-teal-600 hover:underline"
@@ -123,7 +124,7 @@ const LoginForm = () => {
             Sign up
           </a>
         </p>
-    </Card>
+      </Card>
     </form>
   );
 };

@@ -1,4 +1,5 @@
 'use client'
+import HorizontalLayout from "./horizontalLayout";
 import SearchIcon from "./icons/SearchIcon";
 import { useState } from "react";
 
@@ -20,7 +21,10 @@ const SearchBar = ({ handleSearch = () => {}, isHandleSearchOnChange = false }) 
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="bg-white items-center  flex rounded-full shadow-lg p-1.5 ">
+            <div className="bg-white rounded-full shadow-lg p-1.5">
+                <HorizontalLayout spaceing="space-x-1">
+
+
                 <input
                     className="font-bold uppercase rounded-full py-2 w-full pl-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline lg:text-sm text-xs"
                     type="text"
@@ -36,6 +40,7 @@ const SearchBar = ({ handleSearch = () => {}, isHandleSearchOnChange = false }) 
                 >
                     <SearchIcon size={20} />
                 </button>
+                </HorizontalLayout>
             </div>
         </form>
     );

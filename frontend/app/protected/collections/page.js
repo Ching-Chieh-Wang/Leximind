@@ -1,22 +1,17 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import {  useEffect } from 'react';
+import { useEffect } from 'react';
 import { useCollections } from '@/context/CollectionsContext';
-import Collections from '@/components/Collection/Collections';
+import Collections from '@/components/Collections/Collections';
 import DropdownMenu from '@/components/DropdownMenu/DropdownMenu';
 import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import Card from '@/components/Card';
 import { SortIcon } from '@/components/icons/SortIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
-import { useRouter } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
+import HorizontalLayout from '@/components/horizontalLayout';
 
 const CollectionsPage = () => {
-  const {status}=useSession();
-  const router = useRouter();
-
-
   const {
     sortType,
     fetchCollections,
@@ -25,8 +20,8 @@ const CollectionsPage = () => {
   } = useCollections();
 
   // Fetch collections on mount
-  useEffect( () => {
-    const fetchData= async ()=>{
+  useEffect(() => {
+    const fetchData = async () => {
       await fetchCollections('/api/protected/collections');
     }
     fetchData();
@@ -38,16 +33,20 @@ const CollectionsPage = () => {
 
 
   const sortDropDownButton = (
+
     <div className="inline-flex items-center font-bold whitespace-nowrap rounded-lg text-sm px-1 sm:px-2 md:px-4 py-2 gap-2 bg-gray-200">
-      <SortIcon />
-      <span className="font-normal text-primary-text hidden md:inline-block">
-        Sort By:
-      </span>
-      <span className="text-ellipsis hidden sm:inline-block">
-        {sortType=='none'?'Recently viewed first':sortType} 
-      </span>
-      <DropdownIcon />
+      <HorizontalLayout spaceing={"space-x-1.5"}>
+        <SortIcon />
+        <span className="font-normal text-primary-text hidden md:inline-block">
+          Sort By:
+        </span>
+        <span className="text-ellipsis hidden sm:inline-block">
+          {!sortType ? 'Recently viewed first' : sortType}
+        </span>
+        <DropdownIcon />
+      </HorizontalLayout>
     </div>
+
   );
 
   return (
@@ -64,14 +63,14 @@ const CollectionsPage = () => {
           </DropdownItem>
         </DropdownMenu>
 
-        <div className="w-1/3 items-end">
+        <div className=" items-end">
           <SearchBar
             handleSearch={handleSearch}
             isHandleSearchOnChange={true}
           />
         </div>
       </div>
-      <Collections/>
+      <Collections />
     </Card>
   );
 };

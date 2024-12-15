@@ -3,7 +3,7 @@ export default function FormButton({  isLoading, loadingText = 'Loading...', chi
   return (
     <button
       type="submit"
-      className={`text-white bg-teal-600 py-1.5 px-4 rounded-lg font-bold w-full ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+      className={`text-white bg-teal-600 py-1.5 px-2 sm:px-4 rounded-lg font-bold w-full ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
       disabled={isLoading} // Also disables button in loading state
     >
       {isLoading ? (

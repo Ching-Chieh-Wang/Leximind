@@ -5,6 +5,7 @@ import { useCollections } from '@/context/CollectionsContext'
 import DownloadIcon from "@/components/icons/DownloadIcon";
 import ViewIcon from "@/components/icons/ViewIcon";
 import WordIcon from "@/components/icons/WordIcon";
+import HorizontalLayout from '@/components/horizontalLayout';
 
 
 const GlobalCollectionCardBody = ({index}) => {
@@ -16,11 +17,11 @@ const GlobalCollectionCardBody = ({index}) => {
     <>
     <UserCollectionCardBody index={index}/>
 
-    <div className="inline-flex justify-center items-center text-md text-gray-600 text-center gap-x-4 gap-y-2 pl-2 md:pl-6">
-        <div className="flex items-center space-x-1">
+    <HorizontalLayout extraStyle={"justify-evenly text-gray-600"}>
+        <HorizontalLayout spaceing='space-x-1.5'>
           <WordIcon />
           <p>{word_cnt} words</p>
-        </div>
+        </HorizontalLayout>
         <div className="flex items-center space-x-1">
           <ViewIcon />
           <p>{view_cnt} views</p>
@@ -29,7 +30,7 @@ const GlobalCollectionCardBody = ({index}) => {
           <DownloadIcon />
           <p>{save_cnt} saves</p>
         </div>
-      </div>
+      </HorizontalLayout>
     
     </>
   )

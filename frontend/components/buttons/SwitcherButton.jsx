@@ -1,30 +1,46 @@
-const SwitcherButton = ({onBody,offBody, checked, onChange}) => {
+const SwitcherButton = ({ onBody, offBody, checked, onChange }) => {
   return (
-    <div data-keep-open="true" >
-      <label className=' shadow-card relative inline-flex cursor-pointer select-none items-center justify-center rounded-md h-10 p-1  border-4 border-orange-200 '>
+    <div data-keep-open="true">
+      <div className="inline-block">
+        {/* Checkbox */}
         <input
-          type='checkbox'
-          className='sr-only'
+          id="toggle"
+          type="checkbox"
+          className="hidden"
           checked={checked}
           onChange={onChange}
         />
-        <span
-          className={`flex items-center space-x-3 rounded py-1 px-4 text-sm font-medium ${
-            !checked ? 'text-white bg-orange-800' : 'text-gray-600'
-          }`}
+        {/* Label */}
+        <label
+          htmlFor="toggle" 
+          className="relative grid grid-cols-2 w-fit border-2 border-[#343434] rounded-full bg-[#343434] font-bold text-[#343434] cursor-pointer gap-x-2 px-1"
         >
-          {offBody}
-        </span>
-        <span
-          className={`flex items-center space-x-3 rounded py-1 px-4 text-sm font-medium ${
-            checked ? 'text-white bg-orange-400 '  : 'text-gray-600'
-          }`}
-        >
-          {onBody}
-        </span>
-      </label>
+          {/* Off state */}
+          <div
+            className={`p-1 text-center z-10 transition-colors duration-300 ${
+              checked ? 'text-white' : 'text-black'
+            }`}
+          >
+            {offBody}
+          </div>
+          {/* On state */}
+          <div
+            className={`p-1 text-center z-10 transition-colors duration-300 ${
+              checked ? 'text-black' : 'text-white'
+            }`}
+          >
+            {onBody}
+          </div>
+          {/* Sliding toggle */}
+          <span
+            className={`absolute w-1/2 h-full rounded-full bg-white transition-all duration-300 ${
+              checked ? 'left-1/2' : 'left-0'
+            }`}
+          />
+        </label>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default SwitcherButton
+export default SwitcherButton;

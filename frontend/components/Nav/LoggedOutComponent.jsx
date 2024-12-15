@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Button from '@/components/buttons/Button';
+import Button from '@/components/Buttons/Button';
 const LoggedOutComponent = () => {
     return (
         <>

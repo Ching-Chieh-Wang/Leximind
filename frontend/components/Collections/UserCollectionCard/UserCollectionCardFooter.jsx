@@ -1,4 +1,5 @@
-import Button from "@/components/buttons/Button";
+import Button from "@/components/Buttons/Button";
+import HorizontalLayout from "@/components/horizontalLayout";
 import { useCollections } from '@/context/CollectionsContext';
 
 const UserCollectionCardFooter = ({index}) => {
@@ -9,13 +10,13 @@ const UserCollectionCardFooter = ({index}) => {
     
       <div className="relative ">
         {/* Gradient Background */}
-        <div className="absolute inset-0   h-12 bg-gradient-to-r from-indigo-400 via-purple-400 to-sky-400 blur-md overflow-hidden opacity-40 z-0 rounded-2xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-sky-400 blur-md overflow-hidden opacity-40 z-0 rounded-2xl"></div>
 
         {/* Buttons */}
-        <div className="relative z-10 flex justify-center space-x-2">
+        <HorizontalLayout>
           <Button className="text-xs sm:text-sm md:text-base">View All</Button>
           <Button href={`/protected/collections/${id}`} className="text-xs sm:text-sm md:text-base">View Unmemorized</Button>
-        </div>
+        </HorizontalLayout>
       </div>
   );
 };

@@ -5,14 +5,15 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import LoginLogoutComponent from './LoginLogoutComponent';
 import SearchCollectionComponent from './SearchCollectionComponent';
 import SearchIcon from '../icons/SearchIcon';
+import HorizontalLayout from '../horizontalLayout';
 
 
 const Nav = () => {
   const { initialSession } = getServerSession(authOptions);
   return (
-    <nav className="flex items-center justify-between bg-transparent">
+    <nav className="flex items-center justify-between bg-transparent ">
       {/* Logo and Brand Name */}
-      <div className="flex items-center space-x-3 sm:space-x-6">
+      <HorizontalLayout>
         <Link href="/" className="flex items-center space-x-3 sm:space-x-6">
           <Image
             src="/assets/images/logo.jpg"
@@ -26,9 +27,9 @@ const Nav = () => {
           </h2>
 
         </Link>
-      </div>
+      </HorizontalLayout>
 
-      <div className="flex items-center space-x-2  sm:space-x-6">
+      <HorizontalLayout>
         <div className="[@media(max-width:480px)]:hidden pl-6 md:pl-16">
           <SearchCollectionComponent />
         </div>
@@ -38,7 +39,7 @@ const Nav = () => {
           </Link>
         </div>
         <LoginLogoutComponent initialSession={initialSession} />
-      </div>
+      </HorizontalLayout>
     </nav>
   );
 };

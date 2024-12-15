@@ -78,7 +78,7 @@ const DropdownMenu = ({ button, children }) => {
       {isOpen && (
         <div
           ref={menuRef}
-          className="origin-top-right absolute left-auto right-0 mt-1 shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 rounded-md" // Added 'rounded-md' here
+          className="origin-top-right absolute left-auto right-0 mt-1 shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-40 rounded-md" // Added 'rounded-md' here
           aria-orientation="vertical"
         >
           <ul className="py-2">

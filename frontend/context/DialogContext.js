@@ -1,10 +1,12 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 import Card from '@/components/Card';
-import FormCancelButton from '@/components/buttons/FormCancelButton';
-import FormOKButton from '@/components/buttons/FormOKButton';
+import FormCancelButton from '@/components/Buttons/FormCancelButton';
+import FormOKButton from '@/components/Buttons/FormOKButton';
 import WarningIcon from '@/components/icons/WarningIcon';
 import SuccessIcon from '@/components/icons/SuccessIcon';
+import HorizontalLayout from '@/components/horizontalLayout';
+import VerticalLayout from '@/components/VerticalLayout';
 
 const DialogContext = createContext();
 
@@ -75,7 +77,7 @@ export const DialogProvider = ({ children }) => {
           >
             <Card type="form" onClick={(e) => e.stopPropagation()}>
               {/* Dialog Header */}
-              <div className="flex items-center justify-between space-x-4">
+              <HorizontalLayout>
                 <div
                   className="rounded-full border border-gray-300 flex items-center justify-center p-4"
                   style={{ color: type === 'warning' ? 'red' : 'green' }}
@@ -86,14 +88,14 @@ export const DialogProvider = ({ children }) => {
                     <SuccessIcon size={25} />
                   )}
                 </div>
-                <div className="text-left">
+                <VerticalLayout spacing='space-y-0.5'>
                   <p className="font-bold text-lg text-gray-900">{title}</p>
                   <p className="text-sm text-gray-700 mt-2">{description}</p>
-                </div>
-              </div>
+                </VerticalLayout>
+              </HorizontalLayout>
 
               {/* Dialog Footer */}
-              <div className="flex space-x-4 mt-4">
+              <HorizontalLayout>
                 {handleCancel && (
                   <FormCancelButton onClick={()=>{
                     handleCancel();
@@ -109,7 +111,7 @@ export const DialogProvider = ({ children }) => {
                 >
                   OK
                 </FormOKButton>}
-              </div>
+              </HorizontalLayout>
             </Card>
           </div>
         )}

@@ -1,6 +1,6 @@
 const Background = () => {
     return (
-        <div className="relative -z-50">
+        <div className="relative ">
             {/* Top Polygon */}
             <div className="absolute inset-x-0 -top-40  transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
                 <div

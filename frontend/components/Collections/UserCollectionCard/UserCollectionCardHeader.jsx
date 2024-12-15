@@ -10,12 +10,13 @@ import { useDialog } from '@/context/DialogContext';
 import { useState } from 'react';
 import ViewIcon from '@/components/icons/ViewIcon';
 import CreateIcon from '@/components/icons/CreateIcon';
-import SwitcherButton from '@/components/buttons/SwitcherButton';
+import SwitcherButton from '@/components/Buttons/SwitcherButton';
 import GlobalIcon from '@/components/icons/GlobalIcon';
 import LockIcon from '@/components/icons/LockIcon';
 import DownloadIcon from '@/components/icons/DownloadIcon';
 import ShareIcon from '@/components/icons/ShareIcon';
 import Link from 'next/link';
+import HorizontalLayout from '@/components/horizontalLayout';
 
 const UserCollectionCardHeader = ({ index }) => {
   if(index==undefined){console.error("index must provide")}
@@ -66,7 +67,7 @@ const UserCollectionCardHeader = ({ index }) => {
 
   return (
     <>
-      <div className="flex justify-between items-center ">
+      <HorizontalLayout extraStyle={"justify-between"}>
         {/* Project Title */}
         <Link
           href={`/protected/collections/${collection_id}`}
@@ -126,7 +127,7 @@ const UserCollectionCardHeader = ({ index }) => {
             Delete
           </DropdownItem>
         </DropdownMenu>
-      </div>
+      </HorizontalLayout>
     </>
   );
 };
