@@ -5,7 +5,7 @@ const Card = ({ children, type, title = null, extraStyle=""}) => {
   const cardStyles = {
     page: 'flex-grow  my-10 py-6 px-3 sm:px-4 lg:px-10 space-y-6 box-border', // Full width for pages
     form: 'w-full my-6 space-y-4 max-w-md py-6 px-3 sm:px-6 box-border', // Centered smaller width for forms
-    card: 'flex-grow  h-full p-4 md:p-6 space-y-4 box-border overflow-auto', // Compact layout
+    card: 'flex-grow  p-4 md:p-6 space-y-4 box-border overflow-auto', // Compact layout
   };
 
   return (

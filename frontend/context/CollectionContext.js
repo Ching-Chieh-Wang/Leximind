@@ -4,165 +4,169 @@ import { createContext, useContext, useReducer } from 'react';
 import { useDialog } from '@/context/DialogContext';
 
 // Create the context
-const CollectionsContext = createContext();
+const CollectionContext = createContext();
 
 // Initial state
 const initialState = {
-  collections: [],
-  originalCollections: [],
-  editingIdx: null,
-  type:'unknown',
-  status: 'none',
-  searchQuery:'',
-  sortType: 'none',
+  collectionName: '',
+  words: [],
+  labels: [],
+  memorized_cnt: 0,
+  originalWords: [],
+  viewingWordIdx: 0,
+  editingWordIdx:null,
+  editingLabelIdx:null,
+  status: 'loading',
+  searchQuery: null,
   error: null,
 };
 
 // Reducer function
-const collectionsReducer = (state, action) => {
+const collectionReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_COLLECTIONS': {
-      const { collections } = action.payload;
-      return {
-        ...state,
-        sortType: 'none',
-        status:'viewing',
-        editingIdx: -1,
-        collections,
-        originalCollections: collections,
-      };
-    }
-    case 'ADD_COLLECTION': {
-      const { collection } = action.payload;
-      return {
-        ...state,
-        sortType: 'none',
-        status: 'viewing',
-        editingIdx: -1,
-        collections: [...state.collections, collection],
-        originalCollections: [...state.originalCollections, collection],
-      };
-    }
-    case 'UPDATE_COLLECTION': {
-      const { updatedCollection } = action.payload;
-      
-      // Update in collections using index
-      const updatedCollections = [...state.collections];
-      updatedCollections[state.editingIdx] =updatedCollection;
-      
-      let updatedOriginalCollections;
-      // Update in originalCollections using id
-      if (state.sortType === 'none') {
-        updatedOriginalCollections = [...updatedCollections];
-      } else {
-        updatedOriginalCollections = state.originalCollections.map((originalCollection) =>
-          originalCollection.id === updatedCollection.id
-            ? updatedCollection
-            : originalCollection
-        );
-      }
-      
+    case 'VIEW_NEXT_WORD':
+      return { ...state, editingWordIdx: null,editingLabelIdx:null, status: 'viewing', viewingIdx:state.viewingIdx+1 };
+    case 'VIEW_PREV_WORD':
+      return { ...state, editingWordIdx: null,editingLabelIdx:null, status: 'viewing', viewingIdx:state.viewingIdx-1 };
+    case 'ADD_WORD': {
+      const { word } = action.payload;
       return {
         ...state,
         status: 'viewing',
-        editingIdx: -1,
-        collections: updatedCollections,
-        originalCollections: updatedOriginalCollections,
+        editingWordIdx:null,
+        editingLabelIdx:null,
+        words: [...state.words, word],
+        originalWords: [...state.originalWords, word],
       };
     }
-    case 'REMOVE_COLLECTION': {
-      const updatedCollections = [
-        ...state.collections.slice(0, state.index),
-        ...state.collections.slice(state.index + 1),
+    case 'UPDATE_WORD': {
+      const { updatedWord } = action.payload;
+      const updatedWords = [...state.words];
+      updatedWords[state.editingWordIdx].name=updatedWord.name;
+      updatedWords[state.editingWordIdx].description=updatedWord.description;
+      updatedWords[state.editingWordIdx].image_path=updatedWord.image_path;
+
+      return {
+        ...state,
+        status: 'viewing',
+        editingWordIdx:null,
+        editingLabelIdx:null,
+      };
+    }
+    case 'REMOVE_WORD': {
+      const { index } = action.payload;
+      const { id } = state.words[index]
+      const updatedWords = [
+        ...state.words.slice(0, index),
+        ...state.words.slice(index + 1),
       ];
 
-      let updatedOriginalCollections;
-      if (state.sortType === 'none') {
-        updatedOriginalCollections = [...updatedCollections];
+      let updatedOriginalWords;
+      if (state.searchQuery===null) {
+        updatedOriginalWords = [...updatedWords];
       }
       else {
-        updatedOriginalCollections = state.originalCollections.filter(
-          (collection) => collection.id !== id
+        updatedOriginalWords = state.originalWords.filter(
+          (word) => word.id !== id
         );
       }
 
-      return {
-        ...state,
-        status:'viewing',
-        editingIdx: -1,
-        collections: updatedCollections,
-        originalCollections: updatedOriginalCollections,
-      };
-    }
-    case 'UPDATE_AUTHORITY': {
-      const { is_public } = action.payload;
-      const updatedCollections = [...state.collections];
-      updatedCollections[state.editingIndex] = {
-        ...updatedCollections[state.editingIndex],
-        is_public,
-      };
-
-      let updatedOriginalCollections;
-      if (state.sortType === 'none') {
-        updatedOriginalCollections = [...updatedCollections];
-      }
-      else {
-        updatedOriginalCollections = state.originalCollections.map((collection) =>
-          collection.id === updatedCollections[state.editingIdx].id
-            ? { ...collection, is_public }
-            : collection
-        );
-      }
-
-      return {
-        ...state,
-        status:'viewing',
-        editingIdx: -1,
-        collections: updatedCollections,
-        originalCollections: updatedOriginalCollections,
-      };
-    }
-    case 'SORT_COLLECTIONS': {
-      const { sortType, sortedCollections } = action.payload;
-      return { ...state, editingIdx: -1, status: 'viewing', sortType:sortType, collections:sortedCollections };
-    }
-    case 'SEARCH_COLLECTIONS':{
-      const {searchQuery,searchedCollections}=action.payload;
-      return { ...state, editingIdx: -1, status: 'viewing', sortType:'none',searchQuery:searchQuery, collections:searchedCollections };    }
-    case 'START_CREATE_COLLECTION_SESSION':
-      return { ...state, status: 'adding', editingIdx:-1 };
-    case 'START_UPDATE_COLLECTION_SESSION':
-      return { ...state, status: 'updating', editingIdx: action.payload };
-    case 'FETCH_COLLECTIONS_REQUEST':
-      return { ...state, status: 'loading', error: null };
-    case 'FETCH_COLLECTIONS_SUCCESS':
       return {
         ...state,
         status: 'viewing',
-        collections: action.payload,
-        originalCollections: action.payload,
+        editingWordIdx:null,
+        editingLabelIdx:null,
+        words: updatedWords,
+        originalWords: updatedOriginalWords,
       };
-    case 'FETCH_COLLECTIONS_FAILURE':
+    }
+    case 'ADD_LABEL': {
+      const { label } = action.payload;
+      return {
+        ...state,
+        labels: [...state.labels, label],
+      };
+    }
+    case 'UPDATE_LABEL': {
+      const { updatedLabel } = action.payload;
+      const updatedLabels=[...state.labels]
+      updatedLabels[state.editingLabelIdx].name=updatedLabel.name;
+      return {
+        ...state,
+        editingLabelIdx:null,
+        editingWordIdx:null,
+        status:'viewing',
+      };
+    }
+    case 'REMOVE_LABEL': {
+      const { index } = action.payload;
+      const updatedLabels = [
+        ...state.labels.slice(0, index),
+        ...state.labels.slice(index + 1),
+      ];
+      return {
+        ...state,
+        labels: updatedLabels,
+      };
+    }
+    case 'UPDATE_MEMORIZE': {
+      const { index, is_memorized } = action.payload;
+      const updatedWords=[...state.words];
+      updatedWords[index].is_memorized=is_memorized
+      return {
+        ...state,
+        memorized_cnt: is_memorized? state.memorized_cnt + 1:state.memorized_cnt-1,
+      };
+    }
+    case 'SEARCH_WORDS': {
+      const { searchQuery, searchedWords } = action.payload;
+      return {
+        ...state,
+        editingLabelIdx:-1,
+        editingWordIdx:-1,
+        viewingWordIdx:0,
+        status: 'viewing',
+        searchQuery,
+        words: searchedWords,
+      };
+    }
+    case 'RESET_WORDS':
+      return { ...state, status: 'viewing', words: state.originalWords };
+    case 'START_CREATE_WORD_SESSION':
+      return { ...state, status: 'adding', editingWordIdx:action.payload };
+    case 'START_UPDATE_WORD_SESSION':
+      return { ...state, status: 'updating', editingWordIdx: action.payload };
+    case 'START_CREATE_Label_SESSION':
+      return { ...state, status: 'adding', editingLabelIdx: action.payload };
+    case 'START_UPDATE_WORD_SESSION':
+      return { ...state, status: 'updating', editingLabelIdx: action.payload };
+    case 'FETCH_COLLECTION_REQUEST':
+      return { ...state, status: 'loading', error: null };
+    case 'FETCH_COLLECTION_SUCCESS':
+      const {collection}=action.payload;
+      return {
+        ...state,
+        status: 'viewing',
+        collectionName: collection.collectionName,
+        viewingIdx:0,
+        words: collection.words,
+        editingLabelIdx:null,
+        editingWordIdx:null,
+        originalWords: collection.words,
+      };
+    case 'FETCH_COLLECTION_FAILURE':
       return { ...state, status: 'error', error: action.payload };
-    case 'RESET_COLLECTIONS':
-      return { ...state, status: 'viewing', collections: state.originalCollections };
-    case 'SET_COLLECTIONS_TYPE':
-      return {...state, type:action.payload};
-    case 'CANCEL_EDIT_COLLECTION':
-      return {...state, editingIdx:-1,status:'viewing'}
+    case 'CANCEL_EDIT_SESSION':
+      return { ...state, editingWordIdx: null,editingLabelIdx:null, status: 'viewing' };
     default:
-      console.error('No method in collection reducer:', action.type);
+      console.error('No method in word reducer:', action.type);
       return state;
   }
 };
 
 // Provider component
-export const CollectionsProvider = ({type,children}) => {
-  if(!type){
-    console.error("CollectionsProvider needs to provide type");
-  }
-
-  const [state, dispatch] = useReducer(collectionsReducer, {...initialState,type:type});
+export const CollectionProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(collectionReducer, initialState);
   const { showDialog } = useDialog();
 
   const fetchHelper = async (url, method, body = null) => {
@@ -174,8 +178,6 @@ export const CollectionsProvider = ({type,children}) => {
         },
         ...(body && { body: JSON.stringify(body) }),
       });
-
-      if (response.status === 204) return null; // Handle no-content responses
 
       const data = await response.json();
 
@@ -192,128 +194,101 @@ export const CollectionsProvider = ({type,children}) => {
     }
   };
 
-  const createCollection = async (url, collection) => {
-    const newCollection = await fetchHelper(url, 'POST', collection);
-    if (newCollection) {
-      dispatch({ type: 'ADD_COLLECTION', payload: newCollection });
-    }
-  };
-
-  const updateCollection = async (url, name, description, is_public) => {
-    const isUpdateSuccess = await fetchHelper(url, 'PUT', {name,description,is_public});
-    const updatedCollection={...state.collections[state.editingIdx],name:name,description:description,is_public:is_public}
-    if (isUpdateSuccess) {
-      dispatch({ type: 'UPDATE_COLLECTION', payload: {  updatedCollection } });
-    }
-  };
-
-  const removeCollection = async (url, index, id) => {
-    const isRemoveSuccess = await fetchHelper(url, 'DELETE');
-    if (isRemoveSuccess) {
-      dispatch({ type: 'REMOVE_COLLECTION', payload: { index, id } });
-    }
-  };
-
-  const updateAuthority = async (url, index, is_public) => {
-    const updateSuccess = await fetchHelper(url, 'PUT', { is_public });
-    if (updateSuccess) {
-      dispatch({ type: 'UPDATE_AUTHORITY', payload: { index, is_public } });
-    }
-  };
-
-  const fetchCollections = async (url) => {
+  const fetchCollection = async (url) => {
     if (!url) {
       console.error('URL must be provided');
-      dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: 'Internal server error' });
+      dispatch({ type: 'FETCH_COLLECTION_FAILURE', payload: 'Internal server error' });
       return;
     }
 
-    dispatch({ type: 'FETCH_COLLECTIONS_REQUEST' });
+    dispatch({ type: 'FETCH_COLLECTION_REQUEST' });
 
     const data = await fetchHelper(url, 'GET');
     if (data) {
-      dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: data.collections || [] });
+      dispatch({ type: 'FETCH_COLLECTION_SUCCESS', payload: {collection: data.collection}  });
     } else {
-      dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: 'Failed to fetch collections' });
+      dispatch({ type: 'FETCH_COLLECTION_FAILURE', payload: 'Failed to fetch collection' });
     }
   };
 
-  const sortCollections = (sortType) => {
-    if (sortType!='A-Z'&&sortType!='Newest first'&&sortType!='Recently viewed first'&&sortType!='None') {
-      console.error('SortType not supported:', sortType);
-      dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: 'SortType not suppport' });
-      return;
-    }
-    let sortedCollections;
-    if(sortType=='None'){
-      sortedCollections=[...state.originalCollections]
-    }
-    else{
-      sortedCollections = [...state.collections].sort((a, b) => {
-        if (sortType === 'A-Z') return a.name.localeCompare(b.name);
-        if (sortType === 'Newest first') return new Date(b.created_at) - new Date(a.created_at);
-        if (sortType === 'Recently viewed first') return new Date(b.last_viewed_at) - new Date(a.last_viewed_at);
-        return 0;
-      });
-    }
-
-    dispatch({ type: 'SORT_COLLECTIONS', payload: {sortType, sortedCollections} });
-  };
-
-  const searchCollections = (searchQuery) => {
-    if (!searchQuery) {
-      dispatch({ type: 'RESET_COLLECTIONS' });
-    } else {
-      const searchedCollections = state.originalCollections.filter((collection) =>
-        collection.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      dispatch({ type: 'SEARCH_COLLECTIONS', payload: {searchQuery, searchedCollections} });
+  const createWord = async (url, word) => {
+    const newWord = await fetchHelper(url, 'POST', word);
+    if (newWord) {
+      dispatch({ type: 'ADD_WORD', payload: { word: newWord } });
     }
   };
 
-  const startUpdateCollectionSession = (index) => {
-    dispatch({ type: 'START_UPDATE_COLLECTION_SESSION', payload: index });
+  const updateWord = (url, word) => {
+    fetchHelper(url, 'PUT', word);
+    const updatedWord = { ...state.words[state.editingWordIdx], name: word.name, description: word.description, image_path: word.image_path };
+    dispatch({ type: 'UPDATE_WORD', payload: { updatedWord } });
   };
 
-  const startCreateCollectionSession = () => {
-    dispatch({ type: 'START_CREATE_COLLECTION_SESSION' });
-  };
-  const setCollectionsType = (type) => {
-    dispatch({ type: 'SET_COLLECTIONS_TYPE',payload:type });
+  const removeWord = (url, index,  id) => {
+    fetchHelper(url, 'DELETE');
+    dispatch({ type: 'REMOVE_WORD', payload: { index, id } });
   };
 
-  const cancelEditCollection=()=>{
-    dispatch({ type: 'CANCEL_EDIT_COLLECTION' });
+  const addLabel = (url, label) => {
+    fetchHelper(url, 'POST', label);
+    dispatch({ type: 'ADD_LABEL', payload: { label } });
+  };
+
+  const updateLabel = (url, index, label) => {
+    fetchHelper(url, 'PUT', label);
+    dispatch({ type: 'UPDATE_LABEL', payload: { index, label } });
+  };
+
+  const removeLabel = (url, index) => {
+    fetchHelper(url, 'DELETE', label);
+    dispatch({ type: 'REMOVE_LABEL', payload: { index } });
+  };
+
+  const updateMemorization = (url, index, is_memorized) => {
+    fetchHelper(url,'PUT',is_memorized)
+    dispatch({ type: 'MEMORIZE_WORD', payload: { index,is_memorized } });
+  };
+
+  const viewNext=()=>{
+    if(state.viewingIdx+1<state.words.length){
+      dispatch({type:"VIEW_NEXT_WORD"})
+      return state.viewingIdx+1<state.words.length;
+    }
+    return false;
   }
+
+
+  const viewPrev=()=>{
+    if(state.viewingIdx>0){
+      dispatch({type:"VIEW_PREV_WORD"})
+      return state.viewingIdx>0;
+    }
+    return false;
+  }
+
 
   const contextValue = {
     ...state,
-    type,
-    createCollection,
-    setCollectionsType,
-    updateCollection,
-    removeCollection,
-    updateAuthority,
-    fetchCollections,
-    sortCollections,
-    searchCollections,
-    startUpdateCollectionSession,
-    startCreateCollectionSession,
-    cancelEditCollection
+    fetchCollection,
+    createWord,
+    updateWord,
+    removeWord,
+    addLabel,
+    updateMemorization,
+    updateLabel,
+    removeLabel,
+    viewNext,
+    viewPrev
   };
 
-  return (
-    <CollectionsContext.Provider value={contextValue}>
-      {children}
-    </CollectionsContext.Provider>
-  );
+  return <CollectionContext.Provider value={contextValue}>{children}</CollectionContext.Provider>;
 };
 
 // Custom hook for using the context
-export const useCollections = () => {
-  const context = useContext(CollectionsContext);
+export const useCollection = () => {
+  const context = useContext(CollectionContext);
   if (!context) {
-    throw new Error('useCollections must be used within a CollectionsProvider');
+    throw new Error('useCollection must be used within a CollectionProvider');
   }
   return context;
 };

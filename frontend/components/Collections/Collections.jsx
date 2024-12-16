@@ -46,8 +46,8 @@ const Collections = () => {
         status === 'adding' ? (
           <UserCollectionCardEdit />
         ) : (
-          <button onClick={startCreateCollectionSession}>
-            <div className="bg-white min-h-[340px] h-full w-full border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center text-blue-500">
+          <button onClick={startCreateCollectionSession} >
+            <div className="bg-white min-h-[340px] h-full w-full border-2 border-dashed hover:border-solid border-blue-300 rounded-lg flex flex-col items-center justify-center text-blue-500 hover:text-2xl duration-500">
               <CreateIcon size={35} />
               Add New Collection
             </div>

@@ -6,7 +6,7 @@ import Card from '../Card';
 
 const UserCollectionCard = ({ index }) => {
   return (
-    <Card type="card">
+    <Card type="card" >
       <UserCollectionCardHeader index={index} />
       <UserCollectionCardBody index={index} />
       <UserCollectionStatus index={index} />

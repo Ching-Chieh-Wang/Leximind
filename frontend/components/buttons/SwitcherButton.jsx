@@ -1,6 +1,6 @@
 const SwitcherButton = ({ onBody, offBody, checked, onChange }) => {
   return (
-    <div data-keep-open="true">
+    <div data-keep-open="true" className="select-none">
       <div className="inline-block">
         {/* Checkbox */}
         <input
@@ -13,7 +13,7 @@ const SwitcherButton = ({ onBody, offBody, checked, onChange }) => {
         {/* Label */}
         <label
           htmlFor="toggle" 
-          className="relative grid grid-cols-2 w-fit border-2 border-[#343434] rounded-full bg-[#343434] font-bold text-[#343434] cursor-pointer gap-x-2 px-1"
+          className="relative grid grid-cols-2 w-fit border-2 border-[#343434] rounded-full bg-[#343434] font-bold text-[#343434] cursor-pointer gap-x-2 px-1 text-xs md:text-md "
         >
           {/* Off state */}
           <div
