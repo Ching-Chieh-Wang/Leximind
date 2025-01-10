@@ -8,7 +8,6 @@ const {
   create,
   update,
   remove,
-  getAllByCollectionId
 } = require('../controllers/label');
 
 // Apply middlewares that are common to all routes in this router
@@ -25,8 +24,6 @@ router.put('/:label_id', validateLabelId, validateLabelInput, update);
 // Route for deleting a specific label by ID
 router.delete('/:label_id', validateLabelId, remove);
 
-// Route for getting all labels by collection ID
-router.get('/', getAllByCollectionId);
 
 
 module.exports = router;

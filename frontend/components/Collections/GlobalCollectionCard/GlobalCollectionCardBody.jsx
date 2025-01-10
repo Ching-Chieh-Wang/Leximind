@@ -5,33 +5,33 @@ import { useCollections } from '@/context/CollectionsContext'
 import DownloadIcon from "@/components/icons/DownloadIcon";
 import ViewIcon from "@/components/icons/ViewIcon";
 import WordIcon from "@/components/icons/WordIcon";
-import HorizontalLayout from '@/components/horizontalLayout';
+import Horizontal_Layout from '@/components/Horizontal_Layout';
 
 
-const GlobalCollectionCardBody = ({index}) => {
-    if(index==undefined){console.error("index must provide")}    
-    const {collections}=useCollections();
-    const { id, word_cnt, view_cnt, save_cnt } = collections[index];
+const GlobalCollectionCardBody = ({ index }) => {
+  if (index == undefined) { console.error("index must provide") }
+  const { collections } = useCollections();
+  const { id, word_cnt, view_cnt, save_cnt } = collections[index];
 
   return (
     <>
-    <UserCollectionCardBody index={index}/>
+      <UserCollectionCardBody index={index} />
 
-    <HorizontalLayout extraStyle={"justify-evenly text-gray-600"}>
-        <HorizontalLayout spaceing='space-x-1.5'>
+      <Horizontal_Layout justify="evenly" extraStyle={" text-gray-600"}>
+        <Horizontal_Layout spaceing='space-x-1.5'>
           <WordIcon />
           <p>{word_cnt} words</p>
-        </HorizontalLayout>
-        <div className="flex items-center space-x-1">
+        </Horizontal_Layout>
+        <Horizontal_Layout spaceing='space-x-1.5'>
           <ViewIcon />
           <p>{view_cnt} views</p>
-        </div>
-        <div className="flex items-center space-x-1">
+        </Horizontal_Layout>
+        <Horizontal_Layout spaceing='space-x-1.5'>
           <DownloadIcon />
           <p>{save_cnt} saves</p>
-        </div>
-      </HorizontalLayout>
-    
+        </Horizontal_Layout>
+      </Horizontal_Layout>
+
     </>
   )
 }

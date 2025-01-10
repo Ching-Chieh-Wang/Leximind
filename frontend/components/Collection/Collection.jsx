@@ -2,38 +2,33 @@
 import { useEffect } from "react"
 import WordComponent from "./WordComponent"
 import LabelComponent from "./LabelComponent"
-import WordListComponent from "./WordListComponent"
 import { useParams } from "next/navigation"
 import { useCollection } from "@/context/CollectionContext"
+import CollectionNav from "./CollectionNav"
 import Card from '@/components/Card'
-import HorizontalLayout from "../horizontalLayout"
 
 const CollectionComponent = () => {
-    const { fetchCollection, collectionName, status } = useCollection();
+    const { fetchCollection} = useCollection();
     const params = useParams();
     const collection_id = params.collection_id;
 
 
     useEffect(() => {
         const fetchData = async () => {
-            await fetchCollection(`/api/protected/collections/${collection_id}`);
+            await fetchCollection(`/api/protected/collections/${collection_id}`,collection_id);
         };
         fetchData();
     }, []);
 
-    if (status === "loading") {
-        return <div className="text-center mt-4">Loading words...</div>;
-    }
-
-    if (status === "error") {
-        return <ErrorMsg>Error loading words!</ErrorMsg>
-    }
     return (
-        <HorizontalLayout>
-            <Card type='card' extraStyle="hidden md:block"><WordListComponent /></Card>
-            <Card type='card'><WordComponent /></Card>
-            <Card type='card' extraStyle="hidden sm:block"><LabelComponent /></Card>
-        </HorizontalLayout>
+        <>
+            
+            <div className="ml-8"><CollectionNav/></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <Card type="card" extraStyle="md:col-span-2"><WordComponent /></Card>
+                <Card type="card" ><LabelComponent extraStyle="col-span-1"/></Card>
+            </div>
+        </>
     )
 }
 

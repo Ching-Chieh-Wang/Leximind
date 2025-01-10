@@ -66,14 +66,14 @@ const remove = async (user_id, collection_id, word_id) => {
   const query = `
     DELETE FROM words
     WHERE id = $3
-      AND collection_id = $2
-      AND EXISTS (
-        SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
-      )
-    RETURNING id AS id;
+    AND EXISTS (
+      SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
+    )
+    RETURNING id;
   `;
   const result = await db.query(query, [user_id, collection_id, word_id]);
-  return result.rows[0] || null;
+
+  return result.rowCount > 0;
 };
 
 /**
@@ -83,18 +83,17 @@ const update = async (user_id, collection_id, word_id, name, description, img_pa
   const query = `
     UPDATE words
     SET 
-      name = COALESCE($1, name), 
-      description = COALESCE($2, description), 
-      img_path = COALESCE($3, img_path)
-    WHERE id = $4
-      AND collection_id = $5
+      name = $4, 
+      description = $5, 
+      img_path = $6
+    WHERE id = $3
       AND EXISTS (
-        SELECT 1 FROM collections WHERE id = $5 AND user_id = $1
+        SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
       )
-    RETURNING id AS id;
+    RETURNING id;
   `;
-  const result = await db.query(query, [name, description, img_path, word_id, collection_id, user_id]);
-  return result.rows[0] || null;
+  const result = await db.query(query, [user_id, collection_id, word_id, name, description, img_path]);
+  return result.rowCount > 0; // Returns true if at least one row was updated
 };
 
 
@@ -104,53 +103,36 @@ const update = async (user_id, collection_id, word_id, name, description, img_pa
 const getByLabelId = async (user_id, collection_id, label_id) => {
   const query = `
     SELECT 
-      w.id AS id,
-      w.name AS name,
-      w.description AS description,
-      w.img_path AS img_path,
-      w.is_memorized AS is_memorized,
-      COALESCE(array_agg(DISTINCT wl2.label_id), '{}') AS label_ids
+      array_agg(w.id ORDER BY w.created_at DESC) AS word_ids
     FROM words w
     JOIN word_labels wl ON w.id = wl.word_id AND wl.label_id = $3
-    LEFT JOIN word_labels wl2 ON w.id = wl2.word_id
-    WHERE w.collection_id IN (
-      SELECT id FROM collections WHERE id = $2 AND user_id = $1
+    WHERE EXISTS (
+      SELECT 1 FROM collections c WHERE c.id = $2 AND c.user_id = $1 AND c.id = w.collection_id
     )
-    GROUP BY w.id
-    ORDER BY w.created_at DESC
+    GROUP BY w.collection_id;
   `;
-  const result = await db.query(query, [user_id, collection_id, label_id, limit, offset]);
-  return result.rows;
+  const result = await db.query(query, [user_id, collection_id, label_id]);
+
+  return result.rows[0] || { word_ids: [] };
 };
 
 /**
  * Search words by prefix within a collection
  */
-const searchByPrefix = async (user_id, collection_id, searchQuery, limit = 50, offset = 0) => {
+const searchByPrefix = async (user_id, collection_id, searchQuery) => {
   const formattedQuery = `${searchQuery}%`;
-
   const query = `
     SELECT 
-      w.id AS id,
-      w.name AS name,
-      w.description AS description,
-      w.img_path AS img_path,
-      w.is_memorized AS is_memorized,
-      COALESCE(array_agg(DISTINCT l.id) FILTER (WHERE l.id IS NOT NULL), '{}') AS label_ids
+      array_agg(w.id ORDER BY w.created_at DESC) AS word_ids
     FROM words w
-    LEFT JOIN word_labels wl ON w.id = wl.word_id
-    LEFT JOIN labels l ON wl.label_id = l.id
-    WHERE EXISTS (
-        SELECT 1 FROM collections WHERE id = $1 AND user_id = $3
-      )
-      AND w.collection_id = $1
-      AND w.name ILIKE $2 
-    GROUP BY w.id
-    ORDER BY w.created_at DESC
-    LIMIT $4 OFFSET $5;
+    WHERE w.collection_id = (
+      SELECT id FROM collections WHERE id = $1 AND user_id = $3
+    )
+    AND w.name ILIKE $2
+    GROUP BY w.collection_id;
   `;
-  const result = await db.query(query, [collection_id, formattedQuery, user_id, limit, offset]);
-  return result.rows;
+  const result = await db.query(query, [collection_id, formattedQuery, user_id]);
+  return result.rows[0]|| {word_ids:[]};
 };
 
 /**
@@ -160,12 +142,10 @@ const changeIsMemorizedStatus = async (user_id, collection_id, word_id) => {
   const query = `
     UPDATE words
     SET is_memorized = NOT is_memorized 
-    WHERE 
-      EXISTS (
+    WHERE collection_id = (
         SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
       )
       AND id = $3
-      AND collection_id = $2 
     RETURNING is_memorized AS is_memorized;
   `;
   const result = await db.query(query, [user_id, collection_id, word_id]);

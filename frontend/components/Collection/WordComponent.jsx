@@ -1,63 +1,68 @@
 'use client';
 import { useCollection } from '@/context/CollectionContext';
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Image from 'next/image';
 import FlipCard from "../FlipCard";
 import SwitcherButton from '../Buttons/SwitcherButton';
 import Carousel from '../Carousel';
-import VerticalLayout from '../VerticalLayout';
-import HorizontalLayout from '../horizontalLayout';
-import Background from '../Background';
+import Vertical_Layout from '../Vertical_Layout';
+import Horizontal_Layout from '../Horizontal_Layout';
+import CreateIcon from '../icons/CreateIcon';
+import WordEditComponent from './Word/WordEditComponent';
+import ErrorMsg from '../Msg/ErrorMsg';
+import WordNav from './Word/WordNav';
+import SearchBar from '../SearchBar';
+
 
 const WordComponent = () => {
-  const { words, viewingIdx, viewNext, viewPrev } = useCollection();
+  const { words, viewingWordIdx, viewNext, viewPrev, status, startCreateWordSession, error, setCollection, id, viewingType } = useCollection();
   const [isAlwaysShowDescription, setIsAlwaysShowDescription] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false)
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const handlePrevClick = () => {
     setIsFlipped(isAlwaysShowDescription);
     viewPrev();
-  }
-
-  const handleNextClick = () => {
-    setIsFlipped(isAlwaysShowDescription)
-    viewNext();
-  }
-
-  const handleAlwaysShowDescriptionClick = () => {
-    setIsAlwaysShowDescription((prev) => !prev)
-    setIsFlipped(!isAlwaysShowDescription);
-
-  }
-
-  const frontBody = (index) => {
-    return (
-      <VerticalLayout spacing='spance-y-0' extraStyle={"  w-full h-full items-center"}>
-        <h1 className='text-4xl '>{words[index].name}</h1>
-      </VerticalLayout>
-
-    );
-  }
-
-
-  const backBody = (index) => {
-    return (
-      <VerticalLayout spacing='spance-y-0' extraStyle={" w-full h-full items-center"}>
-        <h1 className='text-4xl'>{words[index].name}</h1>
-        <h2 className='text-2xl'>{words[index].description}</h2>
-      </VerticalLayout>
-
-    );
   };
 
-  if (!words || words.length === 0) {
-    return <div className="text-center mt-4 ">No words available for this collection.</div>;
+  const handleNextClick = () => {
+    setIsFlipped(isAlwaysShowDescription);
+    viewNext();
+  };
+
+  const handleAlwaysShowDescriptionClick = () => {
+    setIsAlwaysShowDescription((prev) => !prev);
+    setIsFlipped(!isAlwaysShowDescription);
+  };
+
+  const handleSearch = (searchParam) => {
+    setCollection(`/api/protected/collections/${id}/words/search?prefix=${searchParam}`, `Searching: ${searchParam}`)
   }
 
-  const slides = words.map((word, index) => (
+  const frontBody = (word) => (
+    <Vertical_Layout spacing="spance-y-0" extraStyle="w-full h-full items-center select-none">
+      <h1 className="text-4xl">{word.name}</h1>
+    </Vertical_Layout>
+  );
+
+  const backBody = (word) => (
+    <Vertical_Layout spacing="spance-y-0" extraStyle="w-full h-full items-center select-none">
+      <h1 className="text-4xl">{word.name}</h1>
+      <h2 className="text-2xl">{word.description}</h2>
+    </Vertical_Layout>
+  );
+
+  if (status === "loading") {
+    return <h1>Fetching collection</h1>;
+  }
+  else if (status === "error") {
+    return <ErrorMsg>{error}</ErrorMsg>
+  }
+
+  const slides = words.map((word) => (
     <FlipCard
       key={word.id}
-      frontBody={frontBody(index)}
-      backBody={backBody(index)}
+      frontBody={frontBody(word)}
+      backBody={backBody(word)}
       isFlipped={isFlipped}
       setIsFlipped={setIsFlipped}
     />
@@ -65,19 +70,55 @@ const WordComponent = () => {
 
   return (
     <>
-      <HorizontalLayout justify="end">
-        <h1 className="text-gray-600">Always show description:</h1>
-        <SwitcherButton
-          checked={isAlwaysShowDescription}
-          onChange={handleAlwaysShowDescriptionClick}
-          onBody={<h1>On</h1>}
-          offBody={<h1>Off</h1>}
-        />
-      </HorizontalLayout>
+      <Horizontal_Layout justify='between'>
+        <Horizontal_Layout>
+          <h1 className='text-zinc-700-700 font-bold hidden sm:block'>Description: </h1>
+          <SwitcherButton
+            checked={isAlwaysShowDescription}
+            onChange={handleAlwaysShowDescriptionClick}
+            onBody={<h1>Show</h1>}
+            offBody={<h1>Hide</h1>}
+          />
+        </Horizontal_Layout>
 
-      <div className=' min-w-64 h-60 '>
-        <Carousel slides={slides} index={viewingIdx} onNext={handleNextClick} onPrev={handlePrevClick} />
-      </div>
+        <SearchBar handleSearch={handleSearch} />
+      </Horizontal_Layout>
+
+
+
+      {status === "creatingWord" || status === "createWordLoading" || status === "updatingWord" || status === "updateWordLoading" ? (
+        <WordEditComponent />
+      ) : (
+        <div className="w-full min-w-64 h-60">
+          {words.length === 0 ? (
+            viewingType === '' ?
+              <button onClick={startCreateWordSession} className="w-full h-full">
+                <Vertical_Layout
+                  spacing="space-y-1"
+                  extraStyle="h-full w-full bg-white items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg text-blue-500 hover:text-2xl duration-500"
+                >
+                  <CreateIcon size={35} />
+                  <h1>Add New Word</h1>
+                </Vertical_Layout>
+              </button> :
+              <div className="flex flex-col items-center w-full h-full rounded-lg">
+                <div className="relative w-56 h-56">
+                  <Image
+                    src='/assets/images/no content.png'
+                    fill
+                    alt='no content'
+                    className=' rounded-lg'
+                  />
+                </div>
+                <h1 className='font-extrabold mt-4 text-center'>No words found</h1>
+              </div>
+          ) : (
+            <Carousel slides={slides} index={viewingWordIdx} onNext={handleNextClick} onPrev={handlePrevClick} />
+          )}
+        </div>
+      )}
+
+      <WordNav />
     </>
   );
 };

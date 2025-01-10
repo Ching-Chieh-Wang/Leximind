@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import Block from '../Block';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import LoginLogoutComponent from './LoginLogoutComponent';
 import SearchCollectionComponent from './SearchCollectionComponent';
 import SearchIcon from '../icons/SearchIcon';
-import HorizontalLayout from '../horizontalLayout';
+import Horizontal_Layout from '../Horizontal_Layout';
 
 
 const Nav = () => {
@@ -13,7 +14,7 @@ const Nav = () => {
   return (
     <nav className="flex items-center justify-between bg-transparent ">
       {/* Logo and Brand Name */}
-      <HorizontalLayout>
+      <Horizontal_Layout justify='start'>
         <Link href="/" className="flex items-center space-x-3 sm:space-x-6">
           <Image
             src="/assets/images/logo.jpg"
@@ -27,19 +28,21 @@ const Nav = () => {
           </h2>
 
         </Link>
-      </HorizontalLayout>
+      </Horizontal_Layout>
 
-      <HorizontalLayout>
+      <Horizontal_Layout justify='end'>
         <div className="[@media(max-width:480px)]:hidden pl-6 md:pl-16">
           <SearchCollectionComponent />
         </div>
         <div className="hidden [@media(max-width:480px)]:block">
-          <Link href="/collections/search">
-            <SearchIcon size={22} />
-          </Link>
+          <Block>
+            <Link href="/collections/search">
+              <SearchIcon size={22} />
+            </Link>
+          </Block>
         </div>
         <LoginLogoutComponent initialSession={initialSession} />
-      </HorizontalLayout>
+      </Horizontal_Layout>
     </nav>
   );
 };

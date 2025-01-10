@@ -9,9 +9,9 @@ const FormOKButton = ({ children, onClick, color }) => {
   return (
     <button
       type="button"
-      className={`${
-        colorClasses[color] || 'bg-gray-200 hover:bg-gray-500 text-gray-700'
-      } font-semibold hover:text-white py-2 px-2 sm:px-4 border hover:border-transparent rounded-lg w-full`}
+      className={`  ${
+        colorClasses[color] || ' bg-gray-200 hover:bg-gray-500 text-gray-700'
+      } flex-grow font-semibold hover:text-white py-1.5 px-2 border hover:border-transparent rounded-lg `}
       onClick={onClick}
     >
       {children}

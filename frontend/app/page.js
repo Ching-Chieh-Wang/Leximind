@@ -3,7 +3,7 @@ import GetStartedIcon from '@/components/icons/GetStartedIcon';
 import { CollectionsProvider } from '@/context/CollectionsContext';
 import RecentlyViewedCollectionsComponent from '@/components/Collections/RecentlyViewedCollectionsComponent';
 import FireIcon from '@/components/icons/FireIcon';
-import HorizontalLayout from '@/components/horizontalLayout';
+import Horizontal_Layout from '@/components/Horizontal_Layout';
 
 const HomePage = () => {
   return (
@@ -18,10 +18,10 @@ const HomePage = () => {
         <br /><br />LexiMind adapts to your needs and helps you learn faster.
       </p>
       <br />
-      <HorizontalLayout>
+      <Horizontal_Layout>
         <Button href="/protected/collections">Get Started! <GetStartedIcon /></Button>
         <Button href="/collections/search?query=">Popular Collections <FireIcon /></Button>
-      </HorizontalLayout>
+      </Horizontal_Layout>
 
 
 

@@ -1,4 +1,4 @@
-const LabelModel = require('../../models/label');
+const LabelModel =                require('../../models/label');
 
 const validateCollectionId = async (req, res, next) => {
   const { collection_id } = req.params;

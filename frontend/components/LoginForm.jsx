@@ -6,10 +6,11 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Card from '@/components/Card';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
-import FormButton from '@/components/Buttons/FormButton';
+import FormSubmitButton from '@/components/Buttons/FormSubmitButton';
 import GoogleIcon from '@/components/icons/Google';
 import ToggleButton from './Buttons/ToggleButton';
-import VerticalLayout from './VerticalLayout';
+import Vertical_Layout from './Vertical_Layout';
+import Horizontal_Layout from './Horizontal_Layout';
 
 const LoginForm = () => {
   const { data: session, status, update } = useSession();
@@ -70,16 +71,16 @@ const LoginForm = () => {
           Sign in with Google
         </button>
 
-        <div className="flex items-center">
+        <Horizontal_Layout spacing='space-x-0.5'>
           <div className="w-full h-0.5 bg-gray-200"></div>
           <div className="px-5 text-center text-gray-500">or</div>
           <div className="w-full h-0.5 bg-gray-200"></div>
-        </div>
+        </Horizontal_Layout>
 
         {error && <ErrorMsg>{error}</ErrorMsg>}
 
 
-        <VerticalLayout spacing='space-y-0.5'>
+        <Vertical_Layout spacing='space-y-0.5'>
           <label className="block mb-2 text-sm font-medium text-gray-900">
             Your email
           </label>
@@ -92,8 +93,8 @@ const LoginForm = () => {
             required
             autoComplete="on"
           />
-        </VerticalLayout>
-        <VerticalLayout spacing='space-y-0.5'>
+        </Vertical_Layout>
+        <Vertical_Layout spacing='space-y-0.5'>
           <label
             htmlFor="password"
             className="block mb-2 text-sm font-medium text-gray-900"
@@ -109,11 +110,11 @@ const LoginForm = () => {
             required
             autoComplete="on"
           />
-        </VerticalLayout>
+        </Vertical_Layout>
 
-        <FormButton isLoading={isLoading} >
+        <FormSubmitButton isLoading={isLoading} >
           Sign in
-        </FormButton>
+        </FormSubmitButton>
 
         <p className="text-sm font-light text-gray-500">
           Don’t have an account yet?{'  '}

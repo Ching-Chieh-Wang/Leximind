@@ -5,8 +5,7 @@ const validateLabelInput = [
   body('name')
   .trim()
   .notEmpty().withMessage('Label name is required')
-  .isLength({ max: 50 }).withMessage('Label name cannot be more than 50 characters long')
-  .matches(/^[A-Za-z0-9 ]+$/).withMessage('Label name can only contain letters, numbers, and spaces'),
+  .isLength({ max: 50 }).withMessage('Label name cannot be more than 50 characters long'),
 
   // Middleware to check validation result
   (req, res, next) => {

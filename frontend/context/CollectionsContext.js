@@ -36,18 +36,22 @@ const collectionsReducer = (state, action) => {
     }
     case 'UPDATE_COLLECTION': {
       const { updatedCollection } = action.payload;
+      const {name,description,is_public}=updatedCollection
 
-      // Update in collections using index
-      const updatedCollections = [...state.collections];
-      updatedCollections[state.editingIdx].name=updatedCollection.name;
-      updatedCollections[state.editingIdx].description=updatedCollection.description;
-      updatedCollections[state.editingIdx].is_public=updatedCollection.is_public;
+      state.collections[state.editingIdx].name = name;
+      state.collections[state.editingIdx].description = description;
+      state.collections[state.editingIdx].is_public = is_public;
 
       return {
         ...state,
         status: 'viewing',
         editingIdx: null,
       };
+    }
+    case "UPDATE_AUTHORITY":{
+      const {index,is_public}=action.payload;
+      state.collections[index].is_public=is_public
+      return {...state}
     }
     case 'REMOVE_COLLECTION': {
       const { index } = action.payload;
@@ -58,7 +62,7 @@ const collectionsReducer = (state, action) => {
       ];
 
       let updatedOriginalCollections;
-      if (state.sortType===null&&state.searchQuery===null) {
+      if (state.sortType === null && state.searchQuery === null) {
         updatedOriginalCollections = [...updatedCollections];
       }
       else {
@@ -75,17 +79,7 @@ const collectionsReducer = (state, action) => {
         originalCollections: updatedOriginalCollections,
       };
     }
-    case 'UPDATE_AUTHORITY': {
-      const { is_public,index } = action.payload;
-      const updatedCollections = [...state.collections];
-      updatedCollections[index].is_public=is_public;
 
-      return {
-        ...state,
-        status: 'viewing',
-        editingIdx: null,
-      };
-    }
     case 'SORT_COLLECTIONS': {
       const { sortType, sortedCollections } = action.payload;
       return { ...state, editingIdx: null, status: 'viewing', sortType: sortType, collections: sortedCollections };
@@ -95,10 +89,10 @@ const collectionsReducer = (state, action) => {
       return { ...state, editingIdx: null, status: 'viewing', sortType: null, searchQuery: searchQuery, collections: searchedCollections };
     }
     case 'START_CREATE_COLLECTION_SESSION':
-      return { ...state, status: 'adding', editingIdx: null };
+      return { ...state, status: 'creatingCollection', editingIdx: null };
     case 'START_UPDATE_COLLECTION_SESSION':
       const { index } = action.payload
-      return { ...state, status: 'updating', editingIdx: index };
+      return { ...state, status: 'updatingCollection', editingIdx: index };
     case 'FETCH_COLLECTIONS_REQUEST':
       return { ...state, status: 'loading', error: null };
     case 'FETCH_COLLECTIONS_SUCCESS':
@@ -110,10 +104,10 @@ const collectionsReducer = (state, action) => {
       };
     case 'FETCH_COLLECTIONS_FAILURE':
       return { ...state, status: 'error', error: action.payload };
+    case 'CREATE_COLLECTION_LOADING':
+      return { ...state, status: 'createCollectionLoading' }
     case 'RESET_COLLECTIONS':
       return { ...state, status: 'viewing', sortType: null, editingIdx: null, collections: state.originalCollections };
-    case 'SET_COLLECTIONS_TYPE':
-      return { ...state, type: action.payload };
     case 'CANCEL_EDIT_COLLECTION':
       return { ...state, editingIdx: null, status: 'viewing' }
     default:
@@ -133,8 +127,9 @@ export const CollectionsProvider = ({ type, children }) => {
 
   const [state, dispatch] = useReducer(collectionsReducer, { ...initialState, type: type });
   const { showDialog } = useDialog();
+  const refershPage = () => { window.location.reload() };
 
-  const fetchHelper = async (url, method, body = null) => {
+  const fetchHelper = async (url, method, body = null, isShowErr=true) => {
     try {
       const response = await fetch(url, {
         method,
@@ -144,45 +139,60 @@ export const CollectionsProvider = ({ type, children }) => {
         ...(body && { body: JSON.stringify(body) }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        const refershPage = () => { window.location.reload() };
-        showDialog({ title: 'Error', description: `Unexpected error: ${data.message || 'Please try again later.'}`, onOk: refershPage, onCancel: refershPage });
+      if (response.status === 404) {
+        showDialog({
+          title: 'Error',
+          description: `Resource not found (404). Please check the URL or contact support.`,
+          onOk: refershPage,
+        })
+        console.error('Error', 'API URL not found:', url);
         return null;
       }
 
+
+      const data = await response.json();
       return data;
+
     } catch (error) {
       console.error('Fetch error:', error);
-      showDialog({ title: 'Error', description: `Unexpected error: ${data.message || 'Please try again later.'}`, onOk: refershPage, onCancel: refershPage });
+      if(isShowErr)showDialog({ title: 'Error', description: 'Error: Please try again later.', onOk: refershPage });
       return null;
     }
   };
 
-  const createCollection = async (url, collection) => {
-    const data = await fetchHelper(url, 'POST', collection);
-    if (data) {
-      const newCollection = { ...collection, id: data.id, view_cnt: 0, last_viewed_at: null, save_cnt: 0, created_at: data.created_at, word_cnt: 0 }
+  const createCollection = async (url, name,description,is_public) => {
+    dispatch({type:'CREATE_COLLECTION_LOADING'})
+    const data = await fetchHelper(url, 'POST', {name,description,is_public},false);
+    if(!data){
+      return {errors:{path:'general',msg:'Unexptected error! Please try again later.'}}
+    }
+    if (data.id && data.created_at) {
+      const newCollection = { name,description,is_public, id: data.id, view_cnt: 0, last_viewed_at: null, save_cnt: 0, created_at: data.created_at, word_cnt: 0 }
       dispatch({ type: 'CREATE_COLLECTION', payload: { newCollection } });
     }
-
+    return data
   };
 
-  const updateCollection = (url, collection) => {
-    fetchHelper(url, 'PUT', collection);
-    const updatedCollection = { ...state.collections[state.editingIdx], name: collection.name, description: collection.description, is_public: collection.is_public }
-    dispatch({ type: 'UPDATE_COLLECTION', payload: { updatedCollection } });
+  const updateCollection = (url, name,description,is_public) => {
+    const data=fetchHelper(url, 'PUT', {name,description,is_public});
+    if(!data){
+      return {errors:{path:'general',msg:'Unexptected error! Please try again later.'}}
+    }
+    if(data.errors==null){
+      const updatedCollection = { ...state.collections[state.editingIdx], name, description, is_public }
+      dispatch({ type: 'UPDATE_COLLECTION', payload: { updatedCollection } });
+    }
   };
 
-  const removeCollection =  (url, index, id) => {
+  const removeCollection = (url, index, id) => {
     fetchHelper(url, 'DELETE');
     dispatch({ type: 'REMOVE_COLLECTION', payload: { index, id } });
   };
 
-  const updateAuthority =  (url, index, is_public) => {
-    fetchHelper(url, 'PUT', { is_public });
-    dispatch({ type: 'UPDATE_AUTHORITY', payload: { index, is_public } });
+  const updateCollectionAuthority = (url, index) => {
+    const is_public=!state.collections[index].is_public;
+    fetchHelper(url, 'PUT', { is_public});
+    dispatch({ type: 'UPDATE_AUTHORITY', payload: {index,is_public}});
   };
 
   const fetchCollections = async (url) => {
@@ -196,7 +206,7 @@ export const CollectionsProvider = ({ type, children }) => {
 
     const data = await fetchHelper(url, 'GET');
     if (data) {
-      dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: data.collections || [] });
+      dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: data.collections });
     } else {
       dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: 'Failed to fetch collections' });
     }
@@ -252,7 +262,7 @@ export const CollectionsProvider = ({ type, children }) => {
     createCollection,
     updateCollection,
     removeCollection,
-    updateAuthority,
+    updateCollectionAuthority,
     fetchCollections,
     sortCollections,
     searchCollections,

@@ -53,11 +53,11 @@ const update = async (req, res) => {
     const { name, description, img_path } = req.body;
 
     // Update the word details
-    const updated_word_id = await wordModel.update(user_id, collection_id, word_id, name, description, img_path);
-    if (updated_word_id!=word_id) {
+    const updateSuccess = await wordModel.update(user_id, collection_id, word_id, name, description, img_path);
+    if (!updateSuccess) {
       return res.status(404).json({ message: 'Word not found or unauthorized' });
     }
-    res.status(200).json({ message: 'Word updated successfully', word_id: updated_word_id });
+    res.status(200).json({ message: 'Word updated successfully'});
   } catch (err) {
     console.error('Error updating word:', err);
     res.status(500).json({ message: 'Server error' });
@@ -70,8 +70,8 @@ const getByLabelId = async (req, res) => {
     const user_id=req.user_id;
     const { label_id,collection_id } = req.params;
     const { limit, offset } = req;
-    const words = await wordModel.getByLabelId(user_id,collection_id, label_id, limit, offset);
-    res.status(200).json({ words });
+    const data = await wordModel.getByLabelId(user_id,collection_id, label_id, limit, offset);
+    res.status(200).json(data);
   } catch (err) {
     console.error('Error fetching words by label ID:', err);
     res.status(500).json({ message: 'Server error' });
@@ -84,14 +84,13 @@ const searchByPrefix = async (req, res) => {
     const user_id=req.user_id;
     const { collection_id } = req.params;
     const { prefix } = req.query;
-    const { limit, offset } = req;
 
     if (!prefix) {
       return res.status(400).json({ message: 'prefix parameter is required' });
     }
 
-    const words = await wordModel.searchByPrefix(user_id, collection_id, prefix, limit, offset);
-    res.status(200).json({ words });
+    const data = await wordModel.searchByPrefix(user_id, collection_id, prefix);
+    res.status(200).json(data);
   } catch (err) {
     console.error('Error searching words by prefix :', err);
     res.status(500).json({ message: 'Server error' });
@@ -103,16 +102,14 @@ const changeIsMemorizedStatus = async (req, res) => {
   try {
     const user_id = req.user_id;
     const { collection_id, word_id } = req.params;
+    const {is_memorized}=req.body;
 
-    const is_memorized = await wordModel.changeIsMemorizedStatus(user_id,collection_id, word_id);
-    if (is_memorized === null) {
+    const changeSuccess = await wordModel.changeIsMemorizedStatus(user_id,collection_id, word_id,is_memorized);
+    if (!changeSuccess) {
       return res.status(404).json({ message: 'Word not found' });
     }
 
-    res.status(200).json({
-      message: 'Word memorization status updated successfully',
-      is_memorized
-    });
+    res.status(200).json({message: 'Word memorization status updated successfully'});
   } catch (err) {
     console.error('Error updating memorization status:', err);
     res.status(500).json({ message: 'Server error' });

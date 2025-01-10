@@ -71,7 +71,7 @@ const DropdownMenu = ({ button, children }) => {
 
   return (
     <div className="relative inline-block text-left">
-      <button onClick={toggleDropdown} ref={buttonRef}>
+      <button className="hover:bg-gray-200 rounded-md p-2" onClick={toggleDropdown} ref={buttonRef}>
         {button}
       </button>
       {/* Dropdown Menu */}

@@ -9,7 +9,7 @@ import Card from '@/components/Card';
 import { SortIcon } from '@/components/icons/SortIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';
 import SearchBar from '@/components/SearchBar';
-import HorizontalLayout from '@/components/horizontalLayout';
+import Horizontal_Layout from '@/components/Horizontal_Layout';
 
 const CollectionsPage = () => {
   const {
@@ -34,8 +34,7 @@ const CollectionsPage = () => {
 
   const sortDropDownButton = (
 
-    <div className="inline-flex items-center font-bold whitespace-nowrap rounded-lg text-sm px-1 sm:px-2 md:px-4 py-2 gap-2 bg-gray-200">
-      <HorizontalLayout spaceing={"space-x-1.5"}>
+      <Horizontal_Layout spacing={"space-x-2.5"} extraStyle='bg-gray-200 rounded-lg whitespace-nowrap font-bold p-2'>
         <SortIcon />
         <span className="font-normal text-primary-text hidden md:inline-block">
           Sort By:
@@ -44,8 +43,7 @@ const CollectionsPage = () => {
           {!sortType ? 'Recently viewed first' : sortType}
         </span>
         <DropdownIcon />
-      </HorizontalLayout>
-    </div>
+      </Horizontal_Layout>
 
   );
 

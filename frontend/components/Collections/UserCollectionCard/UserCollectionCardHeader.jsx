@@ -7,7 +7,6 @@ import DeleteIcon from '@/components/icons/DeleteIcon';
 import KebabMenuIcon from '@/components/icons/KebabMenuIcon';
 import { useCollections } from '@/context/CollectionsContext';
 import { useDialog } from '@/context/DialogContext';
-import { useState } from 'react';
 import ViewIcon from '@/components/icons/ViewIcon';
 import CreateIcon from '@/components/icons/CreateIcon';
 import SwitcherButton from '@/components/Buttons/SwitcherButton';
@@ -16,29 +15,27 @@ import LockIcon from '@/components/icons/LockIcon';
 import DownloadIcon from '@/components/icons/DownloadIcon';
 import ShareIcon from '@/components/icons/ShareIcon';
 import Link from 'next/link';
-import HorizontalLayout from '@/components/horizontalLayout';
+import Horizontal_Layout from '@/components/Horizontal_Layout';
 
 const UserCollectionCardHeader = ({ index }) => {
-  if(index==undefined){console.error("index must provide")}
+  if (index == undefined) { console.error("index must provide") }
   const {
     collections,
     startUpdateCollectionSession,
-    updateAuthority,
+    updateCollectionAuthority,
     removeCollection,
   } = useCollections();
   const { showDialog } = useDialog();
 
   const {
     name,
-    id:collection_id,
+    id: collection_id,
     created_at,
     last_viewed_at,
     view_cnt,
     save_cnt,
     is_public,
   } = collections[index];
-
-  const [isPublic, setIsPublic] = useState(is_public);
 
   const getFormattedDistance = (date) => {
     const diffInSeconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -51,23 +48,22 @@ const UserCollectionCardHeader = ({ index }) => {
 
   const handleDelete = () => {
     showDialog(
-      {title:'Warning!',
-      description:`Deleting ${name}? You will lose all of your words by deleting this. This action cannot be undone.`,
-      type:'warning',
-      onOk:()=>{removeCollection(`/api/protected/collections/${collection_id}`, index)},
-      onCancel:()=>{}
-    })
+      {
+        title: 'Warning!',
+        description: `Deleting ${name}? You will lose all component of the collection by deleting this. This action cannot be undone.`,
+        type: 'warning',
+        onOk: () => { removeCollection(`/api/protected/collections/${collection_id}`, index) },
+        onCancel: () => { }
+      })
   };
 
   const handleAuthorizeChange = async (e) => {
-    const updatedIsPublic = e.target.checked;
-    setIsPublic(updatedIsPublic); 
-    updateAuthority(`/api/protected/collections/${collection_id}/authorize`, index, updatedIsPublic);
+    updateCollectionAuthority(`/api/protected/collections/${collection_id}/authorize`, index);
   };
 
   return (
     <>
-      <HorizontalLayout extraStyle={"justify-between"}>
+      <Horizontal_Layout extraStyle={"justify-between"}>
         {/* Project Title */}
         <Link
           href={`/protected/collections/${collection_id}`}
@@ -86,7 +82,7 @@ const UserCollectionCardHeader = ({ index }) => {
           <DropdownItem icon={<CreateIcon />}>
             Created at: {getFormattedDistance(created_at)}
           </DropdownItem>
-          {isPublic && (
+          {is_public && (
             <>
               <DropdownItem icon={<ViewIcon />}>{view_cnt} views</DropdownItem>
               <DropdownItem icon={<DownloadIcon />}>
@@ -97,24 +93,24 @@ const UserCollectionCardHeader = ({ index }) => {
           <DropdownItem>
             <SwitcherButton
               offBody={
-                <div className="inline-flex gap-1 items-center">
+                <Horizontal_Layout spacing='space-x-1.5'>
                   <LockIcon />
-                  Private
-                </div>
+                  <h1>Private</h1>
+                </Horizontal_Layout>
               }
               onBody={
-                <div className="inline-flex gap-1 items-center">
+                <Horizontal_Layout spacing='space-x-1.5'>
                   <GlobalIcon />
-                  Public
-                </div>
+                  <h1>Public</h1>
+                </Horizontal_Layout>
               }
-              checked={isPublic}
+              checked={is_public}
               onChange={handleAuthorizeChange}
             />
           </DropdownItem>
 
           <hr className="m-2" />
-          {isPublic && (
+          {is_public && (
             <DropdownItem icon={<ShareIcon />}>Share</DropdownItem>
           )}
           <DropdownItem
@@ -123,11 +119,11 @@ const UserCollectionCardHeader = ({ index }) => {
           >
             Edit
           </DropdownItem>
-          <DropdownItem onClick={handleDelete} icon={<DeleteIcon />}>
+          <DropdownItem onClick={handleDelete} icon={<DeleteIcon />} extraStyle='text-red-400'>
             Delete
           </DropdownItem>
         </DropdownMenu>
-      </HorizontalLayout>
+      </Horizontal_Layout>
     </>
   );
 };

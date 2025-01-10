@@ -5,9 +5,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
 import Card from '@/components/Card';
-import FormButton from '@/components/Buttons/FormButton'
+import FormSubmitButton from '@/components/Buttons/FormSubmitButton'
 import { useDialog } from '@/context/DialogContext';
-import VerticalLayout from '@/components/VerticalLayout';
+import Vertical_Layout from '@/components/Vertical_Layout';
 
 export default function RegisterPage() {
   const { data: session, status, update } = useSession();
@@ -65,7 +65,7 @@ export default function RegisterPage() {
       }
       // Redirect the user to the login page after successful registration
       router.push('/login');
-      showDialog({ title: "Register sucessfully!", description: "Please log in.", type: 'success' })
+      showDialog({ title: "Register sucessfully!", description: "Please log in.", type: 'success' ,onOk:()=>{}})
 
     } catch (error) {
       setFieldErrors({ general: error.message });
@@ -82,7 +82,7 @@ export default function RegisterPage() {
         {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
 
 
-        <VerticalLayout spacing="space-y-0.5">
+        <Vertical_Layout spacing="space-y-0.5">
           <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">
             Your username
           </label>
@@ -97,9 +97,9 @@ export default function RegisterPage() {
           />
           {/* Display field-specific error for username */}
           {fieldErrors.username && <ErrorMsg>{fieldErrors.username}</ErrorMsg>}
-        </VerticalLayout>
+        </Vertical_Layout>
 
-        <VerticalLayout spacing="space-y-0.5">
+        <Vertical_Layout spacing="space-y-0.5">
           <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
             Your email
           </label>
@@ -114,9 +114,9 @@ export default function RegisterPage() {
           />
           {/* Display field-specific error for email */}
           {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
-        </VerticalLayout>
+        </Vertical_Layout>
 
-        <VerticalLayout spacing="space-y-0.5">
+        <Vertical_Layout spacing="space-y-0.5">
           <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
             Password
           </label>
@@ -131,11 +131,11 @@ export default function RegisterPage() {
           />
           {/* Display field-specific error for password */}
           {fieldErrors.password && <ErrorMsg>{fieldErrors.password}</ErrorMsg>}
-        </VerticalLayout>
+        </Vertical_Layout>
 
-        <FormButton onClick={handleRegister} isLoading={isLoading}>
+        <FormSubmitButton onClick={handleRegister} isLoading={isLoading}>
           Register
-        </FormButton>
+        </FormSubmitButton>
 
         <p className="text-sm font-light text-gray-500">
           Already have an account?{' '}

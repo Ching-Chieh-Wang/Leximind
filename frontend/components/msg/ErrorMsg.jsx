@@ -1,6 +1,6 @@
 // components/ErrorMsg.jsx
 const ErrorMsg = ({ children }) => {
-    if (!children) return null;
+    if (children==null) return null;
   
     return (
       <div className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50" role="alert">

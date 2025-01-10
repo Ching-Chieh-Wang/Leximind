@@ -7,7 +7,7 @@ import Card from '@/components/Card';
 import ErrorMsg from '@/components/Msg/ErrorMsg';
 import SuccessMsg from '@/components/Msg/SuccessMsg';
 import Image from 'next/image';
-import FormButton from '@/components/Buttons/FormButton';
+import FormSubmitButton from '@/components/Buttons/FormSubmitButton';
 import GoogleIcon from '@/components/icons/Google';
 
 const ProfilePage = () => {
@@ -44,6 +44,7 @@ const ProfilePage = () => {
     setFieldErrors({});
     setSuccessMessage(null);
     try {
+
       if (session.user.username == username && session.user.email == email) {
         setSuccessMessage('Profile updated successfully!');
         return;
@@ -94,8 +95,6 @@ const ProfilePage = () => {
         }
       }
 
-      setSuccessMessage('Profile updated successfully!');
-      router.refresh(); // Refresh to reflect updates
     } catch (error) {
       console.error(error)
       setFieldErrors({ general: 'Something went wrong. Please try again later.' });
@@ -178,9 +177,9 @@ const ProfilePage = () => {
           {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
         </div>
 
-        <FormButton isLoading={isLoading} loadingText="Saving...">
+        <FormSubmitButton isLoading={isLoading} loadingText="Saving...">
           Save
-        </FormButton>
+        </FormSubmitButton>
       </Card>
     </form>
   );

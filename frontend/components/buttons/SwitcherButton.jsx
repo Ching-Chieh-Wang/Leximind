@@ -1,6 +1,6 @@
 const SwitcherButton = ({ onBody, offBody, checked, onChange }) => {
   return (
-    <div data-keep-open="true" className="select-none">
+    <div data-keep-open="true" className=" select-none flex-shrink-0 ">
       <div className="inline-block">
         {/* Checkbox */}
         <input

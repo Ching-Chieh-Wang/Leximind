@@ -1,14 +1,15 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Card from '../Card';
-import FormButton from '../Buttons/FormButton';
+import FormSubmitButton from '../Buttons/FormSubmitButton';
 import FormCancelButton from '../Buttons/FormCancelButton';
 import { useCollections } from '@/context/CollectionsContext';
 import SwitcherButton from '../Buttons/SwitcherButton';
 import LockIcon from '../icons/LockIcon';
 import GlobalIcon from '../icons/GlobalIcon';
-import HorizontalLayout from '../horizontalLayout';
-import VerticalLayout from '../VerticalLayout';
+import Horizontal_Layout from '../Horizontal_Layout';
+import Vertical_Layout from '../Vertical_Layout';
+import ErrorMsg from '../Msg/ErrorMsg';
 
 const UserCollectionCardEdit = ({ index }) => {
   const {
@@ -16,55 +17,104 @@ const UserCollectionCardEdit = ({ index }) => {
     collections,
     createCollection,
     updateCollection,
-    cancelEditCollection
+    cancelEditCollection,
   } = useCollections();
-  const [name, setName] = useState(() => {
-    return collections[index]?.name || '';
-  });
-  const [description, setDescription] = useState(() => {
-    return collections[index]?.description || '';
-  });
-  const [is_public, setIsPublic] = useState(() => {
-    return collections[index]?.is_public || false;
-  });
-
-  const handleIsPublicChange = (e) => {
-    setIsPublic(e.target.checked);
-  }
+  const [name, setName] = useState(status === 'updatingCollection' ? collections[index].name : '');
+  const [description, setDescription] = useState(status === 'updatingCollection' ? collections[index].description : '');
+  const [isPublic, setIsPublic] = useState(status === 'updatingCollection' ? collections[index].is_public : false);
+  const [fieldErrors, setFieldErrors] = useState({})
 
   const handleUpsert = async (e) => {
     e.preventDefault();
-    if (status === 'adding') createCollection('/api/protected/collections', { name, description, is_public })
-    else if (status === 'updating') updateCollection(`/api/protected/collections/${collections[index].id}`, { name, description, is_public })
+    setFieldErrors({})
+    let data;
+    if (status === 'creatingCollection') data = await createCollection('/api/protected/collections', name, description, isPublic )
+    else if (status === 'updatingCollection') data = updateCollection(`/api/protected/collections/${collections[index].id}`,  name, description, isPublic )
+    else {
+      console.error('status not found', status)
+      return
+    }
+    if (data?.errors) {
+      const errors = {};
+      data.errors.forEach((error) => {
+        if (!errors[error.path]) {
+          errors[error.path] = error.msg; // Store only the first error for each field
+        }
+      });
+      setFieldErrors(errors);
+    }
   };
+
+  const handleNameChange = (e) => {
+    const input = e.target.value;
+  
+    // Validate the input for name length
+    if (input.length > 50) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        name: 'Name cannot exceed 50 characters',
+      }));
+    } else {
+      setFieldErrors((prevErrors) => {
+        const { name, ...rest } = prevErrors; // Remove the name error if it exists
+        return rest;
+      });
+      setName(input);
+    }
+  };
+  
+  const handleDescriptionChange = (e) => {
+    const input = e.target.value;
+  
+    // Validate the input for description length
+    if (input.length > 500) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        description: 'Description cannot exceed 500 characters',
+      }));
+    } else {
+      setFieldErrors((prevErrors) => {
+        const { description, ...rest } = prevErrors; // Remove the description error if it exists
+        return rest;
+      });
+      setDescription(input);
+    }
+  };
+  const handleIsPublicChange = () => {
+    setFieldErrors({})
+    setIsPublic((prev) => !prev)
+  }
 
   return (
     <form onSubmit={handleUpsert}>
       <Card
         type="card"
-        title={status === 'adding' ? 'Create new collection' : 'Update collection'}
+        title={status === 'creatingCollection' || status === 'createCollectionLoading' ? 'Create new collection' : 'Update collection'}
       >
+        {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
         {/* Name Input */}
-        <VerticalLayout spacing='space-y-1'>
-          <label className="block mb-2 text-sm font-medium text-gray-900">
+        <Vertical_Layout spacing='space-y-1'>
+          <label className="block  text-sm font-medium text-gray-900">
             Name
           </label>
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
             className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg w-full p-2.5"
             placeholder="Enter collection name"
             required
             autoComplete="on"
           />
-        </VerticalLayout>
+          <ErrorMsg>{fieldErrors.name}</ErrorMsg>
+
+        </Vertical_Layout>
 
         {/* Description Input */}
-        <VerticalLayout spacing='space-y-1'>
+        <Vertical_Layout spacing='space-y-1'>
           <label
             htmlFor="description"
-            className="block text-sm font-medium pb-2 text-gray-900"
+            className="block text-sm font-medium  text-gray-900"
           >
             Description
           </label>
@@ -72,40 +122,41 @@ const UserCollectionCardEdit = ({ index }) => {
             id="description"
             rows="2"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={handleDescriptionChange}
             className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg h-24 w-full p-2.5"
             placeholder="Enter collection description"
           ></textarea>
-        </VerticalLayout>
+            <ErrorMsg>{fieldErrors.description}</ErrorMsg>
+        </Vertical_Layout>
 
 
-        <HorizontalLayout extraStyle={"justify-between"}>
+        <Horizontal_Layout justify="between" >
           <SwitcherButton
-            checked={is_public}
+            checked={isPublic}
             onChange={handleIsPublicChange}
             offBody={
-              <HorizontalLayout spaceing='space-x-1'>
+              <Horizontal_Layout spacing='space-x-1' >
                 <LockIcon />
-                <span className="hidden sm:inline">Private</span> {/* Hide text on small screens */}
-              </HorizontalLayout>
+                <span className="hidden sm:block">Private</span>
+              </Horizontal_Layout>
             }
             onBody={
-              <HorizontalLayout spaceing='space-x-1'>
+              <Horizontal_Layout spacing='space-x-1' >
                 <GlobalIcon />
-                <span className="hidden sm:inline">Public</span> {/* Hide text on small screens */}
-              </HorizontalLayout>
+                <span className="hidden sm:block">Public</span>
+              </Horizontal_Layout>
             }
           />
 
-          <HorizontalLayout>
+          <Horizontal_Layout  >
             <FormCancelButton onClick={cancelEditCollection}>
               Cancel
             </FormCancelButton>
-            <FormButton status={status === 'loading'}>
-              {status === 'adding' ? 'Create' : 'Update'}
-            </FormButton>
-          </HorizontalLayout>
-        </HorizontalLayout>
+            <FormSubmitButton isLoading={status === 'createCollectionLoading'}>
+              {status === 'creatingCollection' || status === 'createCollectionLoading' ? 'Create' : 'Update'}
+            </FormSubmitButton>
+          </Horizontal_Layout>
+        </Horizontal_Layout>
       </Card>
     </form>
   );

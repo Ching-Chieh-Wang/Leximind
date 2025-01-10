@@ -7,13 +7,13 @@ const create = async (req, res) => {
     const user_id = req.user_id;
     const { collection_id } = req.params;
 
-    const newLabel_id = await labelModel.create({ user_id,collection_id, name  });
+    const data = await labelModel.create({ user_id,collection_id, name  });
 
-    if (!newLabel_id) {
+    if (!data) {
       return res.status(500).json({ message: 'Error creating label' });
     }
 
-    res.status(201).json({ message: 'Label created successfully', label_id: newLabel_id });
+    res.status(201).json({ message: 'Label created successfully', label_id: data.id });
   } catch (err) {
     if (err.code === '23502') { // Foreign key violation
       return res.status(400).json({ message: 'Invalid user or collection ID provided' });
@@ -68,28 +68,9 @@ const remove = async (req, res) => {
   }
 };
 
-// Function to get all labels by collection ID
-const getAllByCollectionId = async (req, res) => {
-  try {
-    const user_id=req.user_id;
-    const {collection_id} = req.params; // Get the collection ID from request parameters
-
-    // Fetch all labels associated with the collection
-    const labels = await labelModel.getAllByCollectionId(user_id, collection_id);
-    if(!labels){
-      return res.status(404).json({ message: 'Label not found' });
-    }
-
-    res.status(200).json({ labels });
-  } catch (err) {
-    console.error('Error fetching labels:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
 
 module.exports = {
   create,
   update,
   remove,
-  getAllByCollectionId,
 };

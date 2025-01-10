@@ -5,26 +5,30 @@ import DropdownItem from '@/components/DropdownMenu/DropdownItem';
 import ProfileIcon from '@/components/icons/ProfileIcon';
 import CollectionIcon from '../icons/CollectionIcon';
 import LogOutDropDownItem from './LogOutDropDownItem';
-const LoggedInComponent = ({user}) => {
+import Block from '../Block';
+const LoggedInComponent = ({ user }) => {
 
     const dropdownButton = (
-        <Image
-            src={user.image || '/assets/images/logo.jpg'}
-            width={40}
-            height={40}
-            className="w-10 h-10 rounded-full cursor-pointer"
-            alt="Profile"
-        />
+        <div className='w-10 h-10 flex-none'>
+            <Image
+                src={user.image || '/assets/images/logo.jpg'}
+                width={40}
+                height={40}
+                className=" rounded-full cursor-pointer"
+                alt="Profile"
+            />
+        </div>
+
     )
     return (
         <>
-            
+
             <Link
-                href="/protected/collections"
-                className="inline-flex items-center justify-center h-10 rounded-md border border-gray-400 bg-gray-100 px-1 sm:px-2 md:px-3 font-medium text-slate-90 lg:text-lg gap-x-2 hover:bg-gray-300"
-            >
-                <CollectionIcon />
-                <h1 className="hidden sm:block">Collections</h1>
+                href="/protected/collections" >
+                <Block>
+                    <CollectionIcon />
+                    <h1 className="hidden sm:block">Collections</h1>
+                </Block>
             </Link>
 
             <DropdownMenu button={dropdownButton}>
@@ -35,9 +39,9 @@ const LoggedInComponent = ({user}) => {
                     </div>
                 </DropdownItem>
                 <hr className="my-2" />
-                <DropdownItem href="/protected/profile" icon={<ProfileIcon  />}>Profile</DropdownItem>
-                <DropdownItem href="/protected/collections" icon={<CollectionIcon  />}>My Collection</DropdownItem>
-                <LogOutDropDownItem/>
+                <DropdownItem href="/protected/profile" icon={<ProfileIcon />}>Profile</DropdownItem>
+                <DropdownItem href="/protected/collections" icon={<CollectionIcon />}>My Collection</DropdownItem>
+                <LogOutDropDownItem />
             </DropdownMenu>
         </>
     )

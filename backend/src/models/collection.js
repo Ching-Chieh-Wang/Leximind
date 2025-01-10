@@ -57,47 +57,70 @@ const update = async (user_id, collection_id, name, description, is_public) => {
 const remove = async (user_id, collection_id) => {
   const query = `DELETE FROM collections WHERE id = $1 AND user_id = $2 RETURNING id;`;
   const result = await db.query(query, [collection_id, user_id]);
-  return result.rows[0]||null;
+  return result.rowCount>0;
 };
 
+/**
+ * Get a collection by ID and user ID, including words and labels
+ */
 const getById = async (user_id, collection_id) => {
-  const query = `
-    WITH word_data AS (
+    const query = `
+      WITH collection_data AS (
+        SELECT 
+          c.name AS collection_name,
+          stats.word_cnt AS word_cnt,
+          stats.not_memorized_cnt AS not_memorized_cnt,
+          COALESCE(
+            JSON_AGG(
+              JSON_BUILD_OBJECT(
+                'id', wd.id,
+                'name', wd.name,
+                'description', wd.description,
+                'img_path', wd.img_path,
+                'is_memorized', wd.is_memorized,
+                'label_ids', wd.label_ids
+              )
+            ) FILTER (WHERE wd.id IS NOT NULL),
+            '[]'
+          ) AS words
+        FROM collections c
+        LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
+        LEFT JOIN view_word_data wd ON c.id = wd.collection_id
+        WHERE c.id = $1 AND c.user_id = $2
+        GROUP BY c.id, stats.word_cnt, stats.not_memorized_cnt
+      ),
+      label_data AS (
+        SELECT 
+          COALESCE(
+            JSON_AGG(
+              JSON_BUILD_OBJECT(
+                'id', vcl.label_id,
+                'name', vcl.label_name
+              )
+            ) -- Removed FILTER clause here
+            , '[]'
+          ) AS labels
+        FROM view_collection_labels vcl
+        WHERE vcl.collection_id = $1 AND vcl.user_id = $2
+      )
       SELECT 
-        w.collection_id,
-        w.id,
-        w.name,
-        w.description,
-        w.img_path,
-        w.is_memorized,
-        COALESCE(ARRAY_AGG(DISTINCT wl.label_id), '{}') AS label_ids
-      FROM words w
-      LEFT JOIN word_labels wl ON w.id = wl.word_id
-      GROUP BY w.collection_id, w.id
-    )
-    SELECT 
-      c.name AS collection_name,
-      stats.word_cnt AS word_cnt,
-      stats.not_memorized_cnt AS not_memorized_cnt,
-      JSON_AGG(
-        JSON_BUILD_OBJECT(
-          'id', wd.id,
-          'name', wd.name,
-          'description', wd.description,
-          'img_path', wd.img_path,
-          'is_memorized', wd.is_memorized,
-          'label_ids', wd.label_ids
-        )
-      ) AS words
-    FROM collections c
-    LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
-    LEFT JOIN word_data wd ON c.id = wd.collection_id
-    WHERE c.id = $1 AND c.user_id = $2
-    GROUP BY c.id, stats.word_cnt, stats.not_memorized_cnt;
-  `;
-  const result = await db.query(query, [collection_id, user_id]);
+        cd.collection_name,
+        cd.word_cnt,
+        cd.not_memorized_cnt,
+        cd.words,
+        ld.labels
+      FROM collection_data cd, label_data ld;
+    `;
 
+
+  const result = await db.query(query, [collection_id, user_id]);
   return result.rows[0];
+  
+};
+
+module.exports = {
+  // ... other exports
+  getById,
 };
 
 /**

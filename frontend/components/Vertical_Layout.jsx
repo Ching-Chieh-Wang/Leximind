@@ -1,4 +1,4 @@
-const VerticalLayout = ({ children, extraStyle, spacing="space-y-5",  }) => {
+const Vertical_Layout = ({ children, extraStyle, spacing="space-y-5",  }) => {
   return (
     <div className={`flex flex-col justify-center ${spacing} ${extraStyle}`}>
       {children}
@@ -6,4 +6,4 @@ const VerticalLayout = ({ children, extraStyle, spacing="space-y-5",  }) => {
   );
 };
 
-export default VerticalLayout;
+export default Vertical_Layout;

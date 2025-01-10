@@ -5,8 +5,8 @@ import FormCancelButton from '@/components/Buttons/FormCancelButton';
 import FormOKButton from '@/components/Buttons/FormOKButton';
 import WarningIcon from '@/components/icons/WarningIcon';
 import SuccessIcon from '@/components/icons/SuccessIcon';
-import HorizontalLayout from '@/components/horizontalLayout';
-import VerticalLayout from '@/components/VerticalLayout';
+import Horizontal_Layout from '@/components/Horizontal_Layout';
+import Vertical_Layout from '@/components/Vertical_Layout';
 
 const DialogContext = createContext();
 
@@ -72,12 +72,13 @@ export const DialogProvider = ({ children }) => {
             }}
             onClick={(e) => {
               e.stopPropagation();
-              clearDialog();
+              if(handleCancel)handleCancel();
+              else clearDialog();
             }}
           >
             <Card type="form" onClick={(e) => e.stopPropagation()}>
               {/* Dialog Header */}
-              <HorizontalLayout>
+              <Horizontal_Layout>
                 <div
                   className="rounded-full border border-gray-300 flex items-center justify-center p-4"
                   style={{ color: type === 'warning' ? 'red' : 'green' }}
@@ -88,14 +89,14 @@ export const DialogProvider = ({ children }) => {
                     <SuccessIcon size={25} />
                   )}
                 </div>
-                <VerticalLayout spacing='space-y-0.5'>
+                <Vertical_Layout spacing='space-y-0.5'>
                   <p className="font-bold text-lg text-gray-900">{title}</p>
                   <p className="text-sm text-gray-700 mt-2">{description}</p>
-                </VerticalLayout>
-              </HorizontalLayout>
+                </Vertical_Layout>
+              </Horizontal_Layout>
 
               {/* Dialog Footer */}
-              <HorizontalLayout>
+              <Horizontal_Layout>
                 {handleCancel && (
                   <FormCancelButton onClick={()=>{
                     handleCancel();
@@ -111,7 +112,7 @@ export const DialogProvider = ({ children }) => {
                 >
                   OK
                 </FormOKButton>}
-              </HorizontalLayout>
+              </Horizontal_Layout>
             </Card>
           </div>
         )}
