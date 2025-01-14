@@ -66,8 +66,8 @@ const remove = async (user_id, collection_id, word_id) => {
   const query = `
     DELETE FROM words
     WHERE id = $3
-    AND EXISTS (
-      SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
+    AND collection_id = (
+      SELECT id FROM collections WHERE id = $2 AND user_id = $1
     )
     RETURNING id;
   `;
@@ -87,8 +87,8 @@ const update = async (user_id, collection_id, word_id, name, description, img_pa
       description = $5, 
       img_path = $6
     WHERE id = $3
-      AND EXISTS (
-        SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
+      AND collection_id = (
+        SELECT id FROM collections WHERE id = $2 AND user_id = $1
       )
     RETURNING id;
   `;
@@ -106,8 +106,8 @@ const getByLabelId = async (user_id, collection_id, label_id) => {
       array_agg(w.id ORDER BY w.created_at DESC) AS word_ids
     FROM words w
     JOIN word_labels wl ON w.id = wl.word_id AND wl.label_id = $3
-    WHERE EXISTS (
-      SELECT 1 FROM collections c WHERE c.id = $2 AND c.user_id = $1 AND c.id = w.collection_id
+    WHERE w.collection_id = (
+      SELECT c.id FROM collections c WHERE c.id = $2 AND c.user_id = $1
     )
     GROUP BY w.collection_id;
   `;
@@ -120,7 +120,7 @@ const getByLabelId = async (user_id, collection_id, label_id) => {
  * Search words by prefix within a collection
  */
 const searchByPrefix = async (user_id, collection_id, searchQuery) => {
-  const formattedQuery = `${searchQuery}%`;
+  const formattedQuery = `%${searchQuery}%`;
   const query = `
     SELECT 
       array_agg(w.id ORDER BY w.created_at DESC) AS word_ids
@@ -138,18 +138,18 @@ const searchByPrefix = async (user_id, collection_id, searchQuery) => {
 /**
  * Toggle the is_memorized status of a word
  */
-const changeIsMemorizedStatus = async (user_id, collection_id, word_id) => {
+const changeIsMemorizedStatus = async (user_id, collection_id, word_id, is_memorized) => {
   const query = `
     UPDATE words
-    SET is_memorized = NOT is_memorized 
+    SET is_memorized = $4 
     WHERE collection_id = (
-        SELECT 1 FROM collections WHERE id = $2 AND user_id = $1
+        SELECT id FROM collections WHERE id = $2 AND user_id = $1
       )
       AND id = $3
-    RETURNING is_memorized AS is_memorized;
+    RETURNING id ;
   `;
-  const result = await db.query(query, [user_id, collection_id, word_id]);
-  return result.rows[0]?.is_memorized || null;
+  const result = await db.query(query, [user_id, collection_id, word_id, is_memorized]);
+  return result.rows[0];
 };
 
 module.exports = {

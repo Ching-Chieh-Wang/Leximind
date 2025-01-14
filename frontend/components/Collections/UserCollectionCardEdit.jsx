@@ -105,6 +105,7 @@ const UserCollectionCardEdit = ({ index }) => {
             placeholder="Enter collection name"
             required
             autoComplete="on"
+            autoFocus="on"
           />
           <ErrorMsg>{fieldErrors.name}</ErrorMsg>
 

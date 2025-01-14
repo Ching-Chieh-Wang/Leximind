@@ -14,7 +14,7 @@ const UserCollectionStatus = ({index}) => {
             </Horizontal_Layout>
 
             {/* Status Bar */}
-            <ProgressBar percentage={((word_cnt - not_memorized_cnt) / word_cnt) * 100} />
+            <ProgressBar percentage={((word_cnt - not_memorized_cnt) / word_cnt)} />
         </>
     )
 }

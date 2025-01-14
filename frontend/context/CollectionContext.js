@@ -13,7 +13,7 @@ const initialState = {
   originalWords: [],
   labels: [],
   viewingType: '',
-  memorized_cnt: 0,
+  memorizedCnt: 0,
   viewingWordIdx: 0,
   editingWordIdx: null,
   editingLabelIdx: null,
@@ -112,7 +112,7 @@ const collectionReducer = (state, action) => {
       state.words[index].is_memorized = is_memorized
       return {
         ...state,
-        memorized_cnt: is_memorized ? state.memorized_cnt + 1 : state.memorized_cnt - 1,
+        memorizedCnt: is_memorized ? state.memorizedCnt + 1 : state.memorizedCnt - 1,
       };
     }
     case 'UPDATE_WORD_LABEL': {
@@ -177,13 +177,10 @@ const collectionReducer = (state, action) => {
       const { collection } = action.payload;
       return {
         ...state,
-        status: 'viewing',
-        name: collection.collection_name,
-        viewingWordIdx: 0,
+        ...collection,
         originalWords:collection.words,
-        words: collection.words,
-        labels: collection.labels,
-        id: collection.id,
+        status: 'viewing',
+        viewingWordIdx: 0,
         editingLabelIdx: null,
         editingWordIdx: null,
       };
@@ -251,8 +248,11 @@ export const CollectionProvider = ({ children }) => {
         };
       });
 
+      const memorizedCnt =collection.words.length-collection.not_memorized_cnt
+      console.log(memorizedCnt)
+
       // Include the collection ID in the data
-      const modifiedCollection = { ...collection, id };
+      const modifiedCollection = { ...collection, id, memorizedCnt };
 
       dispatch({ type: 'FETCH_COLLECTION_SUCCESS', payload: { collection: modifiedCollection } });
     } else {
@@ -270,11 +270,16 @@ export const CollectionProvider = ({ children }) => {
     dispatch({ type: 'FETCH_COLLECTION_REQUEST' });
   
     const data = await fetchHelper(url, 'GET', null, true);
+    console.log("data",data)
     if (data.word_ids) {
       const word_ids = new Set(data.word_ids);
+
+      console.log("original",state.originalWords)
   
       // Use `filter` to create a new array based on matching IDs
       const words = state.originalWords.filter((word) => word_ids.has(word.id));
+
+      console.log("words",words)
   
       dispatch({ type: 'SET_COLLECTION_SUCCESS', payload: { words,viewingType } });
     } else {
@@ -313,7 +318,7 @@ export const CollectionProvider = ({ children }) => {
     dispatch({ type: 'REMOVE_WORD', payload: index });
   };
 
-  const createLabel = async (url, name) => {
+  const createLabel = async (url, nameis_memorized) => {
     dispatch({ type: 'CREATE_LABEL_REQUEST' })
     const data = await fetchHelper(url, 'POST', { name });
     if (data?.label_id) {
@@ -337,9 +342,10 @@ export const CollectionProvider = ({ children }) => {
     dispatch({ type: 'REMOVE_LABEL', payload: index });
   };
 
-  const updateMemorization = (url, index, is_memorized) => {
-    fetchHelper(url, 'PUT', { is_memorized }, true)
-    dispatch({ type: 'MEMORIZE_WORD', payload: { index, is_memorized } });
+  const updateMemorization = (url, index) => {
+    const is_memorized=!state.words[index].is_memorized;
+    fetchHelper(url, 'PATCH', { is_memorized },true)
+    dispatch({ type: 'UPDATE_MEMORIZE', payload: { index, is_memorized } });
   };
 
   const updateWordLabel = (url, index, label_id, isAssociation) => {

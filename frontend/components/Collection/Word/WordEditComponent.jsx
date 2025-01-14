@@ -105,6 +105,7 @@ const WordEditComponent = () => {
                         placeholder="Enter word name"
                         required
                         autoComplete="on"
+                        autoFocus="on"
                     />
                     <ErrorMsg>{fieldErrors.name}</ErrorMsg>
 

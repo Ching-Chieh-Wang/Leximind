@@ -67,8 +67,7 @@ const getById = async (user_id, collection_id) => {
     const query = `
       WITH collection_data AS (
         SELECT 
-          c.name AS collection_name,
-          stats.word_cnt AS word_cnt,
+          c.name AS name,
           stats.not_memorized_cnt AS not_memorized_cnt,
           COALESCE(
             JSON_AGG(
@@ -104,8 +103,7 @@ const getById = async (user_id, collection_id) => {
         WHERE vcl.collection_id = $1 AND vcl.user_id = $2
       )
       SELECT 
-        cd.collection_name,
-        cd.word_cnt,
+        cd.name,
         cd.not_memorized_cnt,
         cd.words,
         ld.labels

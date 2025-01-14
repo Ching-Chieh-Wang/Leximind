@@ -69,8 +69,8 @@ const getByLabelId = async (req, res) => {
   try {
     const user_id=req.user_id;
     const { label_id,collection_id } = req.params;
-    const { limit, offset } = req;
-    const data = await wordModel.getByLabelId(user_id,collection_id, label_id, limit, offset);
+    const data = await wordModel.getByLabelId(user_id,collection_id, label_id,);
+    console.log(data)
     res.status(200).json(data);
   } catch (err) {
     console.error('Error fetching words by label ID:', err);

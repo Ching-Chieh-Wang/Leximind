@@ -30,6 +30,7 @@ const getById = async (req, res) => {
 
     // Fetch the paginated words
     const collection = await collectionModel.getById(user_id, collection_id );
+    if(!collection)return res.status(404).json({ message:"Collection not found" });
     res.status(200).json({ message:"Collection get successfully" ,collection });
   } catch (err) {
     console.error('Error fetching all words:', err);

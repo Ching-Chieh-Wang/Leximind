@@ -12,6 +12,7 @@ import WordEditComponent from './Word/WordEditComponent';
 import ErrorMsg from '../Msg/ErrorMsg';
 import WordNav from './Word/WordNav';
 import SearchBar from '../SearchBar';
+import WordStatus from './Word/WordStatus';
 
 
 const WordComponent = () => {
@@ -117,7 +118,7 @@ const WordComponent = () => {
           )}
         </div>
       )}
-
+      {status!='creatingWord'&&status!='createWordLoading'&& <WordStatus/>}
       <WordNav />
     </>
   );

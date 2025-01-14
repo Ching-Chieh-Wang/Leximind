@@ -24,7 +24,7 @@ const CollectionNav = () => {
 
             <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-6 gap-y-4 ">
                 <Link href='/'>
-                    <Horizontal_Layout spacing="space-x-2" extraStyle="hover:text-blue-500">
+                    <Horizontal_Layout spacing="space-x-1" extraStyle="hover:text-blue-500">
                         <HomeIcon />
                         <h1 className="text-xs">Home</h1>
                     </Horizontal_Layout>
@@ -33,7 +33,7 @@ const CollectionNav = () => {
                 <NextIcon />
 
                 <Link href='/protected/collections'>
-                    <Horizontal_Layout spacing="space-x-2" extraStyle="hover:text-blue-500">
+                    <Horizontal_Layout spacing="space-x-1" extraStyle="hover:text-blue-500">
                         <CollctionIcon />
                         <h1 className="text-xs">My Collections</h1>
                     </Horizontal_Layout>
@@ -42,7 +42,7 @@ const CollectionNav = () => {
                 <NextIcon />
 
                 <button onClick={resetCollection}>
-                    <Horizontal_Layout spacing="space-x-2" extraStyle="hover:text-blue-500">
+                    <Horizontal_Layout spacing="space-x-1" extraStyle="hover:text-blue-500">
                         <CollctionIcon />
                         <h1 className="text-xs">{name}</h1>
                     </Horizontal_Layout>
@@ -55,7 +55,7 @@ const CollectionNav = () => {
                         <NextIcon />
 
                         <button>
-                            <Horizontal_Layout spacing="space-x-2" extraStyle="hover:text-blue-500">
+                            <Horizontal_Layout spacing="space-x-1" extraStyle="hover:text-blue-500">
                                 <h1 className="text-xs">{viewingType}</h1>
                             </Horizontal_Layout>
                         </button>

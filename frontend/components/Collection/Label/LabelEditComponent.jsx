@@ -60,6 +60,7 @@ const LabelEditComponent = () => {
               placeholder={labels[editingLabelIdx]?.name}
               className="border border-gray-300 rounded px-2 py-1 "
               required
+              autoFocus='on'
             />
           </Vertical_Layout>
           {fieldErrors.name && <ErrorMsg> {fieldErrors.name}</ErrorMsg>}
