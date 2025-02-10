@@ -139,15 +139,17 @@ export const CollectionsProvider = ({ type, children }) => {
         ...(body && { body: JSON.stringify(body) }),
       });
 
+      console.log(response.status)
 
-      if (response.status === 404 || response.status===500) {
+
+      if (!response.ok ) {
 
         showDialog({
           title: 'Error',
           description: `Something went wrong. Please come back later.`,
           onOk: refershPage,
         })
-        console.error('Error', 'API URL not found:', url);
+        if(response.status===404) console.error('Error', 'API URL not found:', url);
         return null;
       }
 
@@ -207,6 +209,7 @@ export const CollectionsProvider = ({ type, children }) => {
     dispatch({ type: 'FETCH_COLLECTIONS_REQUEST' });
 
     const data = await fetchHelper(url, 'GET');
+    console.log(data)
     if (data) {
       dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: data.collections });
     } else {
