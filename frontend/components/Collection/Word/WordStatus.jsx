@@ -30,7 +30,7 @@ const WordStatus = () => {
                 <ProgressBar percentage={memorizedPercentage} />
             </Vertical_Layout>
             <Block>
-                <h1 className="font-semibold">Memorized</h1>
+                <h1 className="font-semibold text-xs md:text-md">Memorized</h1>
                 <ToggleButton disabled={words.length==0} checked={words[viewingWordIdx]?.is_memorized||false} onChange={hanldeIsMemorizedClicked}/>
             </Block>
         </Horizontal_Layout>
