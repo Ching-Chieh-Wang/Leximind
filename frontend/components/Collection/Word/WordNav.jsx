@@ -6,14 +6,17 @@ import CreateIcon from "@/components/icons/CreateIcon";
 import EditIcon from "@/components/icons/EditIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import ListIcon from "@/components/icons/ListIcon";
+import QuestionIcon from "@/components/icons/QuestionIcon";
 
 
 const WordNav = () => {
-  const { words, viewingWordIdx, status, startUpdateWordSession, startCreateWordSession, removeWord, id } = useCollection();
+  const { words, viewingWordIdx, status, startUpdateWordSession, startCreateWordSession, setCollection, removeWord, id } = useCollection();
   const handleDelete = () => {
     const wordId = words[viewingWordIdx].id;
     removeWord(`/api/protected/collections/${id}/words/${wordId}`, viewingWordIdx);
-
+  };
+  const handleViewUnmemorized = () => {
+    setCollection(`/api/protected/collections/${id}/words/unmemorized`, "unmemorized");
   };
   return (
     <nav className="flex justify-center">
@@ -52,6 +55,16 @@ const WordNav = () => {
             <Vertical_Layout spacing='space-y-0' extraStyle="items-center">
               <ListIcon size={26} />
               <h1 className='text-xs'>List</h1>
+            </Vertical_Layout>
+          </button>
+
+          <button
+            className={`hover:text-blue-400 ${status === 'list' ? 'text-blue-400' : 'text-gray-500'}`}
+            onClick={handleViewUnmemorized}
+          >
+            <Vertical_Layout spacing='space-y-0' extraStyle="items-center">
+              <QuestionIcon size={26} />
+              <h1 className='text-xs'>Unmemorized</h1>
             </Vertical_Layout>
           </button>
 
