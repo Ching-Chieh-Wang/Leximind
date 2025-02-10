@@ -1,10 +1,10 @@
 import { useCollection } from '@/context/CollectionContext';
-import LabelEditComponent from './Label/LabelEditComponent';
-import LabelRow from './Label/LabelRow';
-import CreateIcon from '../icons/CreateIcon';
-import Horizontal_Layout from '../Horizontal_Layout';
-import ErrorMsg from '../Msg/ErrorMsg';
-import LabelIcon from '../icons/LabelIcon';
+import LabelEditComponent from './LabelEditComponent';
+import LabelRow from './LabelRow';
+import CreateIcon from '../../icons/CreateIcon';
+import Horizontal_Layout from '../../Horizontal_Layout';
+import ErrorMsg from '../../Msg/ErrorMsg';
+import LabelIcon from '../../icons/LabelIcon';
 
 const LabelComponent = () => {
   const { status, editingLabelIdx, labels, startCreateLabelSession, error } = useCollection(); // Ensure correct usage of the hook

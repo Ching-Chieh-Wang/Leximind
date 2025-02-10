@@ -2,17 +2,17 @@
 import { useCollection } from '@/context/CollectionContext';
 import { useState } from "react";
 import Image from 'next/image';
-import FlipCard from "../FlipCard";
-import SwitcherButton from '../Buttons/SwitcherButton';
-import Carousel from '../Carousel';
-import Vertical_Layout from '../Vertical_Layout';
-import Horizontal_Layout from '../Horizontal_Layout';
-import CreateIcon from '../icons/CreateIcon';
-import WordEditComponent from './Word/WordEditComponent';
-import ErrorMsg from '../Msg/ErrorMsg';
-import WordNav from './Word/WordNav';
-import SearchBar from '../SearchBar';
-import WordStatus from './Word/WordStatus';
+import FlipCard from "../../FlipCard";
+import SwitcherButton from '../../Buttons/SwitcherButton';
+import Carousel from '../../Carousel';
+import Vertical_Layout from '../../Vertical_Layout';
+import Horizontal_Layout from '../../Horizontal_Layout';
+import CreateIcon from '../../icons/CreateIcon';
+import WordEditComponent from './WordEditComponent';
+import ErrorMsg from '../../Msg/ErrorMsg';
+import WordNav from './WordNav';
+import SearchBar from '../../SearchBar';
+import WordStatus from './WordStatus';
 
 
 const WordComponent = () => {
@@ -40,15 +40,16 @@ const WordComponent = () => {
   }
 
   const frontBody = (word) => (
-    <Vertical_Layout spacing="spance-y-0" extraStyle="w-full h-full items-center select-none">
+    <Vertical_Layout spacing="spance-y-6" extraStyle="w-full h-full items-center select-none p-0.5">
       <h1 className="text-4xl">{word.name}</h1>
     </Vertical_Layout>
   );
 
   const backBody = (word) => (
-    <Vertical_Layout spacing="spance-y-0" extraStyle="w-full h-full items-center select-none">
+    <Vertical_Layout spacing="spance-y-6" extraStyle="w-full h-full items-center select-none p-0.5">
       <h1 className="text-4xl">{word.name}</h1>
-      <h2 className="text-2xl">{word.description}</h2>
+      <div className='border-gray-200 border-t-2 w-2/3 mb-2 mt-1'/>
+      <h2 className="text-2xl overflow-y-scroll text-center">{word.description}</h2>
     </Vertical_Layout>
   );
 
