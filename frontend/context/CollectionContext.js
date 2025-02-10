@@ -318,7 +318,7 @@ export const CollectionProvider = ({ children }) => {
     dispatch({ type: 'REMOVE_WORD', payload: index });
   };
 
-  const createLabel = async (url, nameis_memorized) => {
+  const createLabel = async (url, name) => {
     dispatch({ type: 'CREATE_LABEL_REQUEST' })
     const data = await fetchHelper(url, 'POST', { name });
     if (data?.label_id) {
