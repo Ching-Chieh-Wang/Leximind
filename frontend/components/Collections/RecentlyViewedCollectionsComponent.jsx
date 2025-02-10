@@ -17,7 +17,7 @@ const RecentlyViewedCollectionsComponent = () => {
   }, [status])
 
 
-  return status=="authenticated"&&collections.length != 0 ? (
+  return status=="authenticated"&&collections&&collections.length != 0 ? (
     <Card type="page" title="Recently viewed collections">
       <Collections/>
     </Card>

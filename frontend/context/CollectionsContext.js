@@ -139,7 +139,6 @@ export const CollectionsProvider = ({ type, children }) => {
         ...(body && { body: JSON.stringify(body) }),
       });
 
-      console.log(response.status)
 
       if (response.status === 404 || response.status===500) {
 
@@ -208,7 +207,6 @@ export const CollectionsProvider = ({ type, children }) => {
     dispatch({ type: 'FETCH_COLLECTIONS_REQUEST' });
 
     const data = await fetchHelper(url, 'GET');
-    console.log("data",data)
     if (data) {
       dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: data.collections });
     } else {
