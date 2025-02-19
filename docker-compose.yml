@@ -7,6 +7,5 @@ services:
       - /app/node_modules
     ports:
       - "4000:4000"        # Application port
-      - "9229:9229"        # Debug port
     environment:
       - NODE_ENV=development

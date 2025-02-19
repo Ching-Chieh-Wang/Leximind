@@ -10,3 +10,5 @@ node_modules/
 # Ignore Git
 .git
 .gitignore
+
+**/*.test.js

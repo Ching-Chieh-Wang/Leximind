@@ -1,20 +1,26 @@
-# Use a base image with Node.js
-FROM node:14
+# ===========================
+# Step 1: Base Stage
+# ===========================
+# Use Node.js 18 Alpine for a small and efficient image
+FROM node:18-alpine
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the container
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install only production dependencies
+RUN npm install --production
 
-# Copy the rest of the application code into the container
+# Copy the entire project
 COPY . .
 
-# Expose the backend application port and the debug port
-EXPOSE 4000 9229
+# Expose the application port
+EXPOSE 4000
 
-# Start the backend application in debug mode using nodemon
-CMD ["npm", "run", "dev"]
+# Set environment variables
+ENV NODE_ENV production
+
+# Start the application
+CMD ["npm", "start"]
