@@ -11,10 +11,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        pathname: '/**',
+        hostname: '**.googleusercontent.com',
       },
     ],
+    domains: ['lh3.googleusercontent.com'],
   },
   reactStrictMode: true,
   webpack: (config) => {
