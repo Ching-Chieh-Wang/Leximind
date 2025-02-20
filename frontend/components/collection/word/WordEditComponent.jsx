@@ -1,12 +1,12 @@
 'use client';
 import { useState } from 'react';
 import Card from '@/components/Card';
-import FormSubmitButton from '@/components/buttonss/FormSubmitButton';
-import FormCancelButton from '@/components/buttonss/FormCancelButton';
+import FormSubmitButton from '@/components/buttons/FormSubmitButton';
+import FormCancelButton from '@/components/buttons/FormCancelButton';
 import { useCollection } from '@/context/CollectionContext';
 import Horizontal_Layout from '@/components/Horizontal_Layout';
 import Vertical_Layout from '@/components/Vertical_Layout';
-import ErrorMsg from '@/components/msgg/ErrorMsg';
+import ErrorMsg from '@/components/msg/ErrorMsg';
 
 const WordEditComponent = () => {
     const {

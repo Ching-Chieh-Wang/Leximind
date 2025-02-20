@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 import { useCollections } from '@/context/CollectionsContext';
-import Collections from '@/components/collectionss/Collections';
-import DropdownMenu from '@/components/dropdown_menuu/DropdownMenu';
-import DropdownItem from '@/components/dropdown_menuu/DropdownItem';
+import Collections from '@/components/collections/Collections';
+import DropdownMenu from '@/components/dropdown_menu/DropdownMenu';
+import DropdownItem from '@/components/dropdown_menu/DropdownItem';
 import Card from '@/components/Card';
 import { SortIcon } from '@/components/icons/SortIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';

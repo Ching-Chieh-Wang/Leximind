@@ -4,7 +4,7 @@ import { useCollection } from "@/context/CollectionContext"
 import Horizontal_Layout from "@/components/Horizontal_Layout";
 import Vertical_Layout from "@/components/Vertical_Layout";
 import Block from "@/components/Block";
-import ToggleButton from "@/components/buttonss/ToggleButton";
+import ToggleButton from "@/components/buttons/ToggleButton";
 
 const WordStatus = () => {
     const { words,originalWords, memorizedCnt,viewingWordIdx,updateMemorization,id,status } = useCollection();

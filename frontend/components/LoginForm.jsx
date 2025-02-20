@@ -5,10 +5,10 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Card from '@/components/Card';
-import ErrorMsg from '@/components/msgg/ErrorMsg';
-import FormSubmitButton from '@/components/buttonss/FormSubmitButton';
+import ErrorMsg from '@/components/msg/ErrorMsg';
+import FormSubmitButton from '@/components/buttons/FormSubmitButton';
 import GoogleIcon from '@/components/icons/Google';
-import ToggleButton from './buttonss/ToggleButton';
+import ToggleButton from './buttons/ToggleButton';
 import Vertical_Layout from './Vertical_Layout';
 import Horizontal_Layout from './Horizontal_Layout';
 

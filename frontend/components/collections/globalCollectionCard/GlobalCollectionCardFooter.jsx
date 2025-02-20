@@ -1,5 +1,5 @@
 'use client'
-import Button from "@/components/buttonss/Button";
+import Button from "@/components/buttons/Button";
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCollections } from '@/context/CollectionsContext';

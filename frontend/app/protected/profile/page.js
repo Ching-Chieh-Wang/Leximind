@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/Card';
-import ErrorMsg from '@/components/msgg/ErrorMsg';
-import SuccessMsg from '@/components/msgg/SuccessMsg';
+import ErrorMsg from '@/components/msg/ErrorMsg';
+import SuccessMsg from '@/components/msg/SuccessMsg';
 import Image from 'next/image';
-import FormSubmitButton from '@/components/buttonss/FormSubmitButton';
+import FormSubmitButton from '@/components/buttons/FormSubmitButton';
 import GoogleIcon from '@/components/icons/Google';
 
 const ProfilePage = () => {
