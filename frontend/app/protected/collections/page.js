@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { useCollections } from '@/context/CollectionsContext';
 import Collections from '@/components/collections/Collections';
-import DropdownMenu from '@/components/dropdownMenu/DropdownMenu';
-import DropdownItem from '@/components/dropdownMenu/DropdownItem';
+import DropdownMenu from '@/components/dropdown_menu/DropdownMenu';
+import DropdownItem from '@/components/dropdown_menu/DropdownItem';
 import Card from '@/components/Card';
 import { SortIcon } from '@/components/icons/SortIcon';
 import { DropdownIcon } from '@/components/icons/DropdownIcon';

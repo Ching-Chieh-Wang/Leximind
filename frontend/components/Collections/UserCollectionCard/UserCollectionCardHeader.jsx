@@ -1,7 +1,7 @@
 'use client';
 import { formatDistanceToNow } from 'date-fns';
-import DropdownMenu from '@/components/dropdownMenu/DropdownMenu';
-import DropdownItem from '@/components/dropdownMenu/DropdownItem';
+import DropdownMenu from '@/components/dropdown_menu/DropdownMenu';
+import DropdownItem from '@/components/dropdown_menu/DropdownItem';
 import EditIcon from '@/components/icons/EditIcon';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import KebabMenuIcon from '@/components/icons/KebabMenuIcon';

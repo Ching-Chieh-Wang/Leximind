@@ -1,6 +1,6 @@
 "use client"
 import { signOut } from 'next-auth/react';
-import DropdownItem from '@/components/DropdownMenu/DropdownItem';
+import DropdownItem from '@/components/dropdown_menu/DropdownItem';
 import LogoutIcon from '@/components/icons/LogoutIcon';
 
 const LogOutDropDownItem = () => {
