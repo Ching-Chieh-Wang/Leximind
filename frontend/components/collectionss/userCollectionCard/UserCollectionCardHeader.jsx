@@ -1,7 +1,7 @@
 'use client';
 import { formatDistanceToNow } from 'date-fns';
-import DropdownMenu from '@/components/dropdown_menu/DropdownMenu';
-import DropdownItem from '@/components/dropdown_menu/DropdownItem';
+import DropdownMenu from '@/components/dropdown_menuu/DropdownMenu';
+import DropdownItem from '@/components/dropdown_menuu/DropdownItem';
 import EditIcon from '@/components/icons/EditIcon';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import KebabMenuIcon from '@/components/icons/KebabMenuIcon';
@@ -9,7 +9,7 @@ import { useCollections } from '@/context/CollectionsContext';
 import { useDialog } from '@/context/DialogContext';
 import ViewIcon from '@/components/icons/ViewIcon';
 import CreateIcon from '@/components/icons/CreateIcon';
-import SwitcherButton from '@/components/buttons/SwitcherButton';
+import SwitcherButton from '@/components/buttonss/SwitcherButton';
 import GlobalIcon from '@/components/icons/GlobalIcon';
 import LockIcon from '@/components/icons/LockIcon';
 import DownloadIcon from '@/components/icons/DownloadIcon';

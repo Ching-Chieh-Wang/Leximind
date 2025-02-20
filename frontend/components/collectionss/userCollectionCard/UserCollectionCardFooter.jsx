@@ -1,4 +1,4 @@
-import Button from "@/components/buttons/Button";
+import Button from "@/components/buttonss/Button";
 import Horizontal_Layout from "@/components/Horizontal_Layout";
 import { useCollections } from '@/context/CollectionsContext';
 

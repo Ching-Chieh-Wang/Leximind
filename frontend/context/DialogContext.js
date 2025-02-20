@@ -1,8 +1,8 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 import Card from '@/components/Card';
-import FormCancelButton from '@/components/buttons/FormCancelButton';
-import FormOKButton from '@/components/buttons/FormOKButton';
+import FormCancelButton from '@/components/buttonss/FormCancelButton';
+import FormOKButton from '@/components/buttonss/FormOKButton';
 import WarningIcon from '@/components/icons/WarningIcon';
 import SuccessIcon from '@/components/icons/SuccessIcon';
 import Horizontal_Layout from '@/components/Horizontal_Layout';

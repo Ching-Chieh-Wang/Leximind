@@ -1,5 +1,5 @@
-import DropdownMenu from '@/components/dropdown_menu/DropdownMenu';
-import DropdownItem from '@/components/dropdown_menu/DropdownItem';
+import DropdownMenu from '@/components/dropdown_menuu/DropdownMenu';
+import DropdownItem from '@/components/dropdown_menuu/DropdownItem';
 import KebabMenuIcon from '@/components/icons/KebabMenuIcon';
 import { useCollections } from '@/context/CollectionsContext';
 import DownloadIcon from '@/components/icons/DownloadIcon';

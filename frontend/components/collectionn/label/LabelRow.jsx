@@ -1,7 +1,7 @@
 import { useCollection } from "@/context/CollectionContext";
 import { useDialog } from "@/context/DialogContext";
-import DropdownMenu from "@/components/dropdown_menu/DropdownMenu"; // Ensure this import exists
-import DropdownItem from "@/components/dropdown_menu/DropdownItem"; // Ensure this import exists
+import DropdownMenu from "@/components/dropdown_menuu/DropdownMenu"; // Ensure this import exists
+import DropdownItem from "@/components/dropdown_menuu/DropdownItem"; // Ensure this import exists
 import KebabMenuIcon from "@/components/icons/KebabMenuIcon"; // Ensure this import exists
 import WordIcon from "@/components/icons/WordIcon"; // Ensure this import exists
 import EditIcon from "@/components/icons/EditIcon"; // Ensure this import exists

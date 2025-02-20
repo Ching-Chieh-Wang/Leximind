@@ -1,15 +1,15 @@
 'use client';
 import { useState } from 'react';
 import Card from '../Card';
-import FormSubmitButton from '../buttons/FormSubmitButton';
-import FormCancelButton from '../buttons/FormCancelButton';
+import FormSubmitButton from '../buttonss/FormSubmitButton';
+import FormCancelButton from '../buttonss/FormCancelButton';
 import { useCollections } from '@/context/CollectionsContext';
-import SwitcherButton from '../buttons/SwitcherButton';
+import SwitcherButton from '../buttonss/SwitcherButton';
 import LockIcon from '../icons/LockIcon';
 import GlobalIcon from '../icons/GlobalIcon';
 import Horizontal_Layout from '../Horizontal_Layout';
 import Vertical_Layout from '../Vertical_Layout';
-import ErrorMsg from '@/components/msg/ErrorMsg';
+import ErrorMsg from '@/components/msgg/ErrorMsg';
 
 const UserCollectionCardEdit = ({ index }) => {
   const {

@@ -1,7 +1,7 @@
-import Button from '@/components/buttons/Button';
+import Button from '@/components/buttonss/Button';
 import GetStartedIcon from '@/components/icons/GetStartedIcon';
 import { CollectionsProvider } from '@/context/CollectionsContext';
-import RecentlyViewedCollectionsComponent from '@/components/collections/RecentlyViewedCollectionsComponent';
+import RecentlyViewedCollectionsComponent from '@/components/collectionss/RecentlyViewedCollectionsComponent';
 import FireIcon from '@/components/icons/FireIcon';
 import Horizontal_Layout from '@/components/Horizontal_Layout';
 
