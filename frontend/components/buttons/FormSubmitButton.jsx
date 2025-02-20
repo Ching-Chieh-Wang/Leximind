@@ -1,7 +1,6 @@
 import Horizontal_Layout from "../Horizontal_Layout";
 import LoadingIcon from "../icons/LoadingIcon";
 
-// components/FormButton.js
 export default function FormSubmitButton({  isLoading, loadingText = 'Loading...', children }) {
   return (
     <button

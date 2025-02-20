@@ -1,4 +1,3 @@
-// components/ErrorMsg.jsx
 const ErrorMsg = ({ children }) => {
     if (children==null) return null;
     return (

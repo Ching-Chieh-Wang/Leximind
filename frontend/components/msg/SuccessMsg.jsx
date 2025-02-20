@@ -1,4 +1,3 @@
-// components/SuccessMsg.jsx
 const SuccessMsg = ({ children }) => {
     if (!children) return null;
   
