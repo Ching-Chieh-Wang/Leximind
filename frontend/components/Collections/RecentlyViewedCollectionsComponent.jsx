@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { useCollections } from '@/context/CollectionsContext';
-import Collections from '@/components/Collections/Collections';
+import Collections from '@/components/collections/Collections';
 import Card from '@/components/Card';
 import { useSession } from 'next-auth/react';
 

@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import ErrorMsg from '@/components/Msg/ErrorMsg';
+import ErrorMsg from '@/components/msg/ErrorMsg';
 import Card from '@/components/Card';
-import FormSubmitButton from '@/components/Buttons/FormSubmitButton'
+import FormSubmitButton from '@/components/buttons/FormSubmitButton'
 import { useDialog } from '@/context/DialogContext';
 import Vertical_Layout from '@/components/Vertical_Layout';
 

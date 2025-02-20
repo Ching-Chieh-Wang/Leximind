@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import UserCollectionCardBody from '../UserCollectionCard/UserCollectionCardBody'
+import UserCollectionCardBody from '../userCollectionCard/UserCollectionCardBody'
 import { useCollections } from '@/context/CollectionsContext'
 import DownloadIcon from "@/components/icons/DownloadIcon";
 import ViewIcon from "@/components/icons/ViewIcon";

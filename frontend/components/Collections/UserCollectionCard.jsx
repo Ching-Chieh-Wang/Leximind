@@ -1,7 +1,7 @@
-import UserCollectionCardHeader from './UserCollectionCard/UserCollectionCardHeader';
-import UserCollectionCardBody from './UserCollectionCard/UserCollectionCardBody';
-import UserCollectionStatus  from './UserCollectionCard/UserCollectionStatus';
-import UserCollectionCardFooter from './UserCollectionCard/UserCollectionCardFooter';
+import UserCollectionCardHeader from './userCollectionCard/UserCollectionCardHeader';
+import UserCollectionCardBody from './userCollectionCard/UserCollectionCardBody';
+import UserCollectionStatus  from './userCollectionCard/UserCollectionStatus';
+import UserCollectionCardFooter from './userCollectionCard/UserCollectionCardFooter';
 import Card from '../Card';
 
 const UserCollectionCard = ({ index }) => {

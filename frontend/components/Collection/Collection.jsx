@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from "react"
-import WordComponent from "./Word/WordComponent"
-import LabelComponent from "./Label/LabelComponent"
+import WordComponent from "./word/WordComponent"
+import LabelComponent from "./label/LabelComponent"
 import { useParams } from "next/navigation"
 import { useCollection } from "@/context/CollectionContext"
 import CollectionNav from "./CollectionNav"

@@ -3,7 +3,7 @@ import LabelEditComponent from './LabelEditComponent';
 import LabelRow from './LabelRow';
 import CreateIcon from '../../icons/CreateIcon';
 import Horizontal_Layout from '../../Horizontal_Layout';
-import ErrorMsg from '../../Msg/ErrorMsg';
+import ErrorMsg from '../../msg/ErrorMsg';
 import LabelIcon from '../../icons/LabelIcon';
 
 const LabelComponent = () => {

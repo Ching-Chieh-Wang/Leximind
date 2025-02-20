@@ -1,8 +1,8 @@
 // components/CollectionCard.jsx
-import GlobalCollectionCardHeader from './GlobalCollectionCard/GlobalCollectionCardHeader';
-import GlobalCollectionCardFooter from './GlobalCollectionCard/GlobalCollectionCardFooter';
+import GlobalCollectionCardHeader from './globalCollectionCard/GlobalCollectionCardHeader';
+import GlobalCollectionCardFooter from './globalCollectionCard/GlobalCollectionCardFooter';
 import Card from '../Card';
-import GlobalCollectionCardBody from './GlobalCollectionCard/GlobalCollectionCardBody';
+import GlobalCollectionCardBody from './globalCollectionCard/GlobalCollectionCardBody';
 
 const UserCollectionCard = ({ index }) => {
   if(index==undefined){console.error("index must provide")}

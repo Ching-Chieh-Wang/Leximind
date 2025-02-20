@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCollections } from '@/context/CollectionsContext';
-import Collections from '@/components/Collections/Collections';
+import Collections from '@/components/collections/Collections';
 import Card from '@/components/Card';
 
 export default function CollectionSearchPage() {
