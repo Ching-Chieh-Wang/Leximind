@@ -1,5 +1,5 @@
 import Card from '@/components/Card'
-import CollectionComponent from '@/components/Collection/Collection'
+import CollectionComponent from '@/components/collection/Collection'
 
 const CollectionPage = () => {
   return (
