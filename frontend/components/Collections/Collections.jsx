@@ -5,7 +5,7 @@ import GlobalCollectionCard from './GlobalCollectionCard';
 import UserCollectionCard from './UserCollectionCard';
 import UserCollectionCardEdit from './UserCollectionCardEdit';
 import CreateIcon from '../icons/CreateIcon';
-import ErrorMsg from '../Msg/ErrorMsg';
+import ErrorMsg from '@/components/Msg/ErrorMsg';
 import Vertical_Layout from '../Vertical_Layout';
 
 const Collections = () => {
