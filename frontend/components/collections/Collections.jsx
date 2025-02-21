@@ -26,18 +26,6 @@ const Collections = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 auto-rows-fr ">
       {
-        collections.length === 0 ? (
-          <Vertical_Layout extraStyle={"items-center col-span-full"}>
-            <Image
-              src='/assets/images/no content.png'
-              width={200}
-              height={200}
-              alt='no content'
-              className=' rounded-lg'
-            />
-            <div className="text-center mt-4">No result</div>
-          </Vertical_Layout>
-        ) : (
           collections.map((collection, index) => {
             if ((status === 'updatingCollection' || status === 'updateCollectionLoading') && index === editingIdx) {
               return <UserCollectionCardEdit key={collection.id} index={index} />;
@@ -53,7 +41,6 @@ const Collections = () => {
 
             return null; // Handle unexpected cases
           })
-        )
       }
 
 
@@ -62,7 +49,7 @@ const Collections = () => {
         status === 'creatingCollection' || status === 'createCollectionLoading' ? (
           <UserCollectionCardEdit />
         ) : (
-          <button onClick={startCreateCollectionSession} className={collections.length==0 && 'col-span-full'}>
+          <button onClick={startCreateCollectionSession}>
             <Vertical_Layout spacing="space-y-1" extraStyle={" h-full w-full bg-white min-h-[340px] items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg  text-blue-500 hover:text-2xl duration-500"}>
               <CreateIcon size={35} />
               <h1>Add New Collection</h1>
