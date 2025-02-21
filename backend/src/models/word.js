@@ -117,6 +117,26 @@ const getByLabelId = async (user_id, collection_id, label_id) => {
 };
 
 /**
+ * Get all unmemorized words for a collection 
+ */
+const getUnmemorized = async (user_id, collection_id) => {
+  const query = `
+    SELECT 
+      array_agg(w.id ORDER BY w.created_at DESC) AS word_ids
+    FROM words w
+    WHERE w.collection_id = (
+      SELECT c.id FROM collections c WHERE c.id = $2 AND c.user_id = $1
+    )
+    AND w.is_memorized = FALSE
+    GROUP BY w.collection_id;
+  `;
+  const result = await db.query(query, [user_id, collection_id]); 
+
+  return result.rows[0] || { word_ids: [] };
+};
+
+
+/**
  * Search words by prefix within a collection
  */
 const searchByPrefix = async (user_id, collection_id, searchQuery) => {
@@ -158,6 +178,7 @@ module.exports = {
   remove,
   update,
   getByLabelId,
+  getUnmemorized,
   searchByPrefix,
   changeIsMemorizedStatus
 };

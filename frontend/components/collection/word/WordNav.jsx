@@ -16,7 +16,7 @@ const WordNav = () => {
     removeWord(`/api/protected/collections/${id}/words/${wordId}`, viewingWordIdx);
   };
   const handleViewUnmemorized = () => {
-    setCollection(`/api/protected/collections/${id}/words/unmemorized`, "unmemorized");
+    setCollection(`/api/protected/collections/${id}/words/unmemorized`, "Unmemorized");
   };
   return (
     <nav className="flex justify-center">
