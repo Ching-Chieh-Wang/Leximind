@@ -3,8 +3,10 @@ import '@/styles/globals.css';
 import Background from '@/components/Background';
 import RootProviders from '@/components/RootProviders';
 import Nav from '@/components/nav/Nav';
+import useHealthCheck from '@/hooks/useHealthCheck';
 
 const RootLayout = ({ children }) => {
+  useHealthCheck();
   return (
     <html lang="en">
       <body>
