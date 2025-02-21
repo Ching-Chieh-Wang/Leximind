@@ -9,7 +9,8 @@ const {
   searchByPrefix,
   update,
   remove,
-  changeIsMemorizedStatus
+  changeIsMemorizedStatus,
+  getUnmemorized
 } = require('../controllers/word');
 const { validateCollectionId } = require('../middlewares/validateId/collection');
 const { validateWordId } = require('../middlewares/validateId/word')
@@ -18,9 +19,12 @@ const { validateWordId } = require('../middlewares/validateId/word')
 router.use(authorizeUser);
 router.use(validateCollectionId)
 
+
+// Route to get all unmemorized words
+router.get('/words/unmemorized', getUnmemorized);
+
 // Route to create a new word in a specific collection
 router.post('/words', validateWordInput, create);
-
 
 // Route to get paginated words associated with a label
 router.get('/labels/:label_id/words', validateLabelId, getByLabelId);

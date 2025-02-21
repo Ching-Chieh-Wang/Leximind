@@ -70,10 +70,25 @@ const getByLabelId = async (req, res) => {
     const user_id=req.user_id;
     const { label_id,collection_id } = req.params;
     const data = await wordModel.getByLabelId(user_id,collection_id, label_id,);
-    console.log(data)
     res.status(200).json(data);
   } catch (err) {
     console.error('Error fetching words by label ID:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+// Controller to get all unmemorized words
+const getUnmemorized = async (req, res) => {
+  try {
+    const user_id = req.user_id;
+    const { collection_id } = req.params;
+
+    const data = await wordModel.getUnmemorized(user_id,collection_id);
+
+    res.status(200).json({word_ids:data.word_ids});
+  } catch (err) {
+    console.error('Error updating memorization status:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -123,5 +138,6 @@ module.exports = {
   update,
   getByLabelId,
   searchByPrefix,
+  getUnmemorized,
   changeIsMemorizedStatus
 };
