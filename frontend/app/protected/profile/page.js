@@ -108,6 +108,7 @@ const ProfilePage = () => {
       <Card type='form' title="Public Profile">
         <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
           <Image
+            unoptimized
             className="object-cover w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 p-1 rounded-full ring-2 ring-indigo-300 hover:ring-indigo-500"
             src={image}
             alt="Image"

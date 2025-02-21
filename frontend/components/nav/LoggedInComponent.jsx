@@ -11,6 +11,7 @@ const LoggedInComponent = ({ user }) => {
     const dropdownButton = (
         <div className='w-10 h-10 flex-none'>
             <Image
+                unoptimized
                 src={user.image || '/assets/images/logo.jpg'}
                 width={40}
                 height={40}
