@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: leximind-frontend
+    image: leximind-frontend:dev
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.local           # Explicitly specify .env.local
+    environment:
+      BACKEND_API_URL: http://backend:4000
+    depends_on:
+      - backend
+    networks:
+      - app-network                     # Use Docker network
+
+  backend:
+    container_name: leximind-backend
+    image: leximind-backend:dev
+    build:
+      context: ./backend
+    ports:
+      - "4000:4000"
+    environment:
+      FRONTEND_URL: http://frontend:3000
+    networks:
+      - app-network                     # Use Docker network
+
+networks:
+  app-network:

@@ -14,13 +14,8 @@ const nextConfig = {
         hostname: '**.googleusercontent.com',
       },
     ],
-    domains: ['lh3.googleusercontent.com'],
   },
   reactStrictMode: true,
-  webpack: (config) => {
-    config.resolve.alias['@'] = path.resolve(__dirname);
-    return config;
-  },
 };
 
 export default nextConfig;
