@@ -10,7 +10,7 @@ const collectionRoutes = require('./routes/collection');
 const labelRoutes = require('./routes/label');
 const wordRoutes = require('./routes/word');
 const wordLabelRoutes = require('./routes/word_label');
-const healthRoute = require('./routes/health');
+const {startHealthCheckInterval,router:healthRoute} = require('./routes/health');
 
 
 
@@ -27,10 +27,11 @@ connectToDatabase()
     app.use('/api/collections/:collection_id/labels', labelRoutes); // Labels related to a specific collection
     app.use('/api/collections/:collection_id/', wordLabelRoutes); // Word-label relationships
     app.use('/api/users', userRoutes); // User-related routes
-    app.use('/health', healthRoute);
+    app.use('/api/health', healthRoute);
     
     // Start the server
     const PORT = process.env.PORT || 4000;
+    startHealthCheckInterval();
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
