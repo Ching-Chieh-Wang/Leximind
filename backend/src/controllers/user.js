@@ -1,6 +1,9 @@
 const userModel = require('../models/user');
 const bcrypt = require('bcryptjs');
+const path= require('path')
 const jwt = require('jsonwebtoken');
+const fs = require('fs')
+const c2Service = require('../services/c2Service');
 const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -16,7 +19,7 @@ const register = async (req, res) => {
 
     // Create the new user
     const user = await userModel.create(username, email, 'credential', 'user', hashedPassword);
-    if(!user){
+    if (!user) {
       return res.status(500).json({ message: 'Error creating user' });
     }
     if (!user.is_new_user) {
@@ -78,9 +81,9 @@ const googleLoginOrRegister = async (req, res) => {
     const email = payload.email;
     const username = payload.name;  // Full name
     const image = payload.picture;  // Profile picture URL
-    
-    const user= await userModel.create(username, email, 'google', 'user', '', image);
-    if(!user){
+
+    const user = await userModel.create(username, email, 'google', 'user', '', image);
+    if (!user) {
       return res.status(500).json({ message: 'Error creaing or retrieving user' });
     }
     // Generate a JWT token with user details for session management
@@ -107,18 +110,48 @@ const googleLoginOrRegister = async (req, res) => {
 
 
 const getProfile = async (req, res) => {
-  try{
+  try {
     const user_id = req.user_id;
-    const user= await userModel.getById(user_id);
+    const user = await userModel.getById(user_id);
+    user = { ...user, image: c2Service.generateSignedUrl(user.image) }
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json({ user });
-  }catch (err) {
+  } catch (err) {
     console.error('Error geting user profile:', err);
     res.status(500).json({ message: 'Server error' });
   }
 
+};
+
+const updateImage = async (req, res) => {
+  try {
+    const user_id = req.user_id;
+    const file = req.file
+
+    //Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return res.status(400).json({ message: 'Invalid file type. Only JPEG and PNG are allowed.' });
+    }
+
+    const imageFile = await c2Service.uploadProfileImage(file);
+
+    await userModel.updateImage(user_id, imageFile);
+
+    const localFilePath = path.join(__dirname, '..', '..', 'uploads', file.filename);
+    fs.unlink(localFilePath, (err) => {
+      if (err) {
+        console.error('Failed to delete local file:', err);
+      } 
+    });
+    
+    res.status(200).json({ message: "User image updated successfully", image: imageFile });
+  } catch (err) {
+    console.error("Error when uploading profile image", err);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
 const update = async (req, res) => {
@@ -132,7 +165,7 @@ const update = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    res.status(200).json({message: "User update successfully" });
+    res.status(200).json({ message: "User update successfully" });
   } catch (err) {
     if (err.code === '23505') {
       return res.status(409).json({ message: 'Email already in use. Please use a different email.' });
@@ -141,6 +174,7 @@ const update = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 const remove = async (req, res) => {
   const user_id = req.user_id;
 
@@ -157,6 +191,7 @@ const remove = async (req, res) => {
   }
 };
 
+
 module.exports = {
   register,
   login,
@@ -164,4 +199,5 @@ module.exports = {
   getProfile,
   update,
   remove,
+  updateImage
 };

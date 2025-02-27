@@ -1,5 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
+import generateSignedUrl from '@/config/c2';
 
 export const authOptions ={
   providers: [
@@ -43,10 +44,9 @@ export const authOptions ={
           }
 
           const data = await res.json();
-
           return { ...data.user, accessToken: data.token };
         } catch(error){
-          console.error(error);
+          console.error("Error login", error);
           throw error;
         }
       }
@@ -54,21 +54,14 @@ export const authOptions ={
   ],
 
   callbacks: {
-    // async signIn({ user, account, profile }) {
-    //   if (
-    //     account &&
-    //     account.provider === 'google' &&
-    //     profile &&
-    //     'email_verified' in profile
-    //   ) {
-    //     if (!profile.email_verified) return false;
-    //   }
-    //   console.log("signin callback successfully returned")
-    //   return true;
-    // },
     async jwt({ user, token, trigger, session, account }) {
       try {
-
+        if (
+          user?.image &&
+          (user.login_provider !== 'google' || !isGoogleImage(session.user.image))
+        ) {
+          user.image = await generateSignedUrl(user.image);
+        }
         if (account && user) {
           if (account.provider === 'google' && account.id_token) {
 
@@ -80,7 +73,7 @@ export const authOptions ={
             });
 
             const data = await res.json();
-
+            
             if (res.ok) {
               token.user = { ...data.user, accessToken: data.token };
             } else {
@@ -92,8 +85,10 @@ export const authOptions ={
           }
         } else if (trigger === "update") {
           if(session){
+            session.user.image= await generateSignedUrl(session.user.image)
             token.user.username = session.user.username;
             token.user.email = session.user.email;
+            token.user.image= session.user.image;
           }
         }
         return token;

@@ -1,5 +1,4 @@
-// models/collection.js
-const db = require('../db/db');
+const db = require('../config/db');
 
 /**
  * Create the collections table
