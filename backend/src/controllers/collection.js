@@ -145,7 +145,6 @@ const searchPublicCollections = async (req, res) => {
         return collection;
       })
     );
-    console.log(updatedCollections)
     res.status(200).json({collections:updatedCollections});
   } catch (err) {
     console.error('Error searching public collections:', err);

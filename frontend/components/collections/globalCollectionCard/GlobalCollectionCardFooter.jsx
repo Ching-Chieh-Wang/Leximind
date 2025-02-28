@@ -16,6 +16,7 @@ const GlobalCollectionCardFooter = ({ index }) => {
       <Link href="#" className="flex items-center gap-x-4 justify-end p-3">
         <h1 className='text-gray-500'>Created by {username}</h1>
         <Image
+            unoptimized
             src={user_image || '/assets/images/logo.jpg'}
             width={40}
             height={40}

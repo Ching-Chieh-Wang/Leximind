@@ -13,7 +13,6 @@ import ProfileImageUpload from '@/components/ProfileImageUpload';
 import Vertical_Layout from '@/components/Vertical_Layout';
 
 const ProfilePage = () => {
-  const fileInputRef = useRef(null);  // Create a ref for the file input
   const { data: session, update } = useSession();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
