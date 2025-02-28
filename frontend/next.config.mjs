@@ -11,11 +11,48 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.googleusercontent.com',
+        hostname: '*.s3.synologyc2.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh4.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh5.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh6.googleusercontent.com',
+        pathname: '/**',
       },
     ],
   },
   reactStrictMode: true,
+
+  // Add this block
+  future: {
+    // Explicitly enable Webpack 5
+    webpack5: true,
+  },
+
+  webpack(config) {
+    // Fix for 'fs' module not found error
+    config.resolve.fallback = {
+      ...config.resolve.fallback, // Retain other fallback options
+      fs: false,                 // Disable fs in frontend
+    };
+
+    return config;
+  },
 };
 
 export default nextConfig;

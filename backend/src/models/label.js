@@ -1,4 +1,4 @@
-const db = require('../db/db');
+const db = require('../config/db');
 
 // Function to create the labels table
 const createTable = async () => {

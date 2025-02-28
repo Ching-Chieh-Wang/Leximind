@@ -2,7 +2,6 @@ require('module-alias/register');
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { connectToDatabase } = require('./db/db'); // Import the database connection
 
 // Import routes
 const userRoutes = require('./routes/user');
@@ -11,10 +10,13 @@ const labelRoutes = require('./routes/label');
 const wordRoutes = require('./routes/word');
 const wordLabelRoutes = require('./routes/word_label');
 const {startHealthCheckInterval,router:healthRoute} = require('./routes/health');
+const {connectToDatabase} = require("./config/db")
+
 
 
 
 // Start the server after a successful database connection
+
 connectToDatabase()
   .then(() => {
     // Middleware

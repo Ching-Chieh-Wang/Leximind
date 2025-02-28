@@ -1,4 +1,4 @@
-const db = require('../db/db');
+const db = require('../config/db');
 
 const createTable = async () => {
   const result = await db.query(`
@@ -72,6 +72,19 @@ const update = async (user_id, username, email, image) => {
   return result.rows[0] || null; // Return updated data, or null if no rows updated
 };
 
+// Update user's username, email, and image
+const updateImage = async (user_id, image) => {
+  const query = `
+      UPDATE users
+      SET 
+        image = $2
+      WHERE id = $1
+      RETURNING id;
+    `;
+  const result = await db.query(query, [user_id, image]);
+  return result.rows[0] || null; // Return updated data, or null if no rows updated
+};
+
 // Remove user by ID
 const remove = async (id) => {
   const result = await db.query(
@@ -88,4 +101,4 @@ const getById = async (id) => {
   return result.rows[0] || null;
 };
 
-module.exports = { createTable, create, getByEmail, getUserWithPasswordByEmail, update, remove, getById };
+module.exports = { createTable, create, getByEmail, getUserWithPasswordByEmail, update,updateImage, remove, getById };

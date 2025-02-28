@@ -270,7 +270,6 @@ export const CollectionProvider = ({ children }) => {
     dispatch({ type: 'FETCH_COLLECTION_REQUEST' });
   
     const data = await fetchHelper(url, 'GET', null, true);
-    console.log("data",data)
     if (data.word_ids) {
       const word_ids = new Set(data.word_ids);
 

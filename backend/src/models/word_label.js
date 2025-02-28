@@ -1,4 +1,4 @@
-const db = require('../db/db');
+const db = require('../config/db');
 
 // Create the word_labels table to store relationships between words and labels
 const createTable = async () => {

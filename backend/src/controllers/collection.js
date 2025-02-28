@@ -1,4 +1,5 @@
 const collectionModel = require('../models/collection');
+const {checkC2ImageGetSignedUrl} = require('../utils/checkC2ImageGetSignedUrl')
 
 // Function to create a new collection
 const create = async (req, res) => {
@@ -137,8 +138,15 @@ const searchPublicCollections = async (req, res) => {
     const limit = req.limit;
     
     const collections = await collectionModel.searchPublicCollections(query, limit, offset);
-
-    res.status(200).json({ collections });
+    
+    const updatedCollections = await Promise.all(
+      collections.map(async (collection) => {
+        collection.user_image = await checkC2ImageGetSignedUrl(collection.user_image);
+        return collection;
+      })
+    );
+    console.log(updatedCollections)
+    res.status(200).json({collections:updatedCollections});
   } catch (err) {
     console.error('Error searching public collections:', err);
     res.status(500).json({ message: 'Server error' });

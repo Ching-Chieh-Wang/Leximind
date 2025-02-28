@@ -17,13 +17,12 @@ export async function POST() {
     });
 
     if (response.ok) {
-      console.log('💚 Frontend: Health check sent back to backend successfully');
     } else {
-      console.error('💔 Frontend: Failed to send health check to backend:', response.statusText);
+      console.error(' Frontend: Failed to send health check to backend:', response.statusText);
     }
   } catch (error) {
-    console.error('💔 Frontend: Error sending health check to backend:', error.message);
+    console.error(' Frontend: Error sending health check to backend:', error.message);
   }
 
-  return NextResponse.json({ message: 'Health check received and forwarded' }, { status: 200 });
+  return NextResponse.json( { status: 200 });
 }

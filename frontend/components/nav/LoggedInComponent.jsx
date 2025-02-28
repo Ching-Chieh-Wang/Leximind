@@ -9,7 +9,6 @@ import Block from '../Block';
 const LoggedInComponent = ({ user }) => {
 
     const dropdownButton = (
-        <div className='w-10 h-10 flex-none'>
             <Image
                 unoptimized
                 src={user.image || '/assets/images/logo.jpg'}
@@ -18,7 +17,6 @@ const LoggedInComponent = ({ user }) => {
                 className=" rounded-full cursor-pointer"
                 alt="Profile"
             />
-        </div>
 
     )
     return (
