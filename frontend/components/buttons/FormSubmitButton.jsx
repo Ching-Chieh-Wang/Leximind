@@ -5,7 +5,7 @@ export default function FormSubmitButton({  isLoading, loadingText = 'Loading...
   return (
     <button
       type="submit"
-      className={`flex-grow text-white bg-teal-600 py-1.5 px-2  rounded-lg font-bold ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+      className={`flex-grow w-full text-white bg-teal-600 py-1.5 px-2  rounded-lg font-bold ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
       disabled={isLoading} // Also disables button in loading state
     >
       {isLoading ? (

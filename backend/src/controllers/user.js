@@ -112,7 +112,7 @@ const googleLoginOrRegister = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const user_id = req.user_id;
-    const user = await userModel.getById(user_id);
+    let user = await userModel.getById(user_id);
     user = { ...user, image: c2Service.generateSignedUrl(user.image) }
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -128,24 +128,11 @@ const getProfile = async (req, res) => {
 const updateImage = async (req, res) => {
   try {
     const user_id = req.user_id;
-    const file = req.file
+    const {imageUrl}=req.body
 
-    //Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!allowedTypes.includes(file.mimetype)) {
-      return res.status(400).json({ message: 'Invalid file type. Only JPEG and PNG are allowed.' });
-    }
-
-    const imageFile = await c2Service.uploadProfileImage(file);
+    const imageFile = await c2Service.uploadProfileImage(imageUrl);
 
     await userModel.updateImage(user_id, imageFile);
-
-    const localFilePath = path.join(__dirname, '..', '..', 'uploads', file.filename);
-    fs.unlink(localFilePath, (err) => {
-      if (err) {
-        console.error('Failed to delete local file:', err);
-      } 
-    });
     
     res.status(200).json({ message: "User image updated successfully", image: imageFile });
   } catch (err) {

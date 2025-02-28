@@ -1,35 +1,33 @@
 const c2 = require('../config/c2')
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-// Upload Profile Image and Return File Name (AWS SDK v2)
-const uploadProfileImage = async (file) => {
+// Upload Profile Image Directly from URL (AWS SDK v2)
+const uploadProfileImage = async (imageUrl) => {
   try {
-    // Generate unique file name using timestamp and UUID
-    const fileName = `${Date.now()}-${uuidv4()}${path.extname(file.originalname)}`;
+    // Generate a unique file name using timestamp and UUID
+    const fileName = `${Date.now()}-${uuidv4()}${path.extname(imageUrl.split('?')[0])}`;
 
-    // Read the file into a buffer (no aws-chunked issue)
-    const fileBuffer = fs.readFileSync(file.path);
-
-    // Set upload parameters
+    // Set upload parameters for copying directly from URL
     const uploadParams = {
       Bucket: process.env.C2_BUCKET_NAME,
       Key: fileName,
-      Body: fileBuffer,
-      ContentType: file.mimetype,
+      CopySource: imageUrl,  // Directly copy from URL
+      MetadataDirective: 'REPLACE',  // Ensures metadata is replaced with new data
     };
 
-    await c2.upload(uploadParams).promise();
+    console.log('bucket',process.env.C2_BUCKET_NAME)
+
+    await c2.copyObject(uploadParams).promise();
 
     // Return the file name for future reference
     return fileName;
   } catch (error) {
-    console.error('Error uploading profile image:', error);
+    console.error('Error copying profile image from URL:', error);
     throw new Error('Failed to upload profile image');
   }
-}
+};
 
 
 // Delete Image (using Read-Write Key)

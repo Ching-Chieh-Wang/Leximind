@@ -3,10 +3,7 @@ const router = express.Router({ mergeParams: true });
 const { authorizeUser } = require('../middlewares/auth/user');
 const { register, login, googleLoginOrRegister, getProfile, update, remove, updateImage } = require('../controllers/user');
 const { validateRegister, validateProfile } = require('../middlewares/validateInput/user');
-const {setUserInRequest} = require('../middlewares/setUserInRequest')
-const multer =require('multer')
 const path = require('path');
-const upload = multer({ dest: path.join(__dirname, '../../uploads') });
 
 // Route for user registration
 // RESTful URL: POST /api/users/register
@@ -30,7 +27,7 @@ router.put('/', authorizeUser, validateProfile, update);
 
 // Route for updating the user's image (requires authentication)
 // RESTful URL: PUT /api/users/image (updates the authenticated user's image)
-router.put('/image', authorizeUser,upload.single('image'), updateImage);
+router.put('/image', authorizeUser, updateImage);
 
 // Route for deleting the user's account (requires authentication)
 // RESTful URL: DELETE /api/users (deletes the authenticated user's account)

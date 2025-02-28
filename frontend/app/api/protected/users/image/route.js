@@ -8,7 +8,7 @@ export async function PUT(req) {
     const session = await getServerSession(authOptions);
 
     // Parse the incoming FormData
-    const formData = await req.formData(); 
+    const body = await req.json(); // Parse the request body
 
     // Forward the request to the backend with the token and FormData
     const res = await fetch(`${process.env.BACKEND_API_URL}/api/users/image`, {
@@ -16,7 +16,7 @@ export async function PUT(req) {
       headers: {
         Authorization: `Bearer ${session.user.accessToken}`,
       },
-      body: formData, // Forwarding FormData
+      body: JSON.stringify(body), // Send the body as a JSON string
     });
 
     const data = await res.json();
