@@ -1,3 +1,4 @@
+'use client'
 const proccessImg = async (image) => {
   const formData = new FormData();
   formData.append('file', image);
@@ -8,6 +9,7 @@ const proccessImg = async (image) => {
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  console.log(uploadUrl)
 
   const response = await fetch(uploadUrl, {
     method: 'POST',
