@@ -1,6 +1,7 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import generateSignedUrl from '@/config/c2';
+require('dotenv').config(); 
 
 const isC2Image = (image) => {
   return image.startsWith('C2');
