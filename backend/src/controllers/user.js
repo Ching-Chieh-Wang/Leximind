@@ -1,8 +1,6 @@
 const userModel = require('../models/user');
 const bcrypt = require('bcryptjs');
-const path= require('path')
 const jwt = require('jsonwebtoken');
-const fs = require('fs')
 const c2Service = require('../services/c2Service');
 const { OAuth2Client } = require('google-auth-library');
 
@@ -128,8 +126,9 @@ const getProfile = async (req, res) => {
 const updateImage = async (req, res) => {
   try {
     const user_id = req.user_id;
-    const {imageUrl}=req.body
-
+    const imageUrl=req.body.imageUrl
+    console.log(req.body)
+    console.log(imageUrl)
     const imageFile = await c2Service.uploadProfileImage(imageUrl);
 
     await userModel.updateImage(user_id, imageFile);

@@ -17,9 +17,7 @@ const handleImageChange = async (e) => {
       const uploadImage = fileInputRef.current.files[0]; // Access directly from ref
       if (uploadImage) {
         const proccessedImgURL= await processImg(uploadImage);
-        console.log('proccessedImgUrl',proccessedImgURL)
         const newImage = await updateImage(proccessedImgURL);
-        console.log('newImg',newImage)
         await update({ user: { ...session.user, image: newImage } });
       }
     } catch (error) {

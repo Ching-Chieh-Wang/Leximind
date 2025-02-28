@@ -9,12 +9,13 @@ export async function PUT(req) {
 
     // Parse the incoming FormData
     const body = await req.json(); // Parse the request body
-
+    console.log('body',body)
     // Forward the request to the backend with the token and FormData
     const res = await fetch(`${process.env.BACKEND_API_URL}/api/users/image`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${session.user.accessToken}`,
+        'Content-Type': 'application/json'  // Required for JSON
       },
       body: JSON.stringify(body), // Send the body as a JSON string
     });

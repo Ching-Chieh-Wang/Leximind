@@ -1,30 +1,43 @@
+// Upload Profile Image Directly from URL (AWS SDK v2)
 const c2 = require('../config/c2')
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 require('dotenv').config();
+const fetch = require('node-fetch'); // Only needed if using Node.js < 18
 
-// Upload Profile Image Directly from URL (AWS SDK v2)
 const uploadProfileImage = async (imageUrl) => {
   try {
-    // Generate a unique file name using timestamp and UUID
+    // Step 1: Download the image using fetch()
+    console.log('imageurl',imageUrl)
+    const response = await fetch(imageUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to download image: ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const fileBuffer = Buffer.from(arrayBuffer);
+
+    // Step 2: Generate a unique file name using timestamp and UUID
+    const contentType = response.headers.get('content-type'); 
     const fileName = `${Date.now()}-${uuidv4()}${path.extname(imageUrl.split('?')[0])}`;
 
-    // Set upload parameters for copying directly from URL
+    // Step 3: Set upload parameters
     const uploadParams = {
       Bucket: process.env.C2_BUCKET_NAME,
       Key: fileName,
-      CopySource: imageUrl,  // Directly copy from URL
-      MetadataDirective: 'REPLACE',  // Ensures metadata is replaced with new data
+      Body: fileBuffer,
+      ContentType: contentType,
+      ACL: 'public-read'  // Make the image publicly readable (optional)
     };
 
-    console.log('bucket',process.env.C2_BUCKET_NAME)
+    // Step 4: Upload the image to S3 (C2)
+    await c2.upload(uploadParams).promise();
 
-    await c2.copyObject(uploadParams).promise();
-
-    // Return the file name for future reference
+    // Step 5: Return the file name for future reference
     return fileName;
   } catch (error) {
-    console.error('Error copying profile image from URL:', error);
+    console.error('Error downloading and uploading profile image:', error);
     throw new Error('Failed to upload profile image');
   }
 };
