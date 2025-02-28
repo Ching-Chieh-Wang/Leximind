@@ -37,22 +37,6 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-
-  // Add this block
-  future: {
-    // Explicitly enable Webpack 5
-    webpack5: true,
-  },
-
-  webpack(config) {
-    // Fix for 'fs' module not found error
-    config.resolve.fallback = {
-      ...config.resolve.fallback, // Retain other fallback options
-      fs: false,                 // Disable fs in frontend
-    };
-
-    return config;
-  },
 };
 
 export default nextConfig;
