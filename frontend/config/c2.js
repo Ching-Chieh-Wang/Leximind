@@ -14,7 +14,7 @@ const c2 = new S3Client({
   forcePathStyle: true  // Required for S3-compatible storage like Synology C2
 });
 
-export const generateSignedUrl = async (fileName) => {
+const  generateSignedUrl = async (fileName) => {
   const command = new GetObjectCommand({
     Bucket: process.env.C2_BUCKET_NAME,
     Key: fileName
@@ -24,3 +24,5 @@ export const generateSignedUrl = async (fileName) => {
   const signedUrl = await getSignedUrl(c2, command, { expiresIn: 60 * 60 * 24 * 7 });
   return signedUrl;
 };
+
+export default generateSignedUrl;
