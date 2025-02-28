@@ -6,6 +6,7 @@ require('dotenv').config();
 const fetch = require('node-fetch'); // Only needed if using Node.js < 18
 
 const uploadProfileImage = async (imageUrl) => {
+  console.info("uploading profile image to c2:", imageUrl)
   try {
     // Step 1: Download the image using fetch()
     const response = await fetch(imageUrl);
@@ -27,7 +28,6 @@ const uploadProfileImage = async (imageUrl) => {
       Key: fileName,
       Body: fileBuffer,
       ContentType: contentType,
-      ACL: 'public-read'  // Make the image publicly readable (optional)
     };
 
     // Step 4: Upload the image to S3 (C2)
@@ -36,8 +36,7 @@ const uploadProfileImage = async (imageUrl) => {
     // Step 5: Return the file name for future reference
     return fileName;
   } catch (error) {
-    console.error('Error downloading and uploading profile image:', error);
-    throw new Error('Failed to upload profile image');
+    throw new Error('Failed to upload profile image',error);
   }
 };
 
