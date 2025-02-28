@@ -127,8 +127,6 @@ const updateImage = async (req, res) => {
   try {
     const user_id = req.user_id;
     const imageUrl=req.body.imageUrl
-    console.log(req.body)
-    console.log(imageUrl)
     const imageFile = await c2Service.uploadProfileImage(imageUrl);
 
     await userModel.updateImage(user_id, imageFile);

@@ -8,7 +8,6 @@ const fetch = require('node-fetch'); // Only needed if using Node.js < 18
 const uploadProfileImage = async (imageUrl) => {
   try {
     // Step 1: Download the image using fetch()
-    console.log('imageurl',imageUrl)
     const response = await fetch(imageUrl);
     
     if (!response.ok) {
@@ -20,7 +19,7 @@ const uploadProfileImage = async (imageUrl) => {
 
     // Step 2: Generate a unique file name using timestamp and UUID
     const contentType = response.headers.get('content-type'); 
-    const fileName = `${Date.now()}-${uuidv4()}${path.extname(imageUrl.split('?')[0])}`;
+    const fileName = `C2${Date.now()}-${uuidv4()}${path.extname(imageUrl.split('?')[0])}`;
 
     // Step 3: Set upload parameters
     const uploadParams = {

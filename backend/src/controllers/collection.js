@@ -1,5 +1,5 @@
 const collectionModel = require('../models/collection');
-const c2Service = require('../services/c2Service')
+const {checkC2ImageGetSignedUrl} = require('../utils/checkC2ImageGetSignedUrl')
 
 // Function to create a new collection
 const create = async (req, res) => {
@@ -141,7 +141,7 @@ const searchPublicCollections = async (req, res) => {
     
     const updatedCollections = await Promise.all(
       collections.map(async (collection) => {
-        collection.user_image = await c2Service.generateSignedUrl(collection.user_image);
+        collection.user_image = await checkC2ImageGetSignedUrl(collection.user_image);
         return collection;
       })
     );

@@ -11,7 +11,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'us-003.s3.synologyc2.net',
+        hostname: '*.s3.synologyc2.net',
         pathname: '/**',
       },
       {

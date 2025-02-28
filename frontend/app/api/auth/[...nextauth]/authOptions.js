@@ -2,6 +2,10 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import generateSignedUrl from '@/config/c2';
 
+const isC2Image = (image) => {
+  return image.startsWith('C2');
+};
+
 export const authOptions ={
   providers: [
     GoogleProvider({
@@ -53,12 +57,14 @@ export const authOptions ={
     }),
   ],
 
+
+
   callbacks: {
     async jwt({ user, token, trigger, session, account }) {
       try {
         if (
           user?.image &&
-          (user.login_provider !== 'google' || !isGoogleImage(session.user.image))
+          (user.login_provider !== 'google' || isC2Image(session.user.image))
         ) {
           user.image = await generateSignedUrl(user.image);
         }

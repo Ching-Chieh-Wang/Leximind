@@ -13,6 +13,7 @@ const ProfileImageUpload = ({setFieldErrors}) => {
 // Handle image change
 const handleImageChange = async (e) => {
     e.preventDefault();
+    setFieldErrors({})
     try {
       const uploadImage = fileInputRef.current.files[0]; // Access directly from ref
       if (uploadImage) {
