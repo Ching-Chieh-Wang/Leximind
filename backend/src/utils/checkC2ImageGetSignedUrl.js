@@ -1,6 +1,6 @@
 const {generateSignedUrl} = require('../services/c2Service')
 const isC2File = (image) => {
-    return image.startsWith('C2');
+    return image && image.startsWith('C2');
 };
 
 const checkC2ImageGetSignedUrl = (image)=>{
