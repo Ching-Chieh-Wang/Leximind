@@ -1,10 +1,24 @@
 import PreviousIcon from './icons/PreviousIcon';
 import NextIcon from './icons/NextIcon';
 import Background from './Background';
+import { useSwipeable } from 'react-swipeable';
 
 const Carousel = ({ slides, index, onNext, onPrev }) => {
+  
+    // Use the useSwipeable hook to handle swipes
+    const handlers = useSwipeable({
+      onSwipedLeft: () => {
+        onNext();
+      },
+      onSwipedRight: () => {
+        onPrev();
+      },
+      preventDefaultTouchmoveEvent: true,
+      trackMouse: true // Enable swipe detection with mouse on desktop
+    });
   return (
-    <div className="rounded-3xl relative w-full h-full overflow-hidden">
+    
+    <div {...handlers} className="rounded-3xl relative w-full h-full overflow-hidden">
       {/* Sliding Container for Background and Slides */}
       <div
         className="absolute top-0 left-0 w-full h-full overflow-hidden"
