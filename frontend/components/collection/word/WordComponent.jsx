@@ -30,6 +30,10 @@ const WordComponent = () => {
     viewNext();
   };
 
+  const handleCardClick = () => {
+    setIsFlipped((prev) => !prev);
+  };
+
   const handleAlwaysShowDescriptionClick = () => {
     setIsAlwaysShowDescription((prev) => !prev);
     setIsFlipped(!isAlwaysShowDescription);
@@ -66,7 +70,6 @@ const WordComponent = () => {
       frontBody={frontBody(word)}
       backBody={backBody(word)}
       isFlipped={isFlipped}
-      setIsFlipped={setIsFlipped}
     />
   ));
 
@@ -115,7 +118,7 @@ const WordComponent = () => {
                 <h1 className='font-extrabold mt-4 text-center'>No words found</h1>
               </div>
           ) : (
-            <Carousel slides={slides} index={viewingWordIdx} onNext={handleNextClick} onPrev={handlePrevClick} />
+            <Carousel slides={slides} index={viewingWordIdx} onNext={handleNextClick} onPrev={handlePrevClick}  onClick={handleCardClick} />
           )}
         </div>
       )}

@@ -3,8 +3,7 @@ import NextIcon from './icons/NextIcon';
 import Background from './Background';
 import { useSwipeable } from 'react-swipeable';
 
-const Carousel = ({ slides, index, onNext, onPrev }) => {
-  
+const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
     // Use the useSwipeable hook to handle swipes
     const handlers = useSwipeable({
       onSwipedLeft: () => {
@@ -12,6 +11,9 @@ const Carousel = ({ slides, index, onNext, onPrev }) => {
       },
       onSwipedRight: () => {
         onPrev();
+      },
+      onTap: ()=>{
+        onClick()
       },
       preventDefaultTouchmoveEvent: true,
       trackMouse: true // Enable swipe detection with mouse on desktop

@@ -1,16 +1,13 @@
 'use client'
 import { useState } from "react";
 
-const FlipCard = ({ frontBody, backBody ,isFlipped,setIsFlipped}) => {
+const FlipCard = ({ frontBody, backBody ,isFlipped}) => {
 
-  const handleCardClick = () => {
-    setIsFlipped((prev) => !prev);
-  };
+
 
   return (
 
     <div
-      onClick={handleCardClick}
       className={`relative  w-full h-full  transition-all duration-500 [transform-style:preserve-3d] ${isFlipped ? "[transform:rotateY(180deg)]" : ""
         }`}
     >
