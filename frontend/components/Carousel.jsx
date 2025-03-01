@@ -12,15 +12,12 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
       onSwipedRight: () => {
         onPrev();
       },
-      onTap: ()=>{
-        onClick()
-      },
       preventDefaultTouchmoveEvent: true,
       trackMouse: true // Enable swipe detection with mouse on desktop
     });
   return (
     
-    <div {...handlers} className="rounded-3xl relative w-full h-full overflow-hidden">
+    <div {...handlers} onClick={onClick} className="rounded-3xl relative w-full h-full overflow-hidden">
       {/* Sliding Container for Background and Slides */}
       <div
         className="absolute top-0 left-0 w-full h-full overflow-hidden"
