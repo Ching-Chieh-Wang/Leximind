@@ -25,7 +25,7 @@ export const updateImage = async (imageUrl) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ imageUrl:imageUrl }), 
+      body: JSON.stringify({ imageUrl }), 
     });
 
     const data = await res.json();

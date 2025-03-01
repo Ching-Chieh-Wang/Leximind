@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { updateImage } from '@/api/user';
-import processImg from '@/service/cloudinary/profileImage'
+import processImg from '@/services/cloudinary/profileImage'
 
 const ProfileImageUpload = ({setFieldErrors}) => {
   const fileInputRef = useRef(null);
@@ -18,6 +18,7 @@ const handleImageChange = async (e) => {
       const uploadImage = fileInputRef.current.files[0]; // Access directly from ref
       if (uploadImage) {
         const proccessedImgURL= await processImg(uploadImage);
+        console.log('recieved proccessImgUrl from processImg', proccessedImgURL);
         const newImage = await updateImage(proccessedImgURL);
         await update({ user: { ...session.user, image: newImage } });
       }
