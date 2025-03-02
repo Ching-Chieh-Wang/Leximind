@@ -1,9 +1,7 @@
 'use client'
-import { useState } from "react";
+
 
 const FlipCard = ({ frontBody, backBody ,isFlipped}) => {
-
-
 
   return (
 
