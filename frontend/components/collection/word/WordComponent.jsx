@@ -21,23 +21,26 @@ const WordComponent = () => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handlePrevClick = () => {
-    setIsFlipped(isAlwaysShowDescription);
+    setIsFlipped(isAlwaysShowDescription); // Directly set it without function form
     viewPrev();
-  };
+};
 
-  const handleNextClick = () => {
-    setIsFlipped(isAlwaysShowDescription);
+const handleNextClick = () => {
+    setIsFlipped(isAlwaysShowDescription); // Directly set it without function form
     viewNext();
-  };
+};
+
+const handleAlwaysShowDescriptionClick = () => {
+  setIsAlwaysShowDescription((prev) => {
+    setIsFlipped(!prev);
+    return !prev
+  });
+};
 
   const handleCardClick = () => {
     setIsFlipped((prev) => !prev);
   };
 
-  const handleAlwaysShowDescriptionClick = () => {
-    setIsAlwaysShowDescription((prev) => !prev);
-    setIsFlipped(!isAlwaysShowDescription);
-  };
 
   const handleSearch = (searchParam) => {
     setCollection(`/api/protected/collections/${id}/words/search?prefix=${searchParam}`, `Searching: ${searchParam}`)
