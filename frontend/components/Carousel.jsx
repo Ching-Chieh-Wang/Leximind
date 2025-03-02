@@ -17,11 +17,9 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
     });
   return (
     
-    <div {...handlers} onClick={onClick} className="rounded-3xl relative w-full h-full overflow-hidden">
+    <div {...handlers}  className="rounded-3xl relative w-full h-full overflow-hidden">
       {/* Sliding Container for Background and Slides */}
-      <div
-        className="absolute top-0 left-0 w-full h-full overflow-hidden"
-      >
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
         <div
           className="absolute flex w-[calc(100%*${slides.length})] h-full transition-transform duration-500"
           style={{
@@ -35,6 +33,7 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
       {/* Slides Container */}
       <div
         className="relative flex w-full h-full transition-transform duration-500"
+        onClick={onClick}
         style={{
           transform: `translateX(-${index * 100}%)`,
         }}
