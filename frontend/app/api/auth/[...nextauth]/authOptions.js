@@ -44,15 +44,15 @@ export const authOptions ={
 
           if (!res.ok) {
             const errorData = await res.json();
-            console.error("Authorization failed: ", errorData.message || 'Login failed');
-            throw new Error(errorData.message || 'Login failed');
+            console.error("Authorization using credential failed:", errorData.message );
+            throw new Error('Unexpeted error, please try again later.');
           }
 
           const data = await res.json();
           return { ...data.user, accessToken: data.token };
         } catch(error){
-          console.error("Error login", error);
-          throw error;
+          console.error("Authorization using credential failed:", error.message );
+          throw new Error('Unexpeted error, please try again later.');
         }
       }
     }),
