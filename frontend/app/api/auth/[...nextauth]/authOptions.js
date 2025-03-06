@@ -4,7 +4,7 @@ import generateSignedUrl from '@/config/c2';
 require('dotenv').config(); 
 
 const isC2Image = (image) => {
-  return image.startsWith('C2');
+  return image &&　image.startsWith('C2');
 };
 
 export const authOptions ={
@@ -92,7 +92,9 @@ export const authOptions ={
           }
         } else if (trigger === "update") {
           if(session){
-            session.user.image= await generateSignedUrl(session.user.image)
+            if(isC2Image(session.user.image)){
+              session.user.image= await generateSignedUrl(session.user.image)
+            }
             token.user.username = session.user.username;
             token.user.email = session.user.email;
             token.user.image= session.user.image;
