@@ -1,33 +1,44 @@
-version: '3.8'
-
 services:
   frontend:
     container_name: leximind-frontend
-    image: leximind-frontend:dev
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     env_file:
-      - ./frontend/.env.local           # Explicitly specify .env.local
+      - ./frontend/.env.local
     environment:
-      BACKEND_API_URL: http://backend:4000
+      - BACKEND_API_URL= http://backend:4000
+      - NODE_ENV=development
+    networks:
+      - app-network
     depends_on:
       - backend
-    networks:
-      - app-network                     # Use Docker network
+    command: ["npm", "run", "dev"]  # Ensure this runs Next.js dev server
+
 
   backend:
     container_name: leximind-backend
-    image: leximind-backend:dev
     build:
       context: ./backend
+      dockerfile: Dockerfile.dev  # Use the development Dockerfile
     ports:
       - "4000:4000"
+    env_file:
+      - ./backend/.env  # Load environment variables
+    volumes:
+      - ./backend:/app  # Sync backend source code
+      - /app/node_modules  # Prevent node_modules override
     environment:
-      FRONTEND_URL: http://frontend:3000
+      - FRONTEND_URL= http://frontend:3000
+      - NODE_ENV=development
     networks:
-      - app-network                     # Use Docker network
+      - app-network
 
 networks:
   app-network:
+    driver: bridge
