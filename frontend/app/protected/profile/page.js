@@ -35,8 +35,12 @@ const ProfilePage = () => {
     setSuccessMessage(null);
 
     try {
+      if (session.user.username == username && session.user.email == email) {
+        setSuccessMessage('Profile updated successfully!');
+        return;
+      }
       await updateProfile(username, email);
-      await update({ user: { username, email } });
+      await update({ user: { ...session.user, username, email } });
       setSuccessMessage('Profile updated successfully!');
     } catch (error) {
       let errors = {};
@@ -65,6 +69,7 @@ const ProfilePage = () => {
             </label>
             <input
               type="text"
+              required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
@@ -85,6 +90,7 @@ const ProfilePage = () => {
             ) : (
               <input
                 type="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
