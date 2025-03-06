@@ -63,13 +63,10 @@ export const authOptions ={
   callbacks: {
     async jwt({ user, token, trigger, session, account }) {
       try {
-        if (
-          user?.image &&
-          (user.login_provider !== 'google' || isC2Image(session.user.image))
-        ) {
-          user.image = await generateSignedUrl(user.image);
-        }
         if (account && user) {
+          if (user.image) {
+            user.image = await generateSignedUrl(user.image);
+          }
           if (account.provider === 'google' && account.id_token) {
 
             // Send the Google ID token to your backend
