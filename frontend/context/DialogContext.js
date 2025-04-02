@@ -7,6 +7,7 @@ import WarningIcon from '@/components/icons/WarningIcon';
 import SuccessIcon from '@/components/icons/SuccessIcon';
 import Horizontal_Layout from '@/components/Horizontal_Layout';
 import Vertical_Layout from '@/components/Vertical_Layout';
+import { setGlobalDialog } from '@/services/DialogService';
 
 const DialogContext = createContext();
 
@@ -34,6 +35,10 @@ export const DialogProvider = ({ children }) => {
     setDescription(null);
     setHandleOk(null);
   };
+
+  useEffect(() => {
+    setGlobalDialog(showDialog);
+  }, [showDialog]);
 
   // Disable scrolling when the dialog is displayed
   useEffect(() => {

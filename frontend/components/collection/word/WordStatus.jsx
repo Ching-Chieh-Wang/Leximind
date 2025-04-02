@@ -1,13 +1,16 @@
-import ProgressBar from "@/components/ProgressBar"
 import { useEffect, useState } from "react";
-import { useCollection } from "@/context/CollectionContext"
+import ProgressBar from "@/components/ProgressBar"
 import Horizontal_Layout from "@/components/Horizontal_Layout";
 import Vertical_Layout from "@/components/Vertical_Layout";
 import Block from "@/components/Block";
 import ToggleButton from "@/components/buttons/ToggleButton";
+import updateWordMemorizationRequest from "@/api/word/UpdateWordMemorization";
+
+import { useCollection } from '@/context/collection/CollectionContext';
+
 
 const WordStatus = () => {
-    const { words,originalWords, memorizedCnt,viewingWordIdx,updateMemorization,id,status } = useCollection();
+    const { words,originalWords, memorizedCnt,viewingWordIdx,updateMemorization,id } = useCollection();
     const [memorizedPercentage,setMemorizedPercentage]= useState(0)
     useEffect(() => {
         // Update memorizedPercentage only when words or memorizedCnt change
@@ -18,7 +21,9 @@ const WordStatus = () => {
         }
       }, [originalWords, memorizedCnt]);
     const hanldeIsMemorizedClicked=()=>{
-        updateMemorization(`/api/protected/collections/${id}/words/${words[viewingWordIdx].id}/memorize`,viewingWordIdx)
+        if(words.length===0)return;
+        updateWordMemorizationRequest(id,words[viewingWordIdx].id,{is_memorized:words[viewingWordIdx]?.is_memorized})
+        updateMemorization(viewingWordIdx);
     }
     return (
         <Horizontal_Layout extraStyle="px-8">

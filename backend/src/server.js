@@ -30,6 +30,14 @@ connectToDatabase()
     app.use('/api/collections/:collection_id/', wordLabelRoutes); // Word-label relationships
     app.use('/api/users', userRoutes); // User-related routes
     app.use('/api/health', healthRoute);
+
+    app.use((req, res) => {
+      const fullUrl = `${req.method}: ${req.originalUrl}`;
+      console.warn(` No API matched ${fullUrl}`);
+      res.status(404).json({
+        message: 'No such oepration',
+      });
+    });
     
     // Start the server
     const PORT = process.env.PORT || 4000;

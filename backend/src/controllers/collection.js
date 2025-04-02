@@ -10,16 +10,16 @@ const create = async (req, res) => {
     const newCollectionData = await collectionModel.create(user_id, name, description, is_public);
 
     if (!newCollectionData) {
-      return res.status(500).json({ message: 'Error creating collection' });
+      return res.status(500).json({ message: 'Failed to create collection' });
     }
 
-    res.status(201).json({ message: 'Collection created successfully', id: newCollectionData.id, created_at: newCollectionData.created_at });
+    res.status(201).json({ id: newCollectionData.id });
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'User or collection not found' });
+      return res.status(400).json({ message: 'User not found' });
     }
-    console.error('Error creating collection:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Failed to create collection:', err);
+    res.status(500).json({ message: 'Failed to create collection' });
   }
 };
 
@@ -31,11 +31,11 @@ const getById = async (req, res) => {
 
     // Fetch the paginated words
     const collection = await collectionModel.getById(user_id, collection_id );
-    if(!collection)return res.status(404).json({ message:"Collection not found" });
-    res.status(200).json({ message:"Collection get successfully" ,collection });
+    if(!collection)return res.status(404).json({ message:"User or collection not found" });
+    res.status(200).json(collection);
   } catch (err) {
     console.error('Error fetching all words:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to load collection' });
   }
 };
 
@@ -52,13 +52,13 @@ const update = async (req, res) => {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
 
-    res.status(200).json({ message: 'Collection updated successfully' });
+    return res.status(200).json({});
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'Invalid user ID provided' });
+      return res.status(400).json({ message: 'User or collection not found' });
     }
     console.error('Error updating collection:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to update collection' });
   }
 };
 
@@ -75,13 +75,13 @@ const updateAuthorize = async (req, res) => {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
 
-    res.status(200).json({ message: 'Collection updated successfully' });
+    return res.status(200).json({});
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'Invalid user ID provided' });
+      return res.status(400).json({ message: 'User or Collection not found' });
     }
     console.error('Error updating collection authorization:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to update authority' });
   }
 };
 
@@ -91,23 +91,19 @@ const remove = async (req, res) => {
     const user_id = req.user_id;
     const { collection_id } = req.params;
 
-    if (!collection_id || !user_id) {
-      return res.status(400).json({ message: 'Collection ID and user ID are required' });
-    }
-
     const isRemoveSuccess = await collectionModel.remove(user_id, collection_id);
 
     if (!isRemoveSuccess) {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
 
-    res.status(200).json({ message: 'Collection deleted successfully' });
+    return res.sendStatus(200);
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'Invalid user ID provided' });
+      return res.status(400).json({ message: 'User or collection not found' });
     }
     console.error('Error deleting collection:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error deleting collection:' });
   }
 };
 
@@ -122,11 +118,8 @@ const getPaginatedByUserIdSortedByLastViewedAt = async (req, res) => {
     
     res.status(200).json({ collections });
   } catch (err) {
-    if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'Invalid user ID provided' });
-    }
-    console.error('Error fetching collections:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error loading collections:', err);
+    res.status(500).json({ message: 'Error loading collections:' });
   }
 };
 

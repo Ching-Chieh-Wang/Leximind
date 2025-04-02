@@ -31,7 +31,7 @@ const register = async (req, res) => {
     res.status(201).json({ token, user: user });
   } catch (err) {
     console.error('Error registering user:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to register, please try again later!' });
   }
 };
 
@@ -57,7 +57,7 @@ const login = async (req, res) => {
     res.status(200).json({ token, user: userWithoutPassword });
   } catch (err) {
     console.error('Error logging in user:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to login, please try again later!' });
   }
 };
 
@@ -101,8 +101,7 @@ const googleLoginOrRegister = async (req, res) => {
     if (err.message.includes('Invalid token')) {
       return res.status(401).json({ message: 'Invalid Google token' });
     }
-
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to login via google, please try again later!' });
   }
 };
 
@@ -118,7 +117,7 @@ const getProfile = async (req, res) => {
     res.status(200).json({ user });
   } catch (err) {
     console.error('Error geting user profile:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to get user profile, please try again later!' });
   }
 
 };
@@ -131,7 +130,7 @@ const updateImage = async (req, res) => {
 
     await userModel.updateImage(user_id, imageFile);
     
-    res.status(200).json({ message: "User image updated successfully", image: imageFile });
+    res.status(200).json({ image: imageFile });
   } catch (err) {
     console.error("Error when uploading profile image", err);
     res.status(500).json({ message: 'Server error' });
@@ -149,13 +148,13 @@ const update = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    res.status(200).json({ message: "User update successfully" });
+    return res.status(200).json({});
   } catch (err) {
     if (err.code === '23505') {
       return res.status(409).json({ message: 'Email already in use. Please use a different email.' });
     }
     console.error('Error updating user profile:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to update profile, please try again later!' });
   }
 };
 
@@ -168,10 +167,10 @@ const remove = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.status(200).json({ message: 'User deleted successfully' });
+    return res.status(200).json({});
   } catch (err) {
     console.error('Error deleting user profile:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to remove account, please try again later!' });
   }
 };
 

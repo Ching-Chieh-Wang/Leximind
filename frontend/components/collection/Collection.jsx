@@ -1,28 +1,34 @@
 'use client'
 import { useEffect } from "react"
-import WordComponent from "./word/WordComponent"
-import LabelComponent from "./label/LabelComponent"
 import { useParams } from "next/navigation"
-import { useCollection } from "@/context/CollectionContext"
+import WordComponent from "./word/WordComponent"
+import Card from "../Card"
 import CollectionNav from "./CollectionNav"
-import Card from '@/components/Card'
+import { useCollection } from '@/context/collection/CollectionContext';
+import { fetchPrivateCollectionRequest } from "@/api/collection/FetchPrivateCollection"
+import LabelComponent from "./label/LabelComponent"
 
 const CollectionComponent = () => {
-    const { fetchCollection} = useCollection();
     const params = useParams();
-    const collection_id = params.collection_id;
-
+    const {loading,setError,setCollection}= useCollection();
+    const collection_id = Number(params.collection_id);
 
     useEffect(() => {
         const fetchData = async () => {
-            await fetchCollection(`/api/protected/collections/${collection_id}`,collection_id);
+          loading();
+          if (isNaN(collection_id)) {
+            setError("Invalid collection ID");
+            return;
+          }
+          const [collection ,error]= await fetchPrivateCollectionRequest(collection_id);
+          if(error) setError(error);
+          else setCollection(collection);
         };
         fetchData();
-    }, []);
+      }, []);
 
     return (
         <>
-            
             <div className="ml-8"><CollectionNav/></div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <Card type="card" extraStyle="md:col-span-2"><WordComponent /></Card>

@@ -3,10 +3,15 @@ import { useState } from 'react';
 import Card from '@/components/Card';
 import FormSubmitButton from '@/components/buttons/FormSubmitButton';
 import FormCancelButton from '@/components/buttons/FormCancelButton';
-import { useCollection } from '@/context/CollectionContext';
 import Horizontal_Layout from '@/components/Horizontal_Layout';
 import Vertical_Layout from '@/components/Vertical_Layout';
 import ErrorMsg from '@/components/msg/ErrorMsg';
+
+import { useCollection } from '@/context/collection/CollectionContext';
+import { PrivateCollectionStatus } from '@/context/collection/types/status/PrivateCollectionStatus';
+import { updateWordRequest } from '@/api/word/UpdateWord';
+import { createWordRequest } from '@/api/word/CreateWord';
+
 
 const WordEditComponent = () => {
     const {
@@ -17,33 +22,46 @@ const WordEditComponent = () => {
         createWord,
         updateWord,
         cancelEditSession,
+        createWordSubmit,
+        startCreateWordSession
     } = useCollection();
-    const [name, setName] = useState(status === 'updatingWord' ? words[viewingWordIdx].name : '');
-    const [description, setDescription] = useState(status === 'updatingWord' ? words[viewingWordIdx].description : '');
-    const [imagePath, setImagePath] = useState(status === 'updatingWord' ? words[viewingWordIdx].image : '');
+    const [name, setName] = useState(status === PrivateCollectionStatus.UPDATING_WORD ? words[viewingWordIdx].name : '');
+    const [description, setDescription] = useState(status === PrivateCollectionStatus.UPDATING_WORD ? words[viewingWordIdx].description : '');
+    const [imagePath, setImagePath] = useState(status === PrivateCollectionStatus.UPDATING_WORD ? words[viewingWordIdx].image : '');
     const [fieldErrors, setFieldErrors] = useState({})
 
     const handleUpsert = async (e) => {
         e.preventDefault();
         setFieldErrors({})
-        if (status === 'creatingWord') {
-            const data = await createWord(`/api/protected/collections/${id}/words`, name, description, imagePath||'')
-            if (data?.errors) {
-                const errors = {};
-                data.errors.forEach((error) => {
-                    if (!errors[error.path]) {
-                        errors[error.path] = error.msg; // Store only the first error for each field
-                    }
-                });
-                setFieldErrors(errors);
+        if (status === PrivateCollectionStatus.CREATING_WORD) {
+            createWordSubmit();
+            const word= {name,description,imagePath};
+            const [createdWord,error] = await createWordRequest(id,word);
+            if (error){
+                if (error.invalidArguments) {
+                    const errors = {};
+                    error.invalidArguments.forEach((error) => {
+                        if (!errors[error.path]) {
+                            errors[error.path] = error.msg; // Store only the first error for each field
+                        }
+                    });
+                    setFieldErrors(errors);
+                    startCreateWordSession();
+                }
+            }
+            else{
+                createWord(createdWord)
             }
         }
-        else if (status === 'updatingWord') updateWord(`/api/protected/collections/${id}/words/${words[viewingWordIdx].id}`, name, description, imagePath||'')
+        else if (status === PrivateCollectionStatus.UPDATING_WORD) {
+            const word={...words[viewingWordIdx], name, description, imagePath};
+            updateWord(word)
+            updateWordRequest(id,word)
+        }
         else {
             console.error('status not found', status)
             return
         }
-        
     };
 
     const handleNameChange = (e) => {
@@ -89,7 +107,7 @@ const WordEditComponent = () => {
         <form onSubmit={handleUpsert}>
             <Card
                 type="card"
-                title={status === 'creatingWord' || status === 'createWordLoading' ? 'Create new word' : 'Update word'}
+                title={status === PrivateCollectionStatus.CREATING_WORD || status === PrivateCollectionStatus.CREATE_WORD_SUBMIT ? 'Create new word' : 'Update word'}
             >
                 {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
                 {/* Name Input */}
@@ -100,10 +118,10 @@ const WordEditComponent = () => {
                     <input
                         type="text"
                         value={name}
+                        required
                         onChange={handleNameChange}
                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg w-full p-2.5"
                         placeholder="Enter word name"
-                        required
                         autoComplete="on"
                         autoFocus="on"
                     />
@@ -130,7 +148,7 @@ const WordEditComponent = () => {
                     ></textarea>
                     <ErrorMsg>{fieldErrors.description}</ErrorMsg>
                 </Vertical_Layout>
-
+{/* 
                 <Vertical_Layout spacing='space-y-1'>
                     <label className=" text-sm font-medium text-gray-900">
                         Image
@@ -142,7 +160,7 @@ const WordEditComponent = () => {
                     <ErrorMsg>{fieldErrors.image}</ErrorMsg>
 
 
-                </Vertical_Layout>
+                </Vertical_Layout> */}
 
 
 
@@ -150,8 +168,8 @@ const WordEditComponent = () => {
                         <FormCancelButton onClick={cancelEditSession}>
                             Cancel
                         </FormCancelButton>
-                        <FormSubmitButton isLoading={status === 'createWordLoading'}>
-                            {status === 'creatingWord' || status === 'createWordLoading' ? 'Create' : 'Update'}
+                        <FormSubmitButton isLoading={status === PrivateCollectionStatus.CREATE_WORD_SUBMIT}>
+                            {status === PrivateCollectionStatus.CREATING_WORD || status === PrivateCollectionStatus.CREATE_WORD_SUBMIT ? 'Create' : 'Update'}
                         </FormSubmitButton>
                     </Horizontal_Layout>
             </Card>

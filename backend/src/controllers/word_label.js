@@ -12,7 +12,7 @@ const addWordToLabel = async (req, res) => {
       // If no result is returned, respond with a 404 indicating the label or word was not found
       return res.status(404).json({ message: 'Label or word not found' });
     }
-    res.status(201).json({ message: 'Word added to label successfully' });
+    return res.status(200).json({});
   } catch (err) {
     if (err.code === '23505') {
       // Unique constraint violation for duplicate association
@@ -48,7 +48,7 @@ const removeWordFromLabel = async (req, res) => {
       return res.status(404).json({ message: 'User, word, label ,collection or Word-label association not found' });
     }
 
-    res.status(200).json({ message: 'Word removed from label successfully' });
+    return res.status(200).json({});
   } catch (err) {
     console.error('Error removing word from label:', err);
     res.status(500).json({ message: 'Server error' });

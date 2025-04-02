@@ -11,7 +11,7 @@ const FormOKButton = ({ children, onClick, color }) => {
       type="button"
       className={`  ${
         colorClasses[color] || ' bg-gray-200 hover:bg-gray-500 text-gray-700'
-      } flex-grow font-semibold hover:text-white py-1.5 px-2 border hover:border-transparent rounded-lg `}
+      } flex-grow font-semibold hover:text-white py-1.5 px-2 border hover:border-transparent rounded-lg w-full`}
       onClick={onClick}
     >
       {children}

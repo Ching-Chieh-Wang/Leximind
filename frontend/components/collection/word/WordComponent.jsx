@@ -1,5 +1,4 @@
 'use client';
-import { useCollection } from '@/context/CollectionContext';
 import { useState } from "react";
 import Image from 'next/image';
 import FlipCard from "../../FlipCard";
@@ -14,36 +13,41 @@ import WordNav from './WordNav';
 import SearchBar from '../../SearchBar';
 import WordStatus from './WordStatus';
 
+import { useCollection } from '@/context/collection/CollectionContext';
+import { PrivateCollectionStatus } from "@/context/collection/types/status/PrivateCollectionStatus";
+import { PrivateCollectionViewingType } from "@/context/collection/types/viewingType/PrivateCollectionViewingType";
+import { CollectionStatus } from "@/context/collection/types/status/CollectionStatus";
+
 
 const WordComponent = () => {
-  const { words, viewingWordIdx, viewNext, viewPrev, status, startCreateWordSession, error, setCollection, id, viewingType } = useCollection();
+  const { words, viewingWordIdx, status, startCreateWordSession, error, viewingType, viewNext, viewPrev ,searchWords } = useCollection();
   const [isAlwaysShowDescription, setIsAlwaysShowDescription] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handlePrevClick = () => {
     setIsFlipped(isAlwaysShowDescription); // Directly set it without function form
     viewPrev();
-};
+  };
 
-const handleNextClick = () => {
+  const handleNextClick = () => {
     setIsFlipped(isAlwaysShowDescription); // Directly set it without function form
     viewNext();
-};
+  };
 
-const handleAlwaysShowDescriptionClick = () => {
-  setIsAlwaysShowDescription((prev) => {
-    setIsFlipped(!prev);
-    return !prev
-  });
-};
+  const handleAlwaysShowDescriptionClick = () => {
+    setIsAlwaysShowDescription((prev) => {
+      setIsFlipped(!prev);
+      return !prev
+    });
+  };
 
   const handleCardClick = () => {
     setIsFlipped((prev) => !prev);
   };
 
 
-  const handleSearch = (searchParam) => {
-    setCollection(`/api/protected/collections/${id}/words/search?prefix=${searchParam}`, `Searching: ${searchParam}`)
+  const handleSearch = async (searchParam) => {
+    searchWords(searchParam);
   }
 
   const frontBody = (word) => (
@@ -55,15 +59,15 @@ const handleAlwaysShowDescriptionClick = () => {
   const backBody = (word) => (
     <Vertical_Layout spacing="spance-y-6" extraStyle="w-full h-full items-center select-none p-0.5">
       <h1 className="text-4xl">{word.name}</h1>
-      <div className='border-gray-200 border-t-2 w-2/3 mb-2 mt-1'/>
+      <div className='border-gray-200 border-t-2 w-2/3 mb-2 mt-1' />
       <h2 className="text-2xl overflow-y-scroll text-center">{word.description}</h2>
     </Vertical_Layout>
   );
 
-  if (status === "loading") {
+  if (status === CollectionStatus.LOADING) {
     return <h1>Fetching collection</h1>;
   }
-  else if (status === "error") {
+  else if (status === CollectionStatus.ERROR) {
     return <ErrorMsg>{error}</ErrorMsg>
   }
 
@@ -94,12 +98,12 @@ const handleAlwaysShowDescriptionClick = () => {
 
 
 
-      {status === "creatingWord" || status === "createWordLoading" || status === "updatingWord" || status === "updateWordLoading" ? (
+      {status === PrivateCollectionStatus.CREATING_WORD || status === PrivateCollectionStatus.CREATE_WORD_SUBMIT || status === PrivateCollectionStatus.UPDATING_WORD ? (
         <WordEditComponent />
       ) : (
         <div className="w-full min-w-64 h-60">
           {words.length === 0 ? (
-            viewingType === '' ?
+            viewingType === PrivateCollectionViewingType.BASIC ?
               <button onClick={startCreateWordSession} className="w-full h-full">
                 <Vertical_Layout
                   spacing="space-y-1"
@@ -108,7 +112,8 @@ const handleAlwaysShowDescriptionClick = () => {
                   <CreateIcon size={35} />
                   <h1>Add New Word</h1>
                 </Vertical_Layout>
-              </button> :
+              </button>
+              :
               <div className="flex flex-col items-center w-full h-full rounded-lg">
                 <div className="relative w-56 h-56">
                   <Image
@@ -121,11 +126,11 @@ const handleAlwaysShowDescriptionClick = () => {
                 <h1 className='font-extrabold mt-4 text-center'>No words found</h1>
               </div>
           ) : (
-            <Carousel slides={slides} index={viewingWordIdx} onNext={handleNextClick} onPrev={handlePrevClick}  onClick={handleCardClick} />
+            <Carousel slides={slides} index={viewingWordIdx} onNext={handleNextClick} onPrev={handlePrevClick} onClick={handleCardClick} />
           )}
         </div>
       )}
-      {status!='creatingWord'&&status!='createWordLoading'&& <WordStatus/>}
+      {status != PrivateCollectionStatus.CREATING_WORD && status != PrivateCollectionStatus.CREATE_WORD_SUBMIT && status != PrivateCollectionStatus.UPDATING_WORD && <WordStatus />}
       <WordNav />
     </>
   );

@@ -67,7 +67,7 @@ const getById = async (user_id, collection_id) => {
       WITH collection_data AS (
         SELECT 
           c.name AS name,
-          stats.not_memorized_cnt AS not_memorized_cnt,
+          CAST(stats.not_memorized_cnt AS INT) AS not_memorized_cnt,
           COALESCE(
             JSON_AGG(
               JSON_BUILD_OBJECT(
@@ -76,7 +76,7 @@ const getById = async (user_id, collection_id) => {
                 'description', wd.description,
                 'img_path', wd.img_path,
                 'is_memorized', wd.is_memorized,
-                'label_ids', wd.label_ids
+                'label_ids', ARRAY_REMOVE(wd.label_ids, NULL)
               )
             ) FILTER (WHERE wd.id IS NOT NULL),
             '[]'

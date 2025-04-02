@@ -13,16 +13,13 @@ const create = async (req, res) => {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
 
-    res.status(201).json({
-      message: 'Word created successfully',
-      word_id: result.id,
-    });
+    res.status(201).json({id: result.id});
   } catch (err) {
     if (err.code === '23502') { // Foreign key violation
       return res.status(400).json({ message: 'Invalid collection or label ID provided' });
     }
     console.error('Error creating word:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to create word, please try again later.' });
   }
 };
 
@@ -38,10 +35,10 @@ const remove = async (req, res) => {
       return res.status(404).json({ message: 'Word not found' });
     }
 
-    res.status(200).json({ message: 'Word deleted successfully' });
+    return res.status(200).json({});
   } catch (err) {
     console.error('Error deleting word:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to remove word, please try again later.' });
   }
 };
 
@@ -57,10 +54,10 @@ const update = async (req, res) => {
     if (!updateSuccess) {
       return res.status(404).json({ message: 'Word not found or unauthorized' });
     }
-    res.status(200).json({ message: 'Word updated successfully'});
+    return res.status(200).json({});
   } catch (err) {
     console.error('Error updating word:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to update word, please try again later.' });
   }
 };
 
@@ -124,10 +121,10 @@ const changeIsMemorizedStatus = async (req, res) => {
       return res.status(404).json({ message: 'Word not found' });
     }
 
-    res.status(200).json({message: 'Word memorization status updated successfully'});
+    return res.status(200).json({});
   } catch (err) {
     console.error('Error updating memorization status:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to toggle memorization status, please try again later.' });
   }
 };
 

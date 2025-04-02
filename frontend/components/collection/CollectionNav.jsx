@@ -1,4 +1,3 @@
-import { useCollection } from "@/context/CollectionContext"
 import Link from 'next/link';
 import Horizontal_Layout from "../Horizontal_Layout"
 import CollctionIcon from "../icons/CollectionIcon"
@@ -6,11 +5,14 @@ import HomeIcon from "../icons/HomeIcon"
 import NextIcon from "../icons/NextIcon"
 import PreviousIcon from "../icons/PreviousIcon";
 
+import { useCollection } from '@/context/collection/CollectionContext';
+import { CollectionViewingType } from '@/context/collection/types/viewingType/CollectionViewingType';
+
 const CollectionNav = () => {
-    const { name, resetCollection, viewingType } = useCollection()
+    const { name, resetCollection, viewingType, viewingName } = useCollection()
     return (
         <Horizontal_Layout justify="start" spacing="space-x-1">
-            {viewingType !== '' &&
+            {viewingType !== CollectionViewingType.BASIC &&
                 <Horizontal_Layout>
 
                     <button onClick={resetCollection}>
@@ -50,13 +52,12 @@ const CollectionNav = () => {
 
 
 
-                {viewingType !== '' &&
+                {viewingType != CollectionViewingType.BASIC &&
                     <>
                         <NextIcon />
-
                         <button>
                             <Horizontal_Layout spacing="space-x-1" extraStyle="hover:text-blue-500">
-                                <h1 className="text-xs">{viewingType}</h1>
+                                <h1 className="text-xs font-bold text-indigo-400">{viewingName}</h1>
                             </Horizontal_Layout>
                         </button>
                     </>

@@ -1,15 +1,18 @@
-import { useCollection } from "@/context/CollectionContext";
-import { useDialog } from "@/context/DialogContext";
+import { useEffect, useState } from "react";
 import DropdownMenu from "@/components/dropdown_menu/DropdownMenu"; // Ensure this import exists
 import DropdownItem from "@/components/dropdown_menu/DropdownItem"; // Ensure this import exists
 import KebabMenuIcon from "@/components/icons/KebabMenuIcon"; // Ensure this import exists
 import WordIcon from "@/components/icons/WordIcon"; // Ensure this import exists
 import EditIcon from "@/components/icons/EditIcon"; // Ensure this import exists
 import DeleteIcon from "@/components/icons/DeleteIcon"; // Ensure this import exists
-import { useEffect, useState } from "react";
+
+import { useCollection } from '@/context/collection/CollectionContext';
+import { updateWordLabelRequest } from "@/api/label/UpdateWordLabel"; // Import the new function
+import { useDialog } from "@/context/DialogContext";
+import { removeLabelReqest } from "@/api/label/RemoveLabel";
 
 const LabelRow = ({ index }) => {
-    const { words, labels, startUpdateLabelSession, removeLabel, id, setCollection, viewingWordIdx, updateWordLabel } = useCollection();
+    const { words, labels, id, viewingWordIdx, startUpdateLabelSession, removeLabel, showWordsByLabel,viewingType } = useCollection();
     const { showDialog } = useDialog();
     const [labelChecked, setLabelChecked] = useState(false)
 
@@ -18,22 +21,18 @@ const LabelRow = ({ index }) => {
             setLabelChecked(false);
         }
         else {
-            setLabelChecked(words[viewingWordIdx].label_ids.has(labels[index].id))
+            setLabelChecked(labels[index].id in words[viewingWordIdx].label_ids)
         }
-    }, [viewingWordIdx])
+    }, [viewingWordIdx,viewingType])
 
-
-    const handleViewWords = () => {
-        const fetchData = async () => {
-            await setCollection(`/api/protected/collections/${id}/labels/${labels[index].id}/words`, `Label: ${labels[index].name}`);
-        };
-        fetchData();
+    const handleLabelCheckedChange = async () => {
+        if (words.length === 0) return;
+        setLabelChecked((prev) => !prev);
+        updateWordLabelRequest(id,labels[index].id,words[viewingWordIdx].id, !labelChecked);
     }
 
-    const handleLabelCheckedChange = () => {
-        updateWordLabel(`/api/protected/collections/${id}/labels/${labels[index].id}/words/${words[viewingWordIdx].id}`, viewingWordIdx, labels[index].id, !labelChecked)
-        setLabelChecked((prev) => !prev);
-
+    const handleViewWords = ()=>{
+        showWordsByLabel(labels[index]);
     }
 
     const handleDelete = () => {
@@ -43,10 +42,10 @@ const LabelRow = ({ index }) => {
             description: `Deleting ${labelName}? This action cannot be undone.`,
             type: "warning",
             onOk: () => {
-                removeLabel(`/api/protected/collections/${id}/labels/${labels[index].id}`, index);
+                removeLabel(index);
+                removeLabelReqest(id,labels[index])
             },
-            onCancel: () => {
-            },
+            onCancel: () => {},
         });
     };
 

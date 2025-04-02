@@ -1,18 +1,20 @@
-import { useCollection } from '@/context/CollectionContext';
 import LabelEditComponent from './LabelEditComponent';
 import LabelRow from './LabelRow';
 import CreateIcon from '../../icons/CreateIcon';
 import Horizontal_Layout from '../../Horizontal_Layout';
 import ErrorMsg from '../../msg/ErrorMsg';
 import LabelIcon from '../../icons/LabelIcon';
+import { useCollection } from '@/context/collection/CollectionContext';
+import { CollectionStatus } from '@/context/collection/types/status/CollectionStatus';
+import { PrivateCollectionStatus } from '@/context/collection/types/status/PrivateCollectionStatus';
 
 const LabelComponent = () => {
-  const { status, editingLabelIdx, labels, startCreateLabelSession, error } = useCollection(); // Ensure correct usage of the hook
+  const { status, editingLabelIdx, labels, error,startCreateLabelSession } = useCollection(); 
 
-  if (status === "loading") {
-    return <h1>Loading Collection</h1>
+  if (status === CollectionStatus.LOADING) {
+    return <h1>Loading Label</h1>
   }
-  else if (status == "error") {
+  else if (status == CollectionStatus.ERROR) {
     return <ErrorMsg>{error}</ErrorMsg>
   }
 
@@ -36,7 +38,7 @@ const LabelComponent = () => {
         <tbody>
           {labels.map((label, index) => (
             <tr key={label.id} className="bg-white border-b hover:bg-gray-50 ">
-              {status === "updatingLabel" && editingLabelIdx === index ? (
+              {(status === PrivateCollectionStatus.UPDATING_LABEL || status === PrivateCollectionStatus.UPDATE_LABEL_SUBMIT) && editingLabelIdx === index ? (
                 <LabelEditComponent key={label.id} />
               ) : (
                 <LabelRow key={label.id} index={index} />
@@ -44,7 +46,7 @@ const LabelComponent = () => {
             </tr>
           ))}
           <tr>
-            {status === 'creatingLabel' || status === 'createLabelLoading' ? (
+            {status === PrivateCollectionStatus.CREATING_LABEL || status === PrivateCollectionStatus.CREATE_LABEL_SUBMIT ? (
               <LabelEditComponent />
             ) : (
               <td colSpan="3" className="text-center bg-white ">

@@ -12,17 +12,16 @@ const create = async (req, res) => {
     if (!data) {
       return res.status(500).json({ message: 'Error creating label' });
     }
-
-    res.status(201).json({ message: 'Label created successfully', label_id: data.id });
+    return res.status(201).json({  id: data.id });
   } catch (err) {
     if (err.code === '23502') { // Foreign key violation
       return res.status(400).json({ message: 'Invalid user or collection ID provided' });
     }
     if (err.code === '23505') { // Handle unique constraint violation
-      return res.status(400).json({ message: 'A label with this name already exists in this collection.' });
+      return res.status(400).json({ message:{invalidArguments: [{path: "name",msg:'A label with this name already exists in this collection.' }]}});
     }
     console.error('Error creating label:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to create label, please try again later!' });
   }
 };
 
@@ -39,13 +38,13 @@ const update = async (req, res) => {
       return res.status(404).json({ message: 'Label not found' });
     }
 
-    res.status(200).json({ message: 'Label updated successfully' });
+    return res.status(200).json({});
   } catch (err) {
     if (err.code === '23505') { // Handle unique constraint violation
-      return res.status(400).json({ message: 'A label with this name already exists in this collection.' });
+      return res.status(400).json({ message:{invalidArguments: [{path: "name",msg:'A label with this name already exists in this collection.' }]}});
     }
     console.error('Error updating label:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to updawte label, please try again later!' });
   }
 };
 
@@ -61,10 +60,10 @@ const remove = async (req, res) => {
       return res.status(404).json({ message: 'Label not found' });
     }
 
-    res.status(200).json({ message: 'Label deleted successfully' });
+    return res.status(200).json({});
   } catch (err) {
     console.error('Error deleting label:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to remove label, please try again later!' });
   }
 };
 

@@ -18,7 +18,6 @@ export async function GET(req) {
     }
 
     const backendUrl = `${process.env.BACKEND_API_URL}/api/collections/search?query=${query}&page=${page}&limit=${limit}`;
-
     const res = await fetch(backendUrl, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },

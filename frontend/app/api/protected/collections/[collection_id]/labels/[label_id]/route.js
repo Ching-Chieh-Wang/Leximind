@@ -17,10 +17,9 @@ export async function PUT(req, { params }) {
       body: JSON.stringify(body), // Send the body as a JSON string
     });
 
-    const result = await res.json(); // Parse the backend response
-
     // Return the backend response
-    return NextResponse.json(result, { status: res.status });
+    const result = await res.json(); // Parse the backend response
+    return NextResponse.json( result,{ status: res.status });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: 'Server error' }, { status: 500 });

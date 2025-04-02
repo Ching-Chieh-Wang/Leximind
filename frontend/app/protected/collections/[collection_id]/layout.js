@@ -1,7 +1,7 @@
-import { CollectionProvider } from "@/context/CollectionContext"
+import { CollectionProvider } from "@/context/collection/CollectionContext"
 const CollectionLayout = ({children}) => {
   return (
-    <CollectionProvider>
+    <CollectionProvider isPublic={false}>
         {children}
     </CollectionProvider>
   )

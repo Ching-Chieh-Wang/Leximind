@@ -16,11 +16,9 @@ export async function PATCH(req, { params }) {
       body: JSON.stringify(body), // Send the body as a JSON string
     });
 
-    const result = await res.json(); // Parse the backend response
-    console.log(result)
 
     // Return the backend response
-    return NextResponse.json(result, { status: res.status });
+    return NextResponse.json({}, { status: res.status });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: 'Server error' }, { status: 500 });
