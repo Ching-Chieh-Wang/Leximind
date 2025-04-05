@@ -9,6 +9,10 @@ import { LabelSchema } from "@/types/label/label";
 
 export const createPrivateCollectionActions = (dispatch, state) => ({
   ...CollectionActions(dispatch, state),
+  setCollectionAndViewUnmemorized: (collection) => {
+    const words = Object.values(collection.originalWords).filter((word) =>  !word.is_memorized);
+    dispatch({ type: PrivateCollectionAction.SET_COLLECTION_AND_VIEW_UNMEMORIZED, payload: { collection,words } });
+  },
   createWord: (word) => {
     dispatch({ type: PrivateCollectionAction.CREATE_WORD, payload: word });
   },

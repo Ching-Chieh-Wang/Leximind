@@ -19,4 +19,5 @@ export const PrivateCollectionAction={
     UPDATE_WORD_SUBMIT: 'update word submit',
     CREATE_LABEL_SUBMIT: 'create label submit',
     UPDATE_LABEL_SUBMIT: 'update label submit',
+    SET_COLLECTION_AND_VIEW_UNMEMORIZED: 'set collection and view unmemorized'
 }

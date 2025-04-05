@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams,useSearchParams } from "next/navigation"
 import WordComponent from "./word/WordComponent"
 import Card from "../Card"
 import CollectionNav from "./CollectionNav"
@@ -10,8 +10,11 @@ import LabelComponent from "./label/LabelComponent"
 
 const CollectionComponent = () => {
     const params = useParams();
-    const {loading,setError,setCollection}= useCollection();
+    const searchParams = useSearchParams();
+
+    const {loading,setError,setCollection, setCollectionAndViewUnmemorized}= useCollection();
     const collection_id = Number(params.collection_id);
+    const isUnmemorized = searchParams.get("unmemorized") === "true";
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,7 +25,10 @@ const CollectionComponent = () => {
           }
           const [collection ,error]= await fetchPrivateCollectionRequest(collection_id);
           if(error) setError(error);
-          else setCollection(collection);
+          else {
+            if(isUnmemorized)setCollectionAndViewUnmemorized(collection);
+            else setCollection(collection);
+          }
         };
         fetchData();
       }, []);

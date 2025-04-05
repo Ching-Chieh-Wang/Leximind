@@ -15,7 +15,7 @@ const UserCollectionCardFooter = ({index}) => {
         {/* buttons */}
         <Horizontal_Layout>
           <Button href={`/protected/collections/${id}`} className="text-xs sm:text-sm md:text-base">View All</Button>
-          <Button href={`/protected/collections/${id}/unmemorized`} className="text-xs sm:text-sm md:text-base">View Unmemorized</Button>
+          <Button href={`/protected/collections/${id}?unmemorized=true`} className="text-xs sm:text-sm md:text-base">View Unmemorized</Button>
         </Horizontal_Layout>
       </div>
   );

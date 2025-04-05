@@ -23,6 +23,25 @@ export const privateCollectionReducer = (state, action) => {
         error: null
       }
     }
+    case PrivateCollectionAction.SET_COLLECTION_AND_VIEW_UNMEMORIZED:{
+      const {collection,words} = action.payload;
+      return {
+        ...state,
+        id: collection.id,
+        name: collection.name,
+        words,
+        originalWords: collection.originalWords,
+        status: PrivateCollectionStatus.VIEWING,
+        memorizedCnt: collection.memorizedCnt,
+        labels: collection.labels,
+        viewingType: PrivateCollectionViewingType.UNMEMORIZED,
+        viewingName: "Unmemorized",
+        viewingWordIdx: 0,
+        editingLabelId: null,
+        editingWordIdx: null,
+        error: null
+      }
+    }
     case PrivateCollectionAction.CREATE_WORD: {
       const word = action.payload;
       const words = [ ...state.words,  word ];
