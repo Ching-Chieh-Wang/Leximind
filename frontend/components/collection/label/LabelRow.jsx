@@ -10,9 +10,10 @@ import { useCollection } from '@/context/collection/CollectionContext';
 import { updateWordLabelRequest } from "@/api/label/UpdateWordLabel"; // Import the new function
 import { useDialog } from "@/context/DialogContext";
 import { removeLabelReqest } from "@/api/label/RemoveLabel";
+import { PrivateCollectionStatus } from "@/context/collection/types/status/PrivateCollectionStatus";
 
-const LabelRow = ({ index }) => {
-    const { words, labels, id, viewingWordIdx, startUpdateLabelSession, removeLabel, showWordsByLabel,viewingType } = useCollection();
+const LabelRow = ({ labelId }) => {
+    const { words, labels, id, viewingWordIdx, startUpdateLabelSession, removeLabel, showWordsByLabel,viewingType ,status, updateWordLabel } = useCollection();
     const { showDialog } = useDialog();
     const [labelChecked, setLabelChecked] = useState(false)
 
@@ -21,29 +22,30 @@ const LabelRow = ({ index }) => {
             setLabelChecked(false);
         }
         else {
-            setLabelChecked(labels[index].id in words[viewingWordIdx].label_ids)
+            setLabelChecked(words[viewingWordIdx].label_ids.has(labelId))
         }
     }, [viewingWordIdx,viewingType])
 
     const handleLabelCheckedChange = async () => {
-        if (words.length === 0) return;
+        if (words.length === 0) return;;
         setLabelChecked((prev) => !prev);
-        updateWordLabelRequest(id,labels[index].id,words[viewingWordIdx].id, !labelChecked);
+        updateWordLabel(viewingWordIdx,labelId,!labelChecked);
+        updateWordLabelRequest(id,labelId,words[viewingWordIdx].id, !labelChecked);
     }
 
     const handleViewWords = ()=>{
-        showWordsByLabel(labels[index]);
+        showWordsByLabel(labels[labelId]);
     }
 
     const handleDelete = () => {
-        const labelName = labels[index].name;
+        const labelName = labels[labelId].name;
         showDialog({
             title: "Warning!",
             description: `Deleting ${labelName}? This action cannot be undone.`,
             type: "warning",
             onOk: () => {
-                removeLabel(index);
-                removeLabelReqest(id,labels[index])
+                removeLabelReqest(id,labelId)
+                removeLabel(labelId);
             },
             onCancel: () => {},
         });
@@ -58,7 +60,7 @@ const LabelRow = ({ index }) => {
                     className="w-4 h-4 accent-teal-600"
                     checked={labelChecked}
                     onChange={handleLabelCheckedChange}
-                    disabled={words.length === 0} // Disable checkbox when words.length === 0
+                    disabled={words.length === 0 || status===PrivateCollectionStatus.CREATING_WORD || status ===PrivateCollectionStatus.CREATE_WORD_SUBMIT} // Disable checkbox when words.length === 0
                 />
             </td>
 
@@ -67,7 +69,7 @@ const LabelRow = ({ index }) => {
                 scope="row"
                 className="px-2 xl:px6 py-2 font-medium text-gray-900 whitespace-nowrap align-middle"
             >
-                {labels[index].name}
+                {labels[labelId].name}
             </td>
 
             {/* Actions Column */}
@@ -78,7 +80,7 @@ const LabelRow = ({ index }) => {
                     </DropdownItem>
                     <DropdownItem
                         icon={<EditIcon />}
-                        onClick={() => startUpdateLabelSession(index)}
+                        onClick={() => startUpdateLabelSession(labelId)}
                     >
                         Edit
                     </DropdownItem>

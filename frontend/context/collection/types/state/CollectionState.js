@@ -1,10 +1,17 @@
 import { z } from 'zod';
-import { LabelSchema } from "@/types/label/label";
+import { LabelsSchema } from "@/types/label/label";
+import { OriginalWordsSchema, WordsSchema } from '@/types/word/word';
+import { CollectionStatus } from '../status/CollectionStatus';
+import { CollectionViewingType } from '../viewingType/CollectionViewingType';
 
 export const CollectionStateSchema = z.object({
   id: z.number(),
   name: z.string(),
-  labels: z.array(LabelSchema),
+  words: WordsSchema,
+  originalWords: OriginalWordsSchema,
+  labels: LabelsSchema,
+  status: z.nativeEnum(CollectionStatus),
+  viewingType: z.nativeEnum(CollectionViewingType),
   viewingName: z.string(),
   viewingWordIdx: z.number(),
   searchQuery: z.string().nullable(),

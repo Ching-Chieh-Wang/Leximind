@@ -29,9 +29,32 @@ const getById = async (req, res) => {
     const user_id=req.user_id;
     const { collection_id } = req.params;
 
-    // Fetch the paginated words
-    const collection = await collectionModel.getById(user_id, collection_id );
-    if(!collection)return res.status(404).json({ message:"User or collection not found" });
+    let collection = await collectionModel.getById(user_id, collection_id );
+
+    if (!collection) {
+      return res.status(404).json({ message: "User or collection not found" });
+    }
+
+    // Convert label_ids and words to records
+    collection.words = Object.fromEntries(
+      collection.words.map(word => [
+        word.id,
+        {
+          ...word,
+        }
+      ])
+    );
+
+    collection.labels = Object.fromEntries(
+      collection.labels.map(label => [
+        label.id,
+        {
+          ...label,
+        }
+      ])
+    );
+
+    collection.memorizedCnt = Object.keys(collection.words).length - collection.not_memorized_cnt;
     res.status(200).json(collection);
   } catch (err) {
     console.error('Error fetching all words:', err);
@@ -78,7 +101,7 @@ const updateAuthorize = async (req, res) => {
     return res.status(200).json({});
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation
-      return res.status(400).json({ message: 'User or Collection not found' });
+      return res.status(400).json({ message: 'User or collection not found' });
     }
     console.error('Error updating collection authorization:', err);
     res.status(500).json({ message: 'Failed to update authority' });

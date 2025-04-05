@@ -9,7 +9,7 @@ import { CollectionStatus } from '@/context/collection/types/status/CollectionSt
 import { PrivateCollectionStatus } from '@/context/collection/types/status/PrivateCollectionStatus';
 
 const LabelComponent = () => {
-  const { status, editingLabelIdx, labels, error,startCreateLabelSession } = useCollection(); 
+  const { status, editingLabelId, labels, error,startCreateLabelSession } = useCollection(); 
 
   if (status === CollectionStatus.LOADING) {
     return <h1>Loading Label</h1>
@@ -36,12 +36,13 @@ const LabelComponent = () => {
 
         {/* Table Body */}
         <tbody>
-          {labels.map((label, index) => (
-            <tr key={label.id} className="bg-white border-b hover:bg-gray-50 ">
-              {(status === PrivateCollectionStatus.UPDATING_LABEL || status === PrivateCollectionStatus.UPDATE_LABEL_SUBMIT) && editingLabelIdx === index ? (
-                <LabelEditComponent key={label.id} />
+          {Object.entries(labels).map(([label_id,label]) => (
+            
+            <tr key={Number(label_id)} className="bg-white border-b hover:bg-gray-50 ">
+              {(status === PrivateCollectionStatus.UPDATING_LABEL || status === PrivateCollectionStatus.UPDATE_LABEL_SUBMIT) && editingLabelId === Number(label_id) ? (
+                <LabelEditComponent key={Number(label_id)} />
               ) : (
-                <LabelRow key={label.id} index={index} />
+                <LabelRow key={Number(label_id)} labelId={Number(label_id)} />
               )}
             </tr>
           ))}

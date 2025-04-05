@@ -15,13 +15,12 @@ export async function POST(req, { params }) {
       },
     });
 
-    const result = await res.json(); // Parse the backend response
 
     // Return the backend response
-    return NextResponse.json(result, { status: res.status });
+    return NextResponse.json({}, { status: res.status });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to add label to word, please try again later!'}, { status: 500 });
   }
 }
 
@@ -38,9 +37,9 @@ export async function DELETE(req, { params }) {
     });
 
     // Return the backend response
-    return NextResponse.json({ status: res.status });
+    return NextResponse.json({},{ status: res.status });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to remove label from word, please try again later!' }, { status: 500 });
   }
 }

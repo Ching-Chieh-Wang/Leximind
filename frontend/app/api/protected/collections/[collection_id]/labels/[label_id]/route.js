@@ -22,7 +22,7 @@ export async function PUT(req, { params }) {
     return NextResponse.json( result,{ status: res.status });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to update label, please try again later!' }, { status: 500 });
   }
 }
 
@@ -37,11 +37,13 @@ export async function DELETE(req, { params }) {
         Authorization: `Bearer ${session.user.accessToken}`, // Add user token
       },
     });
+    
+    const json= await res.json();
 
     // Return the backend response
-    return NextResponse.json({ status: res.status });
+    return NextResponse.json(json,{ status: res.status });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to remove label, please try again later!' }, { status: 500 });
   }
 }

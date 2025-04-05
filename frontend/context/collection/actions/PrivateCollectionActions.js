@@ -16,6 +16,9 @@ export const createPrivateCollectionActions = (dispatch, state) => ({
     dispatch({ type: PrivateCollectionAction.UPDATE_WORD, payload: word });
   },
   removeWord: (index) => {
+    if(state.words[index].is_memorized){
+      dispatch({type: PrivateCollectionAction.UPDATE_MEMORIZE, payload: { index, is_memorized:false }});
+    }
     dispatch({ type: PrivateCollectionAction.REMOVE_WORD, payload: index });
   },
   createLabel: (label) => {
@@ -24,8 +27,8 @@ export const createPrivateCollectionActions = (dispatch, state) => ({
   updateLabel: (label) => {
     dispatch({ type: PrivateCollectionAction.UPDATE_LABEL, payload: label });
   },
-  removeLabel: (index) => {
-    dispatch({ type: PrivateCollectionAction.REMOVE_LABEL, payload: index });
+  removeLabel: (labelId) => {
+    dispatch({ type: PrivateCollectionAction.REMOVE_LABEL, payload: labelId });
   },
   updateMemorization: (index) => {
     const is_memorized = !state.words[index].is_memorized;
@@ -34,14 +37,14 @@ export const createPrivateCollectionActions = (dispatch, state) => ({
       payload: { index, is_memorized },
     });
   },
-  updateWordLabel: (index, label_id, isAssociation) => {
+  updateWordLabel: (word_idx, label_id, isAssociation) => {
     dispatch({
       type: PrivateCollectionAction.UPDATE_WORD_LABEL,
-      payload: { index, label_id, isAssociation },
+      payload: { word_idx,label_id, isAssociation },
     });
   },
   viewUnmemorized: () => {
-    const words = state.words.filter((word) => !word.is_memorized);
+    const words = Object.values(state.originalWords).filter((word) =>  !word.is_memorized);
     dispatch({ type: PrivateCollectionAction.SET_CATEGORIZED_WORDS, payload: { words, viewingType: PrivateCollectionViewingType.UNMEMORIZED, viewingName: `Unmemorized` } });
   },
   startCreateWordSession: () =>

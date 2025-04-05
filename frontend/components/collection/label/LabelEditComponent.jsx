@@ -12,8 +12,8 @@ import { updateLabelRequest } from "@/api/label/UpdateLabel";
 import { ErrorHandle } from "@/utils/ErrorHandle";
 
 const LabelEditComponent = () => {
-  const { labels, editingLabelIdx, id, status, createLabel, updateLabel, startCreateLabelSession, startUpdateLabelSession, cancelEditSession,createLabelSubmit, updateLabelSubmit } = useCollection();
-  const [name, setName] = useState(status == PrivateCollectionStatus.UPDATING_LABEL ? labels[editingLabelIdx].name : '');
+  const { labels, editingLabelId, id, status, createLabel, updateLabel, startCreateLabelSession, startUpdateLabelSession, cancelEditSession,createLabelSubmit, updateLabelSubmit } = useCollection();
+  const [name, setName] = useState(status == PrivateCollectionStatus.UPDATING_LABEL ? labels[editingLabelId].name : '');
   const [fieldErrors, setFieldErrors] = useState({});
 
   const handleUpsert = async (e) => {
@@ -31,16 +31,16 @@ const LabelEditComponent = () => {
           });
           setFieldErrors(errors);
         }
-        startCreateLabelSession(editingLabelIdx)
+        startCreateLabelSession(editingLabelId)
       }
       else {
         createLabel(label)
       }
     }
     else if (status === PrivateCollectionStatus.UPDATING_LABEL) {
-      if(name===labels[editingLabelIdx].name)return cancelEditSession();
+      if(name===labels[editingLabelId].name)return cancelEditSession();
       updateLabelSubmit();
-      const [label, error] = await updateLabelRequest(id, labels[editingLabelIdx].id, { name });
+      const [label, error] = await updateLabelRequest(id, labels[editingLabelId].id, { name });
       if (error) {
         if (error.invalidArguments) {
           const errors = {};
@@ -54,7 +54,7 @@ const LabelEditComponent = () => {
         else{
           ErrorHandle("Failed to update label, please try again later!");
         }
-        startUpdateLabelSession(editingLabelIdx);
+        startUpdateLabelSession(editingLabelId);
       }
       else {
         updateLabel(label)
@@ -89,7 +89,7 @@ const LabelEditComponent = () => {
               type="text"
               value={name}
               onChange={handleNameChange}
-              placeholder={labels[editingLabelIdx]?.name}
+              placeholder={labels[editingLabelId]?.name}
               className="border border-gray-300 rounded px-2 py-1 "
               required
               autoFocus='on'

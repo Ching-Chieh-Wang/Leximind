@@ -6,11 +6,5 @@ export const PrivateWordSchema = WordSchema.extend({
 });
 
 export const PrivateWordsSchema = z.array(PrivateWordSchema);
+export const PrivateOriginalWordsSchema = z.record(PrivateWordSchema)
 
-/**
- * @typedef {z.infer<typeof PrivateWordSchema>} PrivateWord
- */
-
-/**
- * @typedef {z.infer<typeof PrivateWordsSchema>} PrivateWords
- */

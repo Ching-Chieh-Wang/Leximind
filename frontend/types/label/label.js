@@ -6,7 +6,7 @@ export const LabelSchema = z.object({
   name: z.string(),
 });
 
-export const LabelsSchema =  z.array(LabelSchema);
+export const LabelsSchema =  z.record(LabelSchema);
 
 /**
  * @typedef {z.infer<typeof LabelSchema>} Label

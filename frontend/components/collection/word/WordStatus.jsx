@@ -13,16 +13,17 @@ const WordStatus = () => {
     const { words,originalWords, memorizedCnt,viewingWordIdx,updateMemorization,id } = useCollection();
     const [memorizedPercentage,setMemorizedPercentage]= useState(0)
     useEffect(() => {
+        const wordCnt=Object.keys(originalWords).length;
         // Update memorizedPercentage only when words or memorizedCnt change
-        if (originalWords.length > 0) {
-          setMemorizedPercentage(memorizedCnt / originalWords.length);
+        if (wordCnt > 0) {
+          setMemorizedPercentage(memorizedCnt / wordCnt);
         } else {
           setMemorizedPercentage(0);
         }
       }, [originalWords, memorizedCnt]);
     const hanldeIsMemorizedClicked=()=>{
         if(words.length===0)return;
-        updateWordMemorizationRequest(id,words[viewingWordIdx].id,{is_memorized:words[viewingWordIdx]?.is_memorized})
+        updateWordMemorizationRequest(id,words[viewingWordIdx].id,{is_memorized:!words[viewingWordIdx]?.is_memorized})
         updateMemorization(viewingWordIdx);
     }
     return (
@@ -30,7 +31,7 @@ const WordStatus = () => {
             <Vertical_Layout extraStyle="w-full" spacing="space-y-0">
                 <Horizontal_Layout justify="between" extraStyle="w-full">
                     <span className="text-sm text-gray-500">{originalWords.length == 0 ? "Empty" : "Memorized"}</span>
-                    {originalWords.length != 0 && <span className="text-sm text-gray-500">{memorizedCnt}/{originalWords.length}</span>}
+                    {originalWords.length != 0 && <span className="text-sm text-gray-500">{memorizedCnt}/{Object.keys(originalWords).length}</span>}
                 </Horizontal_Layout>
                 <ProgressBar percentage={memorizedPercentage} />
             </Vertical_Layout>

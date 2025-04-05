@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { WordSchema } from '../word/word';
-import { LabelSchema } from '../label/label';
+import { OriginalWordsSchema, WordsSchema } from '../word/word';
+import {  LabelsSchema } from '../label/label';
 export const CollectionSchema = z
   .object({
     id: z.number(),
     name: z.string(),
-    words: z.array(WordSchema),
-    labels: z.array(LabelSchema),
+    words: WordsSchema,
+    labels: LabelsSchema,
+    originalWords:OriginalWordsSchema,
   })

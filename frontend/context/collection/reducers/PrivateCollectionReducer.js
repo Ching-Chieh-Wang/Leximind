@@ -12,42 +12,44 @@ export const privateCollectionReducer = (state, action) => {
         id: collection.id,
         name: collection.name,
         words: collection.words,
-        originalWords: collection.words,
+        originalWords: collection.originalWords,
         status: PrivateCollectionStatus.VIEWING,
         memorizedCnt: collection.memorizedCnt,
         labels: collection.labels,
         viewingType: PrivateCollectionViewingType.BASIC,
         viewingWordIdx: 0,
-        editingLabelIdx: null,
+        editingLabelId: null,
         editingWordIdx: null,
         error: null
       }
     }
     case PrivateCollectionAction.CREATE_WORD: {
       const word = action.payload;
-      const words = [...state.originalWords, word]
+      const words = [ ...state.words,  word ];
+      const originalWords = { ...state.originalWords, [word.id]: word };
+      
       return {
         ...state,
         status: PrivateCollectionStatus.VIEWING,
         viewingType: PrivateCollectionViewingType.BASIC,
-        viewingWordIdx: words.length - 1,
+        viewingWordIdx: Object.keys(words).length - 1,
         editingWordIdx: null,
-        editingLabelIdx: null,
+        editingLabelId: null,
         words,
-        originalWords: words
+        originalWords
       };
     }
     case PrivateCollectionAction.UPDATE_WORD: {
       const word = action.payload;
       const words = [...state.words];
+      const originalWords = {...state.originalWords};
+
       words[state.editingWordIdx] = {
         ...words[state.editingWordIdx],
         ...word,
       };
 
-      const originalWords = state.originalWords.map((w) =>
-        w.id === word.id ? { ...w, ...word } : w
-      );
+      originalWords[word.id] = word;
 
       return {
         ...state,
@@ -55,62 +57,58 @@ export const privateCollectionReducer = (state, action) => {
         originalWords,
         status: PrivateCollectionStatus.VIEWING,
         editingWordIdx: null,
-        editingLabelIdx: null,
+        editingLabelId: null,
       };
     }
     case PrivateCollectionAction.REMOVE_WORD: {
       const index = action.payload;
-      const { id } = state.words[index]
+      const { id } = state.words[index];
       const words = [
         ...state.words.slice(0, index),
         ...state.words.slice(index + 1),
       ];
-      const originalWords = state.originalWords.filter((word) => word.id != id);
+      const { [id]: _, ...originalWords } = state.originalWords;
 
       return {
         ...state,
         status: PrivateCollectionStatus.VIEWING,
         viewingWordIdx: state.words.length > 1 && index == state.words.length - 1 ? index - 1 : index,
         editingWordIdx: null,
-        editingLabelIdx: null,
+        editingLabelId: null,
         words,
         originalWords
       };
     }
     case PrivateCollectionAction.CREATE_LABEL: {
       const label = action.payload;
-      const labels = [...state.labels, label];
+      const labels = {...state.labels, [label.id]: label};
       return {
         ...state,
         labels,
-        editingLabelIdx: null,
+        editingLabelId: null,
         status: PrivateCollectionStatus.VIEWING
       };
     }
     case PrivateCollectionAction.UPDATE_LABEL: {
       const label = action.payload;
-      const labels = [...state.labels];
-      labels[state.editingLabelIdx] = label;
+      const labels = {...state.labels};
+      labels[state.editingLabelId] = label;
       return {
         ...state,
-        editingLabelIdx: null,
+        editingLabelId: null,
         editingWordIdx: null,
         labels,
         status: PrivateCollectionStatus.VIEWING,
-        viewingName: ""
       };
     }
     case PrivateCollectionAction.REMOVE_LABEL: {
-      const index = action.payload;
-      const labels = [
-        ...state.labels.slice(0, index),
-        ...state.labels.slice(index + 1),
-      ];
+      const labelId = action.payload;
+      const { [labelId]: _, ...labels } = state.labels;
       return {
         ...state,
         labels,
         editingWordIdx: null,
-        editingLabelIdx: null,
+        editingLabelId: null,
         status: PrivateCollectionStatus.VIEWING
       };
     }
@@ -123,19 +121,28 @@ export const privateCollectionReducer = (state, action) => {
         is_memorized,
       };
 
+      const originalWords = {
+        ...state.originalWords,
+        [words[index].id]: {
+          ...state.originalWords[words[index].id],
+          is_memorized
+        }
+      };
+
       return {
         ...state,
         words,
+        originalWords,
         memorizedCnt: is_memorized
           ? state.memorizedCnt + 1
           : state.memorizedCnt - 1,
       };
     }
     case PrivateCollectionAction.UPDATE_WORD_LABEL: {
-      const { index, label_id, isAssociation } = action.payload;
+      const { word_idx, label_id, isAssociation } = action.payload;
 
       const words = [...state.words];
-      const word = { ...words[index] };
+      const word = { ...words[word_idx] };
       const label_ids = new Set(word.label_ids);
 
       if (isAssociation) {
@@ -145,23 +152,32 @@ export const privateCollectionReducer = (state, action) => {
       }
 
       word.label_ids = label_ids;
-      words[index] = word;
+      words[word_idx] = word;
+
+      const originalWords = {
+        ...state.originalWords,
+        [word.id]: {
+          ...state.originalWords[word.id],
+          label_ids: label_ids,
+        }
+      };
 
       return {
         ...state,
         words,
+        originalWords,
       };
     }
     case PrivateCollectionAction.START_CREATE_WORD_SESSION:
-      return { ...state, status: PrivateCollectionStatus.CREATING_WORD, editingWordIdx: null, editingLabelIdx: null, error: null };
+      return { ...state, status: PrivateCollectionStatus.CREATING_WORD, editingWordIdx: null, editingLabelId: null, error: null };
     case PrivateCollectionAction.START_UPDATE_WORD_SESSION:
-      return { ...state, status: PrivateCollectionStatus.UPDATING_WORD, editingWordIdx: action.payload, editingLabelIdx: null, error: null }
+      return { ...state, status: PrivateCollectionStatus.UPDATING_WORD, editingWordIdx: action.payload, editingLabelId: null, error: null }
     case PrivateCollectionAction.START_CREATE_LABEL_SESSION:
-      return { ...state, status: PrivateCollectionStatus.CREATING_LABEL, editingWordIdx: null, editingLabelIdx: null, error: null };
+      return { ...state, status: PrivateCollectionStatus.CREATING_LABEL, editingWordIdx: null, editingLabelId: null, error: null };
     case PrivateCollectionAction.START_UPDATE_LABEL_SESSION:
-      return { ...state, status: PrivateCollectionStatus.UPDATING_LABEL, editingWordIdx: null, editingLabelIdx: action.payload, error: null }
+      return { ...state, status: PrivateCollectionStatus.UPDATING_LABEL, editingWordIdx: null, editingLabelId: action.payload, error: null }
     case PrivateCollectionAction.CANCEL_EDIT_SESSION:
-      return { ...state, editingWordIdx:null, editingLabelIdx: null, status: PrivateCollectionStatus.VIEWING };
+      return { ...state, editingWordIdx: null, editingLabelId: null, status: PrivateCollectionStatus.VIEWING };
     case PrivateCollectionAction.CREATE_WORD_SUBMIT:
       return { ...state, status: PrivateCollectionStatus.CREATE_WORD_SUBMIT, error: null };
     case PrivateCollectionAction.UPDATE_WORD_SUBMIT:

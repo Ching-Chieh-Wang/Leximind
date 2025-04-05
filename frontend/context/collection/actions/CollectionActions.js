@@ -31,15 +31,12 @@ export const CollectionActions = (dispatch, state) => ({
     }
     else{
       const searchTerm = searchParam.toLowerCase();
-      const words = state.originalWords.filter((word) =>word.name.toLowerCase().includes(searchTerm) || word.description.toLowerCase().includes(searchTerm));
+      const words = Object.values(state.originalWords).filter((word) => word.name.toLowerCase().includes(searchTerm) || word.description.toLowerCase().includes(searchTerm));
       dispatch({type: CollectionAction.SET_CATEGORIZED_WORDS,payload: {words, viewingType: CollectionViewingType.SEARCH, viewingName: `Search: "${searchParam}"`}});
     }
   },
   showWordsByLabel: (label) => {
-    console.log(state.originalWords)
-    console.log(label)
-    const words = state.originalWords.filter((word) => label.id in word.label_ids);
-    console.log(words)
+    const words = Object.values(state.originalWords).filter((word) => word.label_ids.has(label.id ));
     dispatch({ type: CollectionAction.SET_CATEGORIZED_WORDS, payload: { words, viewingType: CollectionViewingType.LABEL, viewingName: "label: " + label.name } });
   },
   setError: (msg) => {
