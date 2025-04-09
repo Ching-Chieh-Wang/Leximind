@@ -17,7 +17,7 @@ export const createWordRequest = async (collectionId, data) => {
   if (error1!=null) {
     return [null, error1];
   }
-  const [word, error2] = ParseHelper(PrivateWordSchema, { ...data, id: json.id, label_ids: {}, img_path: "", is_memorized: false });
+  const [word, error2] = ParseHelper(PrivateWordSchema, { ...data, id: json.id, label_ids: new Set(), img_path: "", is_memorized: false });
   if (error2) {
     ErrorHandle(`Failed to create word, please try again later!`);
     return [null, error2];

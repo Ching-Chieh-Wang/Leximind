@@ -168,10 +168,8 @@ export const CollectionsProvider = ({ type, children }) => {
     if(!data){
       return {errors:{path:'general',msg:'Unexptected error! Please try again later.'}}
     }
-    if (data.id && data.created_at) {
-      const newCollection = { name,description,is_public, id: data.id, view_cnt: 0, last_viewed_at: null, save_cnt: 0, created_at: data.created_at, word_cnt: 0 }
-      dispatch({ type: 'CREATE_COLLECTION', payload: { newCollection } });
-    }
+    const newCollection = { name,description,is_public, id: data.id, view_cnt: 0, last_viewed_at: null, save_cnt: 0, created_at: data.created_at, word_cnt: 0 }
+    dispatch({ type: 'CREATE_COLLECTION', payload: { newCollection } });
     return data
   };
 

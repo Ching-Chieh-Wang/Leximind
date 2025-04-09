@@ -7,13 +7,15 @@ const create = async (req, res) => {
     const { name, description, is_public } = req.body;
     const user_id = req.user_id;
 
-    const newCollectionData = await collectionModel.create(user_id, name, description, is_public);
+    const collection = await collectionModel.create(user_id, name, description, is_public);
 
-    if (!newCollectionData) {
+    if (!collection) {
       return res.status(500).json({ message: 'Failed to create collection' });
     }
 
-    res.status(201).json({ id: newCollectionData.id });
+    const {id,created_at} = collection
+
+    res.status(201).json({ id,created_at });
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation
       return res.status(400).json({ message: 'User not found' });
