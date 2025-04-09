@@ -6,7 +6,8 @@ const { validatePagination } = require('../middlewares/validatePagination');
 const {validateCollectionId} =require('../middlewares/validateId/collection')
 const {
   create,
-  getById,
+  getPublicById,
+  getPrivateById,
   update,
   updateAuthorize,
   remove,
@@ -17,8 +18,11 @@ const {
 // Route for searching public collections with pagination (does not require authentication)
 router.get('/search', validatePagination, searchPublicCollections);
 
-// Route to get paginated words within a specific collection
-router.get('/:collection_id',authorizeUser,validateCollectionId, getById);
+// Route to get private collection
+router.get('/private/:collection_id',authorizeUser,validateCollectionId, getPrivateById);
+
+// Route to get public collection
+router.get('/public/:collection_id',validateCollectionId, getPublicById);
 
 // Route for getting all collections of a user
 router.get('/', authorizeUser, validatePagination, getPaginatedByUserIdSortedByLastViewedAt);

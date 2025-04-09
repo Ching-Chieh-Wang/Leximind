@@ -23,13 +23,52 @@ const create = async (req, res) => {
   }
 };
 
-// Function to get paginated words
-const getById = async (req, res) => {
+// Function to get private collection
+const getPublicById = async (req, res) => {
+  try {
+    const { collection_id } = req.params;
+
+    let collection = await collectionModel.getPublicById( collection_id );
+
+    if (!collection) {
+      return res.status(404).json({ message: "Collection not found" });
+    }
+
+    // Convert label_ids and words to records
+    collection.words = Object.fromEntries(
+      collection.words.map(word => [
+        word.id,
+        {
+          ...word,
+        }
+      ])
+    );
+
+    collection.labels = Object.fromEntries(
+      collection.labels.map(label => [
+        label.id,
+        {
+          ...label,
+        }
+      ])
+    );
+
+    res.status(200).json(collection);
+  } catch (err) {
+    console.error('Error fetching all words:', err);
+    res.status(500).json({ message: 'Failed to load collection' });
+  }
+};
+
+
+
+// Function to get private collection
+const getPrivateById = async (req, res) => {
   try {
     const user_id=req.user_id;
     const { collection_id } = req.params;
 
-    let collection = await collectionModel.getById(user_id, collection_id );
+    let collection = await collectionModel.getPrivateById(user_id, collection_id );
 
     if (!collection) {
       return res.status(404).json({ message: "User or collection not found" });
@@ -61,6 +100,11 @@ const getById = async (req, res) => {
     res.status(500).json({ message: 'Failed to load collection' });
   }
 };
+
+
+
+
+
 
 // Function to update a specific collection by ID
 const update = async (req, res) => {
@@ -170,7 +214,8 @@ const searchPublicCollections = async (req, res) => {
 
 module.exports = {
   create,
-  getById,
+  getPublicById,
+  getPrivateById,
   update,
   updateAuthorize,
   remove,

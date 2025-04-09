@@ -16,4 +16,5 @@ export const CollectionInitialState = CollectionStateSchema.parse({
     error: null,
     status: CollectionStatus.LOADING,
     viewingType: CollectionViewingType.BASIC,
+    is_public:true,
 });

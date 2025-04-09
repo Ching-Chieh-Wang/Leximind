@@ -6,7 +6,7 @@ export async function GET(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
 
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/collections/${params.collection_id}`
+    const backendUrl = `${process.env.BACKEND_API_URL}/api/collections/private/${params.collection_id}`
 
     const res = await fetch(backendUrl, {
       method: 'GET',

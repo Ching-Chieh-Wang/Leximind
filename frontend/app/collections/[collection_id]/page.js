@@ -1,10 +1,10 @@
 import Card from '@/components/Card'
-import PrivateCollectionComponent from '@/components/collection/PrivateCollection'
+import PublicCollectionComponent from '@/components/collection/PublicCollection'
 
 const CollectionPage = () => {
   return (
     <Card type='page'>
-      <PrivateCollectionComponent/>
+      <PublicCollectionComponent/>
     </Card>
   )
 }

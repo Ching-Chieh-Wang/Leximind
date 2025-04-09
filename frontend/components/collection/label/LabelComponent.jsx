@@ -9,7 +9,7 @@ import { CollectionStatus } from '@/context/collection/types/status/CollectionSt
 import { PrivateCollectionStatus } from '@/context/collection/types/status/PrivateCollectionStatus';
 
 const LabelComponent = () => {
-  const { status, editingLabelId, labels, error,startCreateLabelSession } = useCollection(); 
+  const { status, editingLabelId, labels, error, startCreateLabelSession, is_public } = useCollection();
 
   if (status === CollectionStatus.LOADING) {
     return <h1>Loading Label</h1>
@@ -36,8 +36,8 @@ const LabelComponent = () => {
 
         {/* Table Body */}
         <tbody>
-          {Object.entries(labels).map(([label_id,label]) => (
-            
+          {Object.entries(labels).map(([label_id, label]) => (
+
             <tr key={Number(label_id)} className="bg-white border-b hover:bg-gray-50 ">
               {(status === PrivateCollectionStatus.UPDATING_LABEL || status === PrivateCollectionStatus.UPDATE_LABEL_SUBMIT) && editingLabelId === Number(label_id) ? (
                 <LabelEditComponent key={Number(label_id)} />
@@ -46,20 +46,22 @@ const LabelComponent = () => {
               )}
             </tr>
           ))}
-          <tr>
-            {status === PrivateCollectionStatus.CREATING_LABEL || status === PrivateCollectionStatus.CREATE_LABEL_SUBMIT ? (
-              <LabelEditComponent />
-            ) : (
-              <td colSpan="3" className="text-center bg-white ">
-                <button onClick={startCreateLabelSession} className="w-full h-full">
-                  <Horizontal_Layout extraStyle={"bg-white items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg text-blue-500 duration-500 py-1"}>
-                    <CreateIcon size={22} />
-                    <h1>Add New Label</h1>
-                  </Horizontal_Layout>
-                </button>
-              </td>
-            )}
-          </tr>
+          {!is_public &&
+            <tr>
+              {(status === PrivateCollectionStatus.CREATING_LABEL || status === PrivateCollectionStatus.CREATE_LABEL_SUBMIT) ? (
+                <LabelEditComponent />
+              ) : (
+                <td colSpan="3" className="text-center bg-white ">
+                  <button onClick={startCreateLabelSession} className="w-full h-full">
+                    <Horizontal_Layout extraStyle={"bg-white items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg text-blue-500 duration-500 py-1"}>
+                      <CreateIcon size={22} />
+                      <h1>Add New Label</h1>
+                    </Horizontal_Layout>
+                  </button>
+                </td>
+              )}
+            </tr>
+          }
         </tbody>
       </table>
     </div>

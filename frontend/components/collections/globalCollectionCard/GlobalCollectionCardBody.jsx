@@ -11,12 +11,11 @@ import Horizontal_Layout from '@/components/Horizontal_Layout';
 const GlobalCollectionCardBody = ({ index }) => {
   if (index == undefined) { console.error("index must provide") }
   const { collections } = useCollections();
-  const { id, word_cnt, view_cnt, save_cnt } = collections[index];
+  const {  word_cnt, view_cnt, save_cnt } = collections[index];
 
   return (
     <>
       <UserCollectionCardBody index={index} />
-
       <Horizontal_Layout justify="evenly" extraStyle={" text-gray-600"}>
         <Horizontal_Layout spaceing='space-x-1.5'>
           <WordIcon />

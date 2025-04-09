@@ -20,7 +20,7 @@ import { CollectionStatus } from "@/context/collection/types/status/CollectionSt
 
 
 const WordComponent = () => {
-  const { words, viewingWordIdx, status, startCreateWordSession, error, viewingType, viewNext, viewPrev ,searchWords } = useCollection();
+  const { words, viewingWordIdx, status, startCreateWordSession, error, viewingType, viewNext, viewPrev ,searchWords,is_public } = useCollection();
   const [isAlwaysShowDescription, setIsAlwaysShowDescription] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -130,8 +130,8 @@ const WordComponent = () => {
           )}
         </div>
       )}
-      {status != PrivateCollectionStatus.CREATING_WORD && status != PrivateCollectionStatus.CREATE_WORD_SUBMIT && status != PrivateCollectionStatus.UPDATING_WORD && <WordStatus />}
-      <WordNav />
+      {!is_public && status != PrivateCollectionStatus.CREATING_WORD && status != PrivateCollectionStatus.CREATE_WORD_SUBMIT && status != PrivateCollectionStatus.UPDATING_WORD && <WordStatus />}
+      {!is_public && <WordNav />}
     </>
   );
 };

@@ -6,7 +6,7 @@ import { useCollections } from '@/context/CollectionsContext';
 
 const GlobalCollectionCardFooter = ({ index }) => {
   if (index == undefined) { console.error("index must provide") } const { collections } = useCollections();
-  const {username,user_image,user_id}=collections[index];
+  const {username,user_image}=collections[index];
 
   return (
     <div className="relative flex justify-between items-center">
@@ -25,7 +25,7 @@ const GlobalCollectionCardFooter = ({ index }) => {
         />
     </Link>
 
-      <Button className="text-xs sm:text-sm md:text-base">View All</Button>
+      <Button className="text-xs sm:text-sm md:text-base" href={`/collections/${collections[index].id}`}>View All</Button>
     </div>
   );
 };

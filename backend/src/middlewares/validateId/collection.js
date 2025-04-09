@@ -2,7 +2,6 @@ const LabelModel =                require('../../models/label');
 
 const validateCollectionId = async (req, res, next) => {
   const { collection_id } = req.params;
-
   // Check if label_id is a valid number, an integer, and a positive number
   if (isNaN(collection_id) || !Number.isInteger(Number(collection_id)) || Number(collection_id) <= 0) {
     return res.status(400).json({ message: 'Invalid collection ID. It must be a positive integer.' });

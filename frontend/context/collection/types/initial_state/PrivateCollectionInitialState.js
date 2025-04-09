@@ -6,4 +6,5 @@ export const PrivateCollectionInitialState = PrivateCollectionStateSchema.parse(
     memorizedCnt: 0,
     editingWordIdx: null,
     editingLabelId: null,
+    is_public:false
   });

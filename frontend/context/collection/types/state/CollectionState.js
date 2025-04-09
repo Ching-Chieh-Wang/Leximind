@@ -16,4 +16,5 @@ export const CollectionStateSchema = z.object({
   viewingWordIdx: z.number(),
   searchQuery: z.string().nullable(),
   error: z.string().nullable(),
+  is_public: z.boolean(),
 });

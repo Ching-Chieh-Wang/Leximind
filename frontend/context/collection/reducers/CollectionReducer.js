@@ -26,6 +26,7 @@ export const CollectionReducer = (state, action) => {
         status: CollectionStatus.VIEWING,
         labels: collection.labels,
         viewingType: CollectionViewingType.BASIC,
+        name:collection.name,
         viewingWordIdx: 0,
         editingLabelIdx: null,
         editingWordIdx: null,

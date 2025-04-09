@@ -18,7 +18,7 @@ export const ApiHelper = async (url, method, requestBody = null, requestSchema =
         if (!res.ok) {
             const response = await res.json();
             if (isNotOkThrow) {
-                return handleError(null, action, response.message);
+                return handleError(response.message, action );
             }
             return [null, response.message];
         }

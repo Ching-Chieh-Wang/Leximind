@@ -4,10 +4,10 @@ import { useCollections } from '@/context/CollectionsContext';
 import GlobalCollectionCard from './GlobalCollectionCard';
 import UserCollectionCard from './UserCollectionCard';
 import UserCollectionCardEdit from './UserCollectionCardEdit';
-import Image from 'next/image';
 import CreateIcon from '../icons/CreateIcon';
 import ErrorMsg from '@/components/msg/ErrorMsg';
 import Vertical_Layout from '../Vertical_Layout';
+import { ErrorHandle } from '@/utils/ErrorHandle';
 
 const Collections = () => {
   const { status, collections, editingIdx, startCreateCollectionSession, error, type } = useCollections(); // Access collections from context
@@ -38,7 +38,8 @@ const Collections = () => {
             if (type === 'user') {
               return <UserCollectionCard key={collection.id} index={index} />;
             }
-
+            ErrorHandle("Unexpected error, please try again later!");
+            console.error("No collection status for:", status);
             return null; // Handle unexpected cases
           })
       }

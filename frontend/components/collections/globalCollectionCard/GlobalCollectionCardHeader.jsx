@@ -4,6 +4,7 @@ import KebabMenuIcon from '@/components/icons/KebabMenuIcon';
 import { useCollections } from '@/context/CollectionsContext';
 import DownloadIcon from '@/components/icons/DownloadIcon';
 import Horizontal_Layout from '@/components/Horizontal_Layout';
+import Link from 'next/link';
 
 const GlobalCollectionCardHeader = ({ index}) => {
   if(index==undefined){console.error("index must provide")}
@@ -12,9 +13,13 @@ const GlobalCollectionCardHeader = ({ index}) => {
   return (
     <Horizontal_Layout extraStyle={"justify-between"}>
       {/* Project Title */}
-      <h3 className="flex-1 text-xl md:text-2xl font-semibold text-gray-800 truncate w-full">
-        {name}
-      </h3>
+      <Link
+          href={`/collections/${id}`}
+          className="flex text-xl md:text-2xl font-semibold text-gray-800  hover:underline"
+          style={{ overflowWrap: 'break-word' }}
+        >
+          {name}
+        </Link>
 
       <div className="flex items-center space-x-2">
         <DropdownMenu button={<KebabMenuIcon size={20} />}>
