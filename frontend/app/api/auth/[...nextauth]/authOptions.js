@@ -43,16 +43,14 @@ export const authOptions ={
           });
 
           if (!res.ok) {
-            const errorData = await res.json();
-            console.error("Authorization using credential failed:", errorData.message );
-            throw new Error('Unexpeted error, please try again later.');
+            const json= await res.json();
+            throw new Error(json.message);
           }
 
           const data = await res.json();
           return { ...data.user, accessToken: data.token };
         } catch(error){
-          console.error("Authorization using credential failed:", error.message );
-          throw new Error('Unexpeted error, please try again later.');
+          throw new Error(error.message|| 'Unexpeted error, please try again later.');
         }
       }
     }),
