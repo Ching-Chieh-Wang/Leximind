@@ -2,11 +2,13 @@
 const express = require('express');
 const fetch = require('node-fetch'); // Add this line at the top
 const router = express.Router();
+const db = require('../config/db');
 
 let intervalId; // Store the interval ID to prevent multiple intervals
 
 const sendHealthCheck = async () => {
   try {
+    db.query("SELECT 1;");
     const frontendUrl = `${process.env.FRONTEND_URL}/api/health`;
     const response = await fetch(frontendUrl, {
       method: 'POST',
