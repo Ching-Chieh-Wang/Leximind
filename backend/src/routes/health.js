@@ -8,7 +8,7 @@ let intervalId; // Store the interval ID to prevent multiple intervals
 
 const sendHealthCheck = async () => {
   try {
-    db.query("SELECT 1");
+    db.query("SELECT 1;");
     const frontendUrl = `${process.env.FRONTEND_URL}/api/health`;
     const response = await fetch(frontendUrl, {
       method: 'POST',
