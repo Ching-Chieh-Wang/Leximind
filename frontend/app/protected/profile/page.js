@@ -20,12 +20,6 @@ const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  useEffect(() => {
-    if (session) {
-      setUsername(session.user.username);
-      setEmail(session.user.email);
-    }
-  }, [session]);
 
   // Save profile changes
   const handleSave = async (e) => {
