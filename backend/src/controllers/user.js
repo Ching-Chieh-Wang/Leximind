@@ -54,7 +54,7 @@ const login = async (req, res) => {
     const { password: _, ...userWithoutPassword } = userWithPassword;
     const accessToken = jwt.sign({ id: userWithoutPassword.id, role: userWithoutPassword.role }, process.env.JWT_SECRET);
 
-    res.status(200).json({ accessToken, user: userWithoutPassword });
+    res.status(200).json({ token, ...userWithoutPassword });
   } catch (err) {
     console.error('Error logging in user:', err);
     res.status(500).json({ message: 'Failed to login, please try again later!' });
