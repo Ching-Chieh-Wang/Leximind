@@ -11,7 +11,7 @@ const LoggedInComponent = ({ user }) => {
     const dropdownButton = (
             <Image
                 unoptimized
-                src={user.image || '/assets/images/logo.jpg'}
+                src={user.imageUrl || '/assets/images/logo.jpg'}
                 width={40}
                 height={40}
                 className=" rounded-full cursor-pointer"

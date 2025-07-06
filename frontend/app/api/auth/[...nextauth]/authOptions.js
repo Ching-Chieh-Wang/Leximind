@@ -50,7 +50,7 @@ export const authOptions ={
           const data = await res.json();
           return { ...data.user, accessToken: data.token };
         } catch(error){
-          throw new Error(error.message|| 'Unexpeted error, please try again later.');
+          throw new Error('Unexpeted error, please try again later.');
         }
       }
     }),
@@ -63,7 +63,7 @@ export const authOptions ={
       try {
         if (account && user) {
           if (user.image) {
-            user.image = await generateSignedUrl(user.image);
+            user.imageUrl = await generateSignedUrl(user.image);
           }
           if (account.provider === 'google' && account.id_token) {
 
@@ -109,6 +109,7 @@ export const authOptions ={
     async session({ session, token }) {
       if(token){
         session.user=token.user;
+        session.user.imageUrl = await generateSignedUrl(session.user.image);
       }
       return session;
     },
