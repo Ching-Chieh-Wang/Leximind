@@ -25,10 +25,10 @@ const register = async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
 
     // Respond with the token and user details
-    res.status(201).json({ token, user: user });
+    res.status(201).json({ accessToken, ...user });
   } catch (err) {
     console.error('Error registering user:', err);
     res.status(500).json({ message: 'Failed to register, please try again later!' });
@@ -54,7 +54,7 @@ const login = async (req, res) => {
     const { password: _, ...userWithoutPassword } = userWithPassword;
     const accessToken = jwt.sign({ id: userWithoutPassword.id, role: userWithoutPassword.role }, process.env.JWT_SECRET);
 
-    res.status(200).json({ token, ...userWithoutPassword });
+    res.status(200).json({ accessToken, ...userWithoutPassword });
   } catch (err) {
     console.error('Error logging in user:', err);
     res.status(500).json({ message: 'Failed to login, please try again later!' });
