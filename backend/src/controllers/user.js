@@ -54,7 +54,7 @@ const login = async (req, res) => {
     const { password: _, ...userWithoutPassword } = userWithPassword;
     const token = jwt.sign({ id: userWithoutPassword.id, role: userWithoutPassword.role }, process.env.JWT_SECRET);
 
-    res.status(200).json({ token, user: userWithoutPassword });
+    res.status(200).json({ token, ...userWithoutPassword });
   } catch (err) {
     console.error('Error logging in user:', err);
     res.status(500).json({ message: 'Failed to login, please try again later!' });
@@ -93,7 +93,7 @@ const googleLoginOrRegister = async (req, res) => {
 
 
     // Send back the app-specific token and user details
-    res.status(200).json({ token: appToken, user });
+    res.status(200).json({ token: appToken, ...user });
   } catch (err) {
     console.error('Error logging in with Google:', err);
 
