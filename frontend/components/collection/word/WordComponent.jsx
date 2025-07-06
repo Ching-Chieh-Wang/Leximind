@@ -81,8 +81,8 @@ const WordComponent = () => {
   ));
 
   return (
-    <>
-      <Horizontal_Layout justify='between'>
+    <Vertical_Layout extraStyle="w-full h-full items-center">
+      <Horizontal_Layout justify='between' extraStyle='w-full items-center mb-2'>
         <Horizontal_Layout>
           <h1 className='text-zinc-700-700 font-bold hidden sm:block'>Description: </h1>
           <SwitcherButton
@@ -132,7 +132,7 @@ const WordComponent = () => {
       )}
       {!is_public && status != PrivateCollectionStatus.CREATING_WORD && status != PrivateCollectionStatus.CREATE_WORD_SUBMIT && status != PrivateCollectionStatus.UPDATING_WORD && <WordStatus />}
       {!is_public && <WordNav />}
-    </>
+    </Vertical_Layout>
   );
 };
 

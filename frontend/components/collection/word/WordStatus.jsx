@@ -27,7 +27,7 @@ const WordStatus = () => {
         updateMemorization(viewingWordIdx);
     }
     return (
-        <Horizontal_Layout extraStyle="px-8">
+        <Horizontal_Layout extraStyle="px-8 w-full">
             <Vertical_Layout extraStyle="w-full" spacing="space-y-0">
                 <Horizontal_Layout justify="between" extraStyle="w-full">
                     <span className="text-sm text-gray-500">{originalWords.length == 0 ? "Empty" : "Memorized"}</span>
