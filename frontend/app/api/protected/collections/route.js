@@ -24,12 +24,13 @@ export async function GET(req) {
     let backendUrl
     if(page==null&&limit==null) backendUrl=`${process.env.BACKEND_API_URL}/api/collections/`;
     else backendUrl=`${process.env.BACKEND_API_URL}/api/collections?page=${page}&limit=${limit}`
+    console.log("session",session)
 
     const res = await fetch(backendUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
@@ -50,7 +51,7 @@ export async function POST(req) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
       body: JSON.stringify(body),
     });

@@ -1,11 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import generateSignedUrl from '@/config/c2';
 require('dotenv').config(); 
-
-const isC2Image = (image) => {
-  return image &&　image.startsWith('C2');
-};
 
 export const authOptions ={
   providers: [
@@ -28,11 +23,7 @@ export const authOptions ={
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        try {
-          if (!credentials || !credentials.email || !credentials.password) {
-            return null;
-          }
-          // Send login request to your backend
+        try {          // Send login request to your backend
           const res = await fetch(`${process.env.BACKEND_API_URL}/api/users/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -42,15 +33,14 @@ export const authOptions ={
             }),
           });
 
-          if (!res.ok) {
-            const json= await res.json();
-            throw new Error(json.message);
-          }
-
           const data = await res.json();
-          return { ...data.user, accessToken: data.token };
+
+          if(!res.ok) {
+            throw new Error(data.message);
+          }
+          return data;
         } catch(error){
-          throw new Error('Unexpeted error, please try again later.');
+          throw new Error('Unexpected error, please try again later.');
         }
       }
     }),
@@ -60,56 +50,42 @@ export const authOptions ={
 
   callbacks: {
     async jwt({ user, token, trigger, session, account }) {
+      console.log('JWT callback triggered:', { user, token, trigger, session, account });
       try {
-        if (account && user) {
-          if (user.image) {
-            user.imageUrl = await generateSignedUrl(user.image);
-          }
-          if (account.provider === 'google' && account.id_token) {
-
-            // Send the Google ID token to your backend
+        if (trigger === 'signIn' ) {
+          if(account && account.provider === 'google') {
+            // If the user is signing in with Google, fetch their profile
             const res = await fetch(`${process.env.BACKEND_API_URL}/api/users/google`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {'Content-Type': 'application/json',},
               body: JSON.stringify({ token_id: account.id_token }),
             });
-
             const data = await res.json();
-            
-            if (res.ok) {
-              token.user = { ...data.user, accessToken: data.token };
-            } else {
-              console.error("Google login failed: ", data.message || 'Google login failed');
-              throw new Error(data.message || 'Google login failed');
+
+            if (!res.ok) {
+              console.error('Error fetching user data when google login:', data.message);
+              throw new Error('Failed to sign in with Google, please try again later.');
             }
-          } else if (account.provider === 'credentials') {
-            token.user = user;
+            token = {...data}
+          } 
+          else if (account.provider === 'credentials') {
+            // If the user is signing in with credentials, set the token with user data
+            token = {...user}
           }
-        } else if (trigger === "update") {
-          if(session){
-            if(isC2Image(session.user.image)){
-              session.user.image= await generateSignedUrl(session.user.image)
-            }
-            token.user.username = session.user.username;
-            token.user.email = session.user.email;
-            token.user.image= session.user.image;
-          }
+        } else if (trigger === 'update' && session ) {
+          // If the user is updating their profile, update the token
+          token = {...session};
         }
+
         return token;
       } catch (error) {
-        console.error("Error in JWT callback: ", error);
-        throw(error)
+        console.error('JWT callback error:', error);
+        throw new Error('Failed to process authentication, please try again later.');
       }
     },
-
-
-
-
-
     async session({ session, token }) {
       if(token){
-        session.user=token.user;
-        session.user.imageUrl = await generateSignedUrl(session.user.image);
+        session={...token};
       }
       return session;
     },

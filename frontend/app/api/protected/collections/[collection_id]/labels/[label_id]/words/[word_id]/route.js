@@ -11,7 +11,7 @@ export async function POST(req, { params }) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`, // Add user token
+        Authorization: `Bearer ${session.accessToken}`, // Add user token
       },
     });
 
@@ -32,7 +32,7 @@ export async function DELETE(req, { params }) {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`, // Add user token
+        Authorization: `Bearer ${session.accessToken}`, // Add user token
       },
     });
 
