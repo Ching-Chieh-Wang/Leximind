@@ -12,7 +12,6 @@ export const updateLabelRequest= async (collectionId,labelId, data)=> {
   }
   const [label,error2] = ParseHelper(LabelSchema,{...data, id:labelId});
   if(error2){
-    console.log(error2)
     return [null,error2]
   }
   return [label,null];

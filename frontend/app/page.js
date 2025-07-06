@@ -4,6 +4,10 @@ import { CollectionsProvider } from '@/context/CollectionsContext';
 import RecentlyViewedCollectionsComponent from '@/components/collections/RecentlyViewedCollectionsComponent';
 import FireIcon from '@/components/icons/FireIcon';
 import Horizontal_Layout from '@/components/Horizontal_Layout';
+import CollectionPage from './collections/[collection_id]/page';
+import { CollectionProvider } from '@/context/collection/CollectionContext';
+import DemoCollection from '@/components/collection/DemoCollection';
+import GridBackground from '@/components/GridBackground';
 
 const HomePage = () => {
   return (
@@ -29,6 +33,18 @@ const HomePage = () => {
       <CollectionsProvider type="user">
         <RecentlyViewedCollectionsComponent />
       </CollectionsProvider>
+
+      <GridBackground/>
+  {/* Try it Callout */}
+    <div className="flex justify-center">
+      <span className="mt-10 inline-block bg-gradient-to-r from-teal-400 via-blue-400 to-indigo-400 text-white font-semibold rounded-full px-6 py-2 shadow-md text-lg md:text-xl animate-pulse">
+        👀 Explore how it works
+      </span>
+    </div>
+
+      <CollectionProvider isPublic={true}>
+        <DemoCollection/>
+      </CollectionProvider>
     </div>
 
 
