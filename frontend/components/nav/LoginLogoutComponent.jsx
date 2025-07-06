@@ -4,14 +4,19 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import LoggedInComponent from './LoggedInComponent';
 import LoggedOutComponent from './LoggedOutComponent';
-import { set } from 'date-fns';
 
 const LoginLogoutComponent = ({initialSession}) => {
     const { data: session, status } = useSession();
-    const [user,setUser]=useState(initialSession||null);
+    const [user,setUser]=useState(initialSession?.user||null);
     // Synchronize session state
     useEffect(() => {
-      setUser(session);
+
+      if (status === 'authenticated') {
+        setUser(session?.user)
+      }
+      else{
+        setUser(null)
+      }
     }, [session, status]);
   return (
     user? <LoggedInComponent user={user}/>:<LoggedOutComponent/>

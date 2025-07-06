@@ -1,25 +1,26 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { updateImage } from '@/api/user';
 import processImg from '@/services/cloudinary/profileImage'
 
-const ProfileImageUpload = ({image, setImage, setFieldErrors}) => {
-  const [isImageUploading, setIsImageUploading] = useState(false);
+const ProfileImageUpload = ({setFieldErrors}) => {
   const fileInputRef = useRef(null);
+  const { data: session, update } = useSession();
 
 // Handle image change
 const handleImageChange = async (e) => {
-    setIsImageUploading(true);
     e.preventDefault();
     setFieldErrors({})
     try {
       const uploadImage = fileInputRef.current.files[0]; // Access directly from ref
       if (uploadImage) {
-        const processedImg= await processImg(uploadImage);
-        setImage(processedImg);
+        const proccessedImgURL= await processImg(uploadImage);
+        console.log('recieved proccessImgUrl from processImg', proccessedImgURL);
+        const newImage = await updateImage(proccessedImgURL);
+        await update({ user: { ...session.user, image: newImage } });
       }
     } catch (error) {
       console.log("Failed to change profile image", error);
@@ -28,7 +29,6 @@ const handleImageChange = async (e) => {
       });
     } finally {
       e.target.value = '';
-      setIsImageUploading(false);
     }
   };
 
@@ -41,18 +41,14 @@ const handleImageChange = async (e) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-      {isImageUploading ? (
-        <svg className="mr-3 size-5 animate-spin ..." viewBox="0 0 24 24"/>
-      ) : (
-        <Image
-          unoptimized
-          className="object-cover w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 p-1 rounded-full ring-2 ring-indigo-300 hover:ring-indigo-500"
-          src={image||'/assets/images/logo.jpg'}
-          alt="Profile Image"
-          width={160}
-          height={160}
-        />
-      )}
+      <Image
+        unoptimized
+        className="object-cover w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 p-1 rounded-full ring-2 ring-indigo-300 hover:ring-indigo-500"
+        src={session.user.imageUrl||'/assets/images/logo.jpg'}
+        alt="Profile Image"
+        width={160}
+        height={160}
+      />
       <div className="flex flex-col space-y-5 sm:ml-8">
         <label className="block">
           <input
@@ -72,7 +68,7 @@ const handleImageChange = async (e) => {
         </label>
         <button
           type="button"
-          onClick={() => setImage(null)}
+          onClick={() => update({ user: { ...session.user, image: '/assets/images/logo.jpg' } })}
           className="p-3 text-base font-medium text-indigo-900 bg-white rounded-lg border border-indigo-200 hover:bg-indigo-100"
         >
           Delete picture
