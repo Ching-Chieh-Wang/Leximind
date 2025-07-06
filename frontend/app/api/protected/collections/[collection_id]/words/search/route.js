@@ -15,7 +15,7 @@ export async function GET(req, { params }) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
     });
     const result = await res.json();

@@ -13,7 +13,7 @@ export async function PUT(req) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
       body: JSON.stringify(body), // Forwarding parsed request body
     });

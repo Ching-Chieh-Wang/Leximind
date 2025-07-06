@@ -52,7 +52,7 @@ const login = async (req, res) => {
     }
 
     const { password: _, ...userWithoutPassword } = userWithPassword;
-    const token = jwt.sign({ id: userWithoutPassword.id, role: userWithoutPassword.role }, process.env.JWT_SECRET);
+    const accessToken = jwt.sign({ id: userWithoutPassword.id, role: userWithoutPassword.role }, process.env.JWT_SECRET);
 
     res.status(200).json({ token, ...userWithoutPassword });
   } catch (err) {
@@ -85,15 +85,14 @@ const googleLoginOrRegister = async (req, res) => {
       return res.status(500).json({ message: 'Error creaing or retrieving user' });
     }
     // Generate a JWT token with user details for session management
-    const appToken = jwt.sign(
+    const accessToken = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }  // Set token expiration for added security
     );
 
 
     // Send back the app-specific token and user details
-    res.status(200).json({ token: appToken, ...user });
+    res.status(200).json({ accessToken, user });
   } catch (err) {
     console.error('Error logging in with Google:', err);
 

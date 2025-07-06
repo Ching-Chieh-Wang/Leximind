@@ -12,7 +12,7 @@ export async function PUT(req, { params }) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`, // Add user token
+        Authorization: `Bearer ${session.accessToken}`, // Add user token
       },
       body: JSON.stringify(body), // Send the body as a JSON string
     });
@@ -34,7 +34,7 @@ export async function DELETE(req, { params }) {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.user.accessToken}`, // Add user token
+        Authorization: `Bearer ${session.accessToken}`, // Add user token
       },
     });
     

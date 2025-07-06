@@ -32,7 +32,7 @@ export const updateImage = async (imageUrl) => {
 
     if (!res.ok) {
       console.error(data.message);
-      const error = new Error("Failed to update image on the backend.");
+      const error = new Error("Failed to update image .");
       error.data = data;
       throw error;
     }

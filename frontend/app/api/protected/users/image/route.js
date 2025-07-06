@@ -13,7 +13,7 @@ export async function PUT(req) {
     const res = await fetch(`${process.env.BACKEND_API_URL}/api/users/image`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
         'Content-Type': 'application/json'  // Required for JSON
       },
       body: JSON.stringify(body), // Send the body as a JSON string
