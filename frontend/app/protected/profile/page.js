@@ -14,9 +14,8 @@ import Vertical_Layout from '@/components/Vertical_Layout';
 
 const ProfilePage = () => {
   const { data: session, update } = useSession();
-  const [username, setUsername] = useState(session?.username || '');
-  const [email, setEmail] = useState(session?.email || '');
-  const [image, setImage] = useState(session?.image || '');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -30,12 +29,12 @@ const ProfilePage = () => {
     setSuccessMessage(null);
 
     try {
-      if (session.username == username && session.email == email && session.image == image) {
+      if (session.user.username == username && session.user.email == email) {
         setSuccessMessage('Profile updated successfully!');
         return;
       }
-      await updateProfile(username, email, image, session.image==image);
-      await update({ ...session, username, email, image });
+      await updateProfile(username, email);
+      await update({ user: { ...session.user, username, email } });
       setSuccessMessage('Profile updated successfully!');
     } catch (error) {
       let errors = {};
@@ -53,7 +52,7 @@ const ProfilePage = () => {
 
   return (
     <Card type='form' title="Public Profile" >
-      <ProfileImageUpload  image={image} setImage={setImage} setFieldErrors={setFieldErrors}/>
+      <ProfileImageUpload  setFieldErrors={setFieldErrors}/>
       {successMessage && <SuccessMsg>{successMessage}</SuccessMsg>}
       {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
       <form onSubmit={handleSave}>
@@ -68,7 +67,7 @@ const ProfilePage = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
-              placeholder={session?.username}
+              placeholder={session?.user?.username}
             />
             {fieldErrors.username && <ErrorMsg>{fieldErrors.username}</ErrorMsg>}
           </div>
@@ -89,7 +88,7 @@ const ProfilePage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
-                placeholder={session?.email}
+                placeholder={session?.user?.email}
               />
             )}
             {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
