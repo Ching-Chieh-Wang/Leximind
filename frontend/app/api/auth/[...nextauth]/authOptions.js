@@ -50,7 +50,6 @@ export const authOptions ={
 
   callbacks: {
     async jwt({ user, token, trigger, session, account }) {
-      console.log('JWT callback triggered:', { user, token, trigger, session, account });
       try {
         if (trigger === 'signIn' ) {
           if(account && account.provider === 'google') {

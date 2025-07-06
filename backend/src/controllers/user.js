@@ -121,29 +121,19 @@ const getProfile = async (req, res) => {
 
 };
 
-const updateImage = async (req, res) => {
-  try {
-    const user_id = req.user_id;
-    const imageUrl=req.body.imageUrl
-    const imageFile = await c2Service.uploadProfileImage(imageUrl);
 
-    await userModel.updateImage(user_id, imageFile);
-    
-    res.status(200).json({ image: imageFile });
-  } catch (err) {
-    console.error("Error when uploading profile image", err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
 
 const update = async (req, res) => {
-  const { username, email, image } = req.body;
+
+  const { username, email, image, isNewImage } = req.body;
   const user_id = req.user_id;
+  let imageFile = null;
+  if (isNewImage && image){
+    imageFile = await c2Service.uploadProfileImage(image);
+  }
 
   try {
-    // Perform the update operation
-    const isUpdateSucess = await userModel.update(user_id, username, email, image);
-    if (!isUpdateSucess) {
+    if (!await userModel.update(user_id, username, email, imageFile)) {
       return res.status(404).json({ message: 'User not found.' });
     }
 

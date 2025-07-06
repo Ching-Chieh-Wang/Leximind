@@ -1,10 +1,10 @@
-export const updateProfile = async (username, email) => {
+export const updateProfile = async (username, email,image,isNewImage) => {
   const res = await fetch('/api/protected/users', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ username, email }),
+    body: JSON.stringify({ username, email, image, isNewImage }),
   });
 
   if (!res.ok) {
