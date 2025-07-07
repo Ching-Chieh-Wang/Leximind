@@ -18,6 +18,7 @@ export async function PUT(req) {
       body: JSON.stringify(body), // Forwarding parsed request body
     });
     const data = await res.json();
+    console.log('Backend response:', data);
     // Return the backend response data and status
     return NextResponse.json(data,{ status: res.status });
 

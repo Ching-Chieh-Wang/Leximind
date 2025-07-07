@@ -75,7 +75,6 @@ export const authOptions ={
           // If the user is updating their profile, update the token
           token = {...session};
         }
-
         return token;
       } catch (error) {
         console.error('JWT callback error:', error);

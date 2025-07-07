@@ -130,7 +130,8 @@ const update = async (req, res) => {
   }
 
   try {
-    if (!await userModel.update(user_id, username, email, imageUrl)) {
+    const updateSuccess = await userModel.update(user_id, username, email, imageUrl);
+    if (!updateSuccess) {
       return res.status(404).json({ message: 'User not found.' });
     }
 

@@ -4,8 +4,8 @@ import { useRef , useState} from 'react';
 import Image from 'next/image';
 import uploadImage from '@/api/user/uploadImage';
 
-const ProfileImageUpload = ({image,setImage, setFieldErrors }) => {
-  const [isImageUploading, setIsImageUploading] = useState(false);
+const ProfileImageUpload = ({image,setImage, isImageUploading, setIsImageUploading, setFieldErrors }) => {
+
   const fileInputRef = useRef(null);
 
   // Handle image change

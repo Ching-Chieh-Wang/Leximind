@@ -16,6 +16,5 @@ export default async function uploadImage(image) {
     throw new Error('Failed to upload image');
   }
   const data = await res.json();
-  console.log('Image uploaded successfully:', data);
   return data.transformedImageUrl;
 }

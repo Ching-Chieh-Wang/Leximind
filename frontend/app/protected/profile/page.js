@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Card from '@/components/Card';
 import ErrorMsg from '@/components/msg/ErrorMsg';
 import SuccessMsg from '@/components/msg/SuccessMsg';
-import Image from 'next/image';
 import FormSubmitButton from '@/components/buttons/FormSubmitButton';
 import GoogleIcon from '@/components/icons/Google';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
@@ -20,6 +19,7 @@ const ProfilePage = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
 
 
   // Save profile changes
@@ -34,8 +34,8 @@ const ProfilePage = () => {
         setSuccessMessage('Profile updated successfully!');
         return;
       }
-      const storedImage= await updateProfile(username, email,image, image==session.image);
-      await update({ username, email, image:storedImage });
+      const storedImage= await updateProfile(username, email,image, image!=session.image);
+      await update({ ...session,username, email, image:storedImage });
       setSuccessMessage('Profile updated successfully!');
     } catch (error) {
       let errors = {};
@@ -44,7 +44,7 @@ const ProfilePage = () => {
           errors[fieldError.path] = fieldError.msg; // Store only the first error for each field
         }
       });
-      setFieldErrors({ ...errors, general: error.data.message });
+      setFieldErrors({ ...errors, general: error.data?.message });
 
     } finally {
       setIsLoading(false);
@@ -53,7 +53,7 @@ const ProfilePage = () => {
 
   return (
     <Card type='form' title="Public Profile" >
-      <ProfileImageUpload image={image} setImage={setImage} setFieldErrors={setFieldErrors}/>
+      <ProfileImageUpload image={image} setImage={setImage} isImageUploading={isImageUploading} setIsImageUploading={setIsImageUploading} setFieldErrors={setFieldErrors}/>
       {successMessage && <SuccessMsg>{successMessage}</SuccessMsg>}
       {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
       <form onSubmit={handleSave}>
@@ -95,7 +95,7 @@ const ProfilePage = () => {
             {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
           </div>
 
-          <FormSubmitButton isLoading={isLoading} loadingText="Saving...">
+          <FormSubmitButton isLoading={isLoading||isImageUploading} loadingText="Saving...">
             Save
           </FormSubmitButton>
         </Vertical_Layout>
