@@ -92,7 +92,7 @@ const googleLoginOrRegister = async (req, res) => {
 
 
     // Send back the app-specific token and user details
-    res.status(200).json({ accessToken, user });
+    res.status(200).json({ accessToken, ...user });
   } catch (err) {
     console.error('Error logging in with Google:', err);
 
