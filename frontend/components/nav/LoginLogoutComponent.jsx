@@ -7,16 +7,10 @@ import LoggedOutComponent from './LoggedOutComponent';
 
 const LoginLogoutComponent = ({initialSession}) => {
     const { data: session, status } = useSession();
-    const [user,setUser]=useState(initialSession?.user||null);
+    const [user,setUser]=useState(initialSession);
     // Synchronize session state
     useEffect(() => {
-
-      if (status === 'authenticated') {
-        setUser(session?.user)
-      }
-      else{
-        setUser(null)
-      }
+      setUser(session);
     }, [session, status]);
   return (
     user? <LoggedInComponent user={user}/>:<LoggedOutComponent/>
