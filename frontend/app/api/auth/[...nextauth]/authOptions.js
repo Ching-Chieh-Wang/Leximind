@@ -23,25 +23,21 @@ export const authOptions ={
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        try {          // Send login request to your backend
-          const res = await fetch(`${process.env.BACKEND_API_URL}/api/users/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
-            }),
-          });
+        const res = await fetch(`${process.env.BACKEND_API_URL}/api/users/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: credentials.email,
+            password: credentials.password,
+          }),
+        });
 
-          const data = await res.json();
+        const data = await res.json();
 
-          if(!res.ok) {
-            throw new Error(data.message);
-          }
-          return data;
-        } catch(error){
-          throw new Error('Unexpected error, please try again later.');
+        if(!res.ok) {
+          throw new Error(data.message);
         }
+        return data;
       }
     }),
   ],

@@ -11,7 +11,6 @@ import Horizontal_Layout from '../Horizontal_Layout';
 
 const Nav = () => {
   const { initialSession } = getServerSession(authOptions);
-  console.log('initialSession in Nav', initialSession);
   return (
     <nav className="flex items-center justify-between bg-transparent ">
       {/* Logo and Brand Name */}
