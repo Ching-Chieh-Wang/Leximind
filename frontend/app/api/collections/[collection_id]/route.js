@@ -11,11 +11,10 @@ export async function GET(req, { params }) {
     const res = await fetch(backendUrl, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.accessToken}`,
+        'Content-Type': 'application/json'
       },
     });
-    const result = await res.json();
+    const result = await res.json(); 
     return NextResponse.json(result, { status: res.status });
   } catch (error) {
     console.error(error);
