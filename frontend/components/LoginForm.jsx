@@ -42,7 +42,6 @@ const LoginForm = () => {
         password,
       });
 
-
       if (!res.ok) {
         setError(res.error || "An unexpected error occurred. Please try again");
         return;
