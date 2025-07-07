@@ -22,7 +22,10 @@ const responseSchema = z.object({
 export const fetchPublicCollectionRequest = async (collection_id) => {
   const url = `/api/collections/${collection_id}`;
   const [data, error1] = await ApiHelper(url, API.GET, null, null, responseSchema, 'load collection');
-  if (error1) return [data, "Failed to load collection"];
+  if (error1) {
+    console.error("Failed to fetch public collection:", error1);
+    return [data, "Failed to load collection"];
+  }
 
   const words = Object.fromEntries(
     Object.entries(data.words).map(([id, word]) => [
