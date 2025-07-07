@@ -121,21 +121,6 @@ const getProfile = async (req, res) => {
 
 };
 
-const updateImage = async (req, res) => {
-  try {
-    const user_id = req.user_id;
-    const imageUrl=req.body.imageUrl
-    
-
-    await userModel.updateImage(user_id, imageFile);
-    
-    res.status(200).json({ image: imageFile });
-  } catch (err) {
-    console.error("Error when uploading profile image", err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
 const update = async (req, res) => {
   const { username, email, image, isNewImage } = req.body;
   const user_id = req.user_id;
@@ -149,7 +134,7 @@ const update = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    return res.status(200).json({});
+    return res.status(200).json({image:imageUrl});
   } catch (err) {
     if (err.code === '23505') {
       return res.status(409).json({ message: 'Email already in use. Please use a different email.' });

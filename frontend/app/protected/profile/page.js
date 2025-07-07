@@ -34,8 +34,8 @@ const ProfilePage = () => {
         setSuccessMessage('Profile updated successfully!');
         return;
       }
-      await updateProfile(username, email,image, image==session.image);
-      await update({ username, email, image });
+      const storedImage= await updateProfile(username, email,image, image==session.image);
+      await update({ username, email, image:storedImage });
       setSuccessMessage('Profile updated successfully!');
     } catch (error) {
       let errors = {};

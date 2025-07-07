@@ -34,7 +34,7 @@ export async function POST(req) {
   const data = await response.json();
 
 
-  const transformation = 'c_thumb,g_face,h_200,w_200/r_max/f_auto'; 
+  const transformation = 'c_thumb,h_200,w_200/r_max/f_auto'; 
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Cloudinary upload error:', errorText);

@@ -7,10 +7,13 @@ export const updateProfile = async (username, email,image,isNewImage) => {
     body: JSON.stringify({ username, email,image,isNewImage }),
   });
 
+  const data = await res.json();  // Parse JSON first
+
   if (!res.ok) {
-    const data = await res.json();  // Parse JSON first
+
     const error = new Error();
     error.data = data;  // Attach parsed JSON to the error object
     throw error;
   }
+  return data.image
 };
