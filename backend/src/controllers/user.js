@@ -168,5 +168,4 @@ module.exports = {
   getProfile,
   update,
   remove,
-  updateImage
 };
