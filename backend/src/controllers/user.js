@@ -121,33 +121,20 @@ const getProfile = async (req, res) => {
 
 };
 
-const updateImage = async (req, res) => {
-  try {
-    const user_id = req.user_id;
-    const imageUrl=req.body.imageUrl
-    const imageFile = await c2Service.uploadProfileImage(imageUrl);
-
-    await userModel.updateImage(user_id, imageFile);
-    
-    res.status(200).json({ image: imageFile });
-  } catch (err) {
-    console.error("Error when uploading profile image", err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
 const update = async (req, res) => {
-  const { username, email, image } = req.body;
+  const { username, email, image, isNewImage } = req.body;
   const user_id = req.user_id;
+  let imageUrl = null;
+  if (isNewImage && image){
+    imageUrl = process.env.CDN_URL+await c2Service.uploadProfileImage(image);
+  }
 
   try {
-    // Perform the update operation
-    const isUpdateSucess = await userModel.update(user_id, username, email, image);
-    if (!isUpdateSucess) {
+    if (!await userModel.update(user_id, username, email, imageUrl)) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    return res.status(200).json({});
+    return res.status(200).json({image:imageUrl});
   } catch (err) {
     if (err.code === '23505') {
       return res.status(409).json({ message: 'Email already in use. Please use a different email.' });

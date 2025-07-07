@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { updateImage, updateProfile } from '@/api/user';
 import Card from '@/components/Card';
 import ErrorMsg from '@/components/msg/ErrorMsg';
 import SuccessMsg from '@/components/msg/SuccessMsg';
@@ -11,11 +10,13 @@ import FormSubmitButton from '@/components/buttons/FormSubmitButton';
 import GoogleIcon from '@/components/icons/Google';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
 import Vertical_Layout from '@/components/Vertical_Layout';
+import { updateProfile } from '@/api/user/updateProfile';
 
 const ProfilePage = () => {
   const { data: session, update } = useSession();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState(session?.username);
+  const [email, setEmail] = useState(session?.email );
+  const [image, setImage] = useState(session?.image );
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -29,12 +30,12 @@ const ProfilePage = () => {
     setSuccessMessage(null);
 
     try {
-      if (session.user.username == username && session.user.email == email) {
+      if (session.username == username && session.email == email && session.image==image) {
         setSuccessMessage('Profile updated successfully!');
         return;
       }
-      await updateProfile(username, email);
-      await update({ user: { ...session.user, username, email } });
+      const storedImage= await updateProfile(username, email,image, image==session.image);
+      await update({ username, email, image:storedImage });
       setSuccessMessage('Profile updated successfully!');
     } catch (error) {
       let errors = {};
@@ -52,7 +53,7 @@ const ProfilePage = () => {
 
   return (
     <Card type='form' title="Public Profile" >
-      <ProfileImageUpload  setFieldErrors={setFieldErrors}/>
+      <ProfileImageUpload image={image} setImage={setImage} setFieldErrors={setFieldErrors}/>
       {successMessage && <SuccessMsg>{successMessage}</SuccessMsg>}
       {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
       <form onSubmit={handleSave}>
@@ -67,7 +68,7 @@ const ProfilePage = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
-              placeholder={session?.user?.username}
+              placeholder={session?.username}
             />
             {fieldErrors.username && <ErrorMsg>{fieldErrors.username}</ErrorMsg>}
           </div>
@@ -88,7 +89,7 @@ const ProfilePage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5"
-                placeholder={session?.user?.email}
+                placeholder={session?.email}
               />
             )}
             {fieldErrors.email && <ErrorMsg>{fieldErrors.email}</ErrorMsg>}
