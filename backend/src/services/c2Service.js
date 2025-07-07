@@ -6,7 +6,6 @@ require('dotenv').config();
 const fetch = require('node-fetch'); // Only needed if using Node.js < 18
 
 const uploadProfileImage = async (imageUrl) => {
-  console.info("uploading profile image to c2:", imageUrl)
   try {
     // Step 1: Download the image using fetch()
     const response = await fetch(imageUrl);

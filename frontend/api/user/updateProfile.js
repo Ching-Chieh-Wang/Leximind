@@ -15,5 +15,6 @@ export const updateProfile = async (username, email,image,isNewImage) => {
     error.data = data;  // Attach parsed JSON to the error object
     throw error;
   }
+  console.log('Profile updated:', data);
   return data.image
 };
