@@ -5,9 +5,12 @@ import EditIcon from "@/components/icons/EditIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import { removeLabelReqest } from "@/api/label/RemoveLabel";
 import { useCollection } from '@/context/collection/CollectionContext';
+import { useDialog } from '@/context/DialogContext';
 
 const PrivateLabelDropdownMenu = ({labelId}) => {
-    const { labels, id, showWordsByLabel } = useCollection();
+    const { labels, id, showWordsByLabel, removeLabel, startUpdateLabelSession } = useCollection();
+
+    const { showDialog } = useDialog();
 
     const handleDelete = () => {
         const labelName = labels[labelId].name;
