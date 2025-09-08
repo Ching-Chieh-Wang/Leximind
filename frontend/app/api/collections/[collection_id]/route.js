@@ -11,8 +11,10 @@ export async function GET(req, { params }) {
     const res = await fetch(backendUrl, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...(session?.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {})
       },
+      
     });
     const result = await res.json(); 
     return NextResponse.json(result, { status: res.status });

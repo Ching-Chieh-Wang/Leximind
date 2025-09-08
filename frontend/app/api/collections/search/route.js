@@ -21,6 +21,7 @@ export async function GET(req) {
     const res = await fetch(backendUrl, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      next: { revalidate: 600 }
     });
 
     const result = await res.json();

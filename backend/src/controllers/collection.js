@@ -1,4 +1,5 @@
 const collectionModel = require('../models/collection');
+const cacheService = require('../services/cacheService')
 const {checkC2ImageGetSignedUrl} = require('../utils/checkC2ImageGetSignedUrl')
 
 // Function to create a new collection
@@ -28,6 +29,7 @@ const create = async (req, res) => {
 // Function to get private collection
 const getPublicById = async (req, res) => {
   try {
+    const user_id = req.user_id;
     const { collection_id } = req.params;
 
     let collection = await collectionModel.getPublicById( collection_id );
@@ -54,7 +56,9 @@ const getPublicById = async (req, res) => {
         }
       ])
     );
-
+    if(user_id){
+      cacheService.incrementCollectionView(collection_id, user_id)
+    }
     res.status(200).json(collection);
   } catch (err) {
     console.error('Error fetching all words:', err);
