@@ -24,4 +24,14 @@ const authorizeUser = async (req, res, next) => {
   }
 };
 
-module.exports = {authorizeUser};
+
+const optionalAuthorizeUser = async (req, res, next) => {
+
+  // Check if Authorization header exists and starts with "Bearer"
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    return authorizeUser(req,res,next);
+  } 
+  next();
+};
+
+module.exports = {authorizeUser, optionalAuthorizeUser};

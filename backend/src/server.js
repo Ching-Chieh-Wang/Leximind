@@ -11,7 +11,7 @@ const wordRoutes = require('./routes/word');
 const wordLabelRoutes = require('./routes/word_label');
 const {startHealthCheckInterval,router:healthRoute} = require('./routes/health');
 const {connectToDatabase} = require("./config/db")
-
+require('./services/scheduler.js');
 
 
 

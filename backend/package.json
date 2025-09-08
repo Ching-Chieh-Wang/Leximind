@@ -27,6 +27,7 @@
     "express": "^4.20.0",
     "express-validator": "^7.2.0",
     "google-auth-library": "^9.14.2",
+    "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "pg": "^8.12.0",

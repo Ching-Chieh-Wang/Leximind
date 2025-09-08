@@ -245,9 +245,36 @@ const searchPublicCollections = async (searchQuery, limit, offset) => {
   return result.rows;
 };
 
+/**
+ * Batch update view counts for collections using a transaction and CASE WHEN
+ * @param {Array<{collectionId: number, count: number}>} updates
+ */
+const updateViewCountsBatch = async (updates) => {
+  if (!updates || updates.length === 0) return;
 
+  return db.executeTransaction(async (client) => {
+    const cases = [];
+    const ids = [];
+    const values = [];
 
+    updates.forEach(({ collectionId, count }, index) => {
+      cases.push(`WHEN id = $${index * 2 + 1} THEN view_cnt + $${index * 2 + 2}`);
+      ids.push(collectionId);
+      values.push(collectionId, count);
+    });
 
+    const query = `
+      UPDATE collections
+      SET view_cnt = CASE
+        ${cases.join(' ')}
+        ELSE view_cnt
+      END
+      WHERE id IN (${ids.map((_, i) => `$${i * 2 + 1}`).join(', ')});
+    `;
+
+    await client.query(query, values);
+  });
+};
 
 module.exports = {
   createTable,
@@ -258,5 +285,5 @@ module.exports = {
   remove,
   getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
-  searchPublicCollections
+  updateViewCountsBatch
 };

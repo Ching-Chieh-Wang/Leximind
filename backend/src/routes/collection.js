@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
+const { optionalAuthorizeUser } = require('../middlewares/auth/user');
 const { authorizeUser } = require('../middlewares/auth/user');
 const { validateCollectionInput } = require('../middlewares/validateInput/collection');
 const { validatePagination } = require('../middlewares/validatePagination');
@@ -22,7 +23,7 @@ router.get('/search', validatePagination, searchPublicCollections);
 router.get('/private/:collection_id',authorizeUser,validateCollectionId, getPrivateById);
 
 // Route to get public collection
-router.get('/public/:collection_id',validateCollectionId, getPublicById);
+router.get('/public/:collection_id',optionalAuthorizeUser,validateCollectionId, getPublicById);
 
 // Route for getting all collections of a user
 router.get('/', authorizeUser, validatePagination, getPaginatedByUserIdSortedByLastViewedAt);
