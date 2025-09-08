@@ -42,7 +42,7 @@ const syncViewCounts = async () => {
 
 // Run sync every 5 minutes
 // setInterval(syncViewCounts, 5 * 60 * 1000);
-setInterval(syncViewCounts, 5 * 1000);
+setInterval(syncViewCounts, 5 * 60 * 1000);
 
 // Export function for manual trigger if needed
 module.exports = {
