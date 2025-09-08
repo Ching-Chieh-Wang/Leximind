@@ -258,7 +258,7 @@ const updateViewCountsBatch = async (updates) => {
     const values = [];
 
     updates.forEach(({ collectionId, count }, index) => {
-      cases.push(`WHEN id = $${index * 2 + 1} THEN $${index * 2 + 2}`);
+      cases.push(`WHEN id = $${index * 2 + 1} THEN view_cnt + $${index * 2 + 2}`);
       ids.push(collectionId);
       values.push(collectionId, count);
     });
