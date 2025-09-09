@@ -29,20 +29,22 @@ const create = async (req, res) => {
 // Function to get private collection
 const getPublicById = async (req, res) => {
   try {
+    const cacheKeyPrefix = "collection:public:";
+
     const user_id = req.user_id;
     const { collection_id } = req.params;
 
    // Try to get from cache first
-    let collection = await cacheService.getCache("collection:"+collection_id);
+    let collection = await cacheService.getCache(cacheKeyPrefix+collection_id);
     if(collection == "NOT_FOUND") return res.status(404).json({ message: "Collection not found" });
     if (!collection) {
       collection = await collectionModel.getPublicById(collection_id);
       if (!collection) {
-        await cacheService.setCache(collection_id, "NOT_FOUND");
+        await cacheService.setCache(cacheKeyPrefix+collection_id, "NOT_FOUND");
         return res.status(404).json({ message: "Collection not found" });
       }
       // Store in cache
-      await cacheService.setCache("collection:"+collection_id, collection);
+      await cacheService.setCache(cacheKeyPrefix+collection_id, collection);
     }
 
     // Convert label_ids and words to records
