@@ -157,6 +157,7 @@ const getPublicById = async (collection_id) => {
       WHERE vcl.collection_id = $1 AND vcl.user_id = user_id
     )
     SELECT 
+      cd.user_id,
       cd.name,
       cd.words,
       ld.labels
