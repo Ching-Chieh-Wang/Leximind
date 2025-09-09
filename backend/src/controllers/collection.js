@@ -32,10 +32,17 @@ const getPublicById = async (req, res) => {
     const user_id = req.user_id;
     const { collection_id } = req.params;
 
-    let collection = await collectionModel.getPublicById( collection_id );
-
+   // Try to get from cache first
+    let collection = await cacheService.getCache("collection:"+collection_id);
+    if(collection == "NOT_FOUND") return res.status(404).json({ message: "Collection not found" });
     if (!collection) {
-      return res.status(404).json({ message: "Collection not found" });
+      collection = await collectionModel.getPublicById(collection_id);
+      if (!collection) {
+        await cacheService.setCache(collection_id, "NOT_FOUND");
+        return res.status(404).json({ message: "Collection not found" });
+      }
+      // Store in cache
+      await cacheService.setCache("collection:"+collection_id, collection);
     }
 
     // Convert label_ids and words to records
@@ -56,7 +63,7 @@ const getPublicById = async (req, res) => {
         }
       ])
     );
-    if(user_id){
+    if(user_id && user_id != collection.userId){
       cacheService.incrementCollectionView(collection_id, user_id)
     }
     res.status(200).json(collection);
