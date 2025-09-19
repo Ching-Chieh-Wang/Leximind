@@ -211,6 +211,12 @@ const searchPublicCollections = async (req, res) => {
     const { query } = req.query;
     const offset = req.offset;
     const limit = req.limit;
+
+    const cacheKey = `searchPublicCollections:${query || ''}:${offset}:${limit}`;
+    let cachedResult = await cacheService.getCache(cacheKey);
+    if (cachedResult) {
+      return res.status(200).json(JSON.parse(cachedResult));
+    }
     
     const collections = await collectionModel.searchPublicCollections(query, limit, offset);
     
@@ -220,7 +226,11 @@ const searchPublicCollections = async (req, res) => {
         return collection;
       })
     );
-    res.status(200).json({collections:updatedCollections});
+
+    const responseData = { collections: updatedCollections };
+    await cacheService.setCache(cacheKey, JSON.stringify(responseData), 3 * 60 * 60);
+
+    res.status(200).json(responseData);
   } catch (err) {
     console.error('Error searching public collections:', err);
     res.status(500).json({ message: 'Server error' });
