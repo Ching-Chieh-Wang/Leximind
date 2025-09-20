@@ -1,4 +1,5 @@
 const wordModel = require('../models/word');
+const cacheService = require('../services/cacheService')
 
 // Function to create a new word
 const create = async (req, res) => {
@@ -114,12 +115,40 @@ const changeIsMemorizedStatus = async (req, res) => {
   try {
     const user_id = req.user_id;
     const { collection_id, word_id } = req.params;
-    const {is_memorized}=req.body;
+    const { is_memorized } = req.body;
 
-    const changeSuccess = await wordModel.changeIsMemorizedStatus(user_id,collection_id, word_id,is_memorized);
-    if (!changeSuccess) {
-      return res.status(404).json({ message: 'Word not found' });
+    const redisKey = `user:${user_id}:collection:private:${collection_id}:memorized`;
+
+    // Check if Redis cache exists
+    const cacheExists = await cacheService.existsCache(redisKey);
+
+    if (!cacheExists) {
+      // Cache miss: rebuild cache from DB
+      let memorizedWordIds = await wordModel.getMemorizedWordIds(user_id, collection_id);
+      if (!memorizedWordIds) {
+        return res.status(404).json({ message: 'Words not found or unauthorized' });
+      }
+
+      memorizedWordIds = [...memorizedWordIds, "__EMPTY__"]
+      
+      // Normalize all IDs to strings before saving to Redis
+      await cacheService.setSetCache(redisKey, memorizedWordIds);
     }
+
+    // Update cache based on new memorization status
+    if (is_memorized) {
+      await cacheService.saddCache(redisKey, word_id);
+    } else {
+      await cacheService.sremCache(redisKey, word_id);
+    }
+
+    // Enqueue async job to update DB later
+    cacheService.xaddCache('word_memorized_events', {
+      user_id,
+      collection_id,
+      word_id,
+      is_memorized
+    });
 
     return res.status(200).json({});
   } catch (err) {

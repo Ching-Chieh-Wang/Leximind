@@ -79,6 +79,7 @@ const getPublicById = async (req, res) => {
 
 // Function to get private collection
 const getPrivateById = async (req, res) => {
+  console.log('request made')
   try {
     const user_id=req.user_id;
     const { collection_id } = req.params;
@@ -87,6 +88,27 @@ const getPrivateById = async (req, res) => {
 
     if (!collection) {
       return res.status(404).json({ message: "User or collection not found" });
+    }
+
+        // 🔹 Step 2: try cache for memorized word ids
+    const key = `user:${user_id}:collection:private:${collection_id}:memorized`;
+    let memorizedIds = [];
+
+    const cachedMemorized = await cacheService.getSetCache(key);
+    if (cachedMemorized) {
+      memorizedIds = cachedMemorized;
+      // overwrite DB’s is_memorized field with cache
+      for (let word of collection.words) {
+        word.is_memorized = memorizedIds.has(word.id.toString());
+      }
+    } else {
+      // Cache miss → compose from collection
+      memorizedIds = Object.values(collection.words)
+        .filter(w => w.is_memorized)
+        .map(w => w.id);
+
+      memorizedIds.push("__EMPTY__")
+      await cacheService.setSetCache(key, memorizedIds, 2 * 60 * 60);
     }
 
     // Convert label_ids and words to records
@@ -108,7 +130,10 @@ const getPrivateById = async (req, res) => {
       ])
     );
 
-    collection.memorizedCnt = Object.keys(collection.words).length - collection.not_memorized_cnt;
+    collection.memorizedCnt = memorizedIds.length || (
+      Object.keys(collection.words).length - collection.not_memorized_cnt
+    );
+    collection.not_memorized_cnt = Object.keys(collection.words).length - collection.memorizedCnt;
     res.status(200).json(collection);
   } catch (err) {
     console.error('Error fetching all words:', err);
