@@ -81,7 +81,19 @@ async function consumeMemorizedEvents() {
       await processMessages(messages);
     } catch (err) {
       console.error('Error consuming new memorized events:', err);
-      // Optionally, add delay or exit on error
+      if (err.message.includes('NOGROUP') || err.message.includes('no such key')) {
+        try {
+          await redis.xgroup('CREATE', STREAM_KEY, GROUP_NAME, '0', 'MKSTREAM');
+          console.log('Recreated stream and consumer group after NOGROUP/no such key error.');
+        } catch (createErr) {
+          if (!createErr.message.includes('BUSYGROUP')) {
+            console.error('Error recreating group:', createErr);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
   }
 

@@ -10,7 +10,6 @@ const LoginLogoutComponent = ({initialSession}) => {
     const [user,setUser]=useState(initialSession);
     // Synchronize session state
     useEffect(() => {
-      console.log("Session changed:", session, status);
       setUser(session);
     }, [session, status]);
   return (
