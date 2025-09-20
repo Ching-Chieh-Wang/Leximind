@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Function to create the labels table
+// Function to create the labels table and the view_collection_labels view
 const createTable = async () => {
   const query = `
     CREATE TABLE IF NOT EXISTS labels (
@@ -11,9 +11,30 @@ const createTable = async () => {
       UNIQUE (collection_id, name),
       UNIQUE (id, collection_id)
     );
+    CREATE OR REPLACE VIEW view_collection_labels AS
+      SELECT c.user_id,
+            l.collection_id,
+            l.id   AS label_id,
+            l.name AS label_name
+      FROM labels l
+              JOIN collections c ON l.collection_id = c.id;
+
+    CREATE OR REPLACE VIEW collection_with_labels AS
+      SELECT vcl.collection_id,
+            JSON_OBJECT_AGG(
+              vcl.label_id,
+              JSON_BUILD_OBJECT(
+                'id', vcl.label_id,
+                'name', vcl.label_name
+              )
+            ) FILTER (WHERE vcl.label_id IS NOT NULL) AS labels
+      FROM view_collection_labels vcl
+      GROUP BY vcl.collection_id;
+
+      CREATE INDEX IF NOT EXISTS idx_labels_collection ON labels (collection_id);
   `;
   await db.query(query);
-  console.log('Labels table created successfully');
+  console.log('Labels table and view_collection_labels view created successfully');
 };
 
 // Function to create a new label with ownership validation

@@ -47,24 +47,6 @@ const getPublicById = async (req, res) => {
       await cacheService.setCache(cacheKeyPrefix+collection_id, collection, 30*60);
     }
 
-    // Convert label_ids and words to records
-    collection.words = Object.fromEntries(
-      collection.words.map(word => [
-        word.id,
-        {
-          ...word,
-        }
-      ])
-    );
-
-    collection.labels = Object.fromEntries(
-      collection.labels.map(label => [
-        label.id,
-        {
-          ...label,
-        }
-      ])
-    );
     if(user_id && user_id != collection.userId){
       cacheService.incrementCollectionView(collection_id, user_id)
     }
@@ -97,7 +79,7 @@ const getPrivateById = async (req, res) => {
     if (cachedMemorizedIds) {
       memorizedCnt = cachedMemorizedIds.size - 1;
       // overwrite DB’s is_memorized field with cache
-      for (let word of collection.words) {
+      for (let word of Object.values(collection.words)) {
         word.is_memorized = cachedMemorizedIds.has(word.id.toString());
       }
     } else {
@@ -109,25 +91,6 @@ const getPrivateById = async (req, res) => {
       memorizedIds.push("__EMPTY__")
       await cacheService.setSetCache(key, memorizedIds, 2 * 60 * 60);
     }
-
-    // Convert label_ids and words to records
-    collection.words = Object.fromEntries(
-      collection.words.map(word => [
-        word.id,
-        {
-          ...word,
-        }
-      ])
-    );
-
-    collection.labels = Object.fromEntries(
-      collection.labels.map(label => [
-        label.id,
-        {
-          ...label,
-        }
-      ])
-    );
 
     collection.memorizedCnt = memorizedCnt;
     collection.not_memorized_cnt = Object.keys(collection.words).length - collection.memorizedCnt;

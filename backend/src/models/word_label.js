@@ -11,6 +11,9 @@ const createTable = async () => {
       FOREIGN KEY (word_id, collection_id) REFERENCES words(id, collection_id) ON DELETE CASCADE,
       FOREIGN KEY (label_id, collection_id) REFERENCES labels(id, collection_id) ON DELETE CASCADE
     );
+
+    CREATE INDEX IF NOT EXISTS idx_word_labels_word ON word_labels (word_id);
+    CREATE INDEX IF NOT EXISTS idx_word_labels_label ON word_labels (label_id);
   `;
   await db.query(query);
   console.log('word_labels table created successfully');
