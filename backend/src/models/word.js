@@ -18,16 +18,44 @@ const createTable = async () => {
   );
 
   CREATE OR REPLACE VIEW collection_word_stats AS
-  SELECT 
-      collections.id AS collection_id,
-      COUNT(words.id) AS word_cnt,
-      COUNT(words.id) FILTER (WHERE words.is_memorized = FALSE) AS not_memorized_cnt
-  FROM 
-      collections
-  LEFT JOIN 
-      words ON collections.id = words.collection_id
-  GROUP BY 
-      collections.id;
+    SELECT 
+        collections.id AS collection_id,
+        COUNT(words.id) AS word_cnt,
+        COUNT(words.id) FILTER (WHERE words.is_memorized = FALSE) AS not_memorized_cnt
+    FROM 
+        collections
+    LEFT JOIN 
+        words ON collections.id = words.collection_id
+    GROUP BY 
+        collections.id;
+
+  CREATE OR REPLACE VIEW view_word_data AS
+    SELECT w.collection_id,
+          w.id,
+          w.name,
+          w.description,
+          w.img_path,
+          w.is_memorized,
+          COALESCE(array_agg(DISTINCT wl.label_id), '{}'::integer[]) AS label_ids
+    FROM words w
+            LEFT JOIN word_labels wl ON w.id = wl.word_id
+    GROUP BY w.collection_id, w.id;
+
+  CREATE OR REPLACE VIEW collection_with_words AS
+    SELECT wd.collection_id,
+          JSON_OBJECT_AGG(
+            wd.id,
+            JSON_BUILD_OBJECT(
+              'id', wd.id,
+              'name', wd.name,
+              'description', wd.description,
+              'img_path', wd.img_path,
+              'is_memorized', wd.is_memorized,
+              'label_ids', ARRAY_REMOVE(wd.label_ids, NULL)
+            )
+          ) FILTER (WHERE wd.id IS NOT NULL) AS words
+    FROM view_word_data wd
+    GROUP BY wd.collection_id;
 
   CREATE INDEX IF NOT EXISTS idx_words_collection ON words (collection_id);
   CREATE INDEX IF NOT EXISTS idx_words_collection_memorized_false ON words (collection_id) WHERE is_memorized = FALSE;

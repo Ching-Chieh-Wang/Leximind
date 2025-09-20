@@ -17,6 +17,7 @@ const createTable = async () => {
       last_viewed_at TIMESTAMPTZ DEFAULT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_collections_id_user_id ON collections (id, user_id);
+    CREATE INDEX IF NOT EXISTS idx_collections_user_id_last_viewed_at ON collections (user_id, last_viewed_at DESC);
   `;
   await db.query(query);
   console.log('Collections table and collection_word_stats view created successfully');
@@ -65,49 +66,17 @@ const remove = async (user_id, collection_id) => {
  */
 const getPrivateById = async (user_id, collection_id) => {
     const query = `
-      WITH collection_data AS (
-        SELECT 
-          c.name AS name,
-          CAST(stats.not_memorized_cnt AS INT) AS not_memorized_cnt,
-          COALESCE(
-            JSON_AGG(
-              JSON_BUILD_OBJECT(
-                'id', wd.id,
-                'name', wd.name,
-                'description', wd.description,
-                'img_path', wd.img_path,
-                'is_memorized', wd.is_memorized,
-                'label_ids', ARRAY_REMOVE(wd.label_ids, NULL)
-              )
-            ) FILTER (WHERE wd.id IS NOT NULL),
-            '[]'
-          ) AS words
-        FROM collections c
-        LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
-        LEFT JOIN view_word_data wd ON c.id = wd.collection_id
-        WHERE c.id = $1 AND c.user_id = $2
-        GROUP BY c.id, stats.word_cnt, stats.not_memorized_cnt
-      ),
-      label_data AS (
-        SELECT 
-          COALESCE(
-            JSON_AGG(
-              JSON_BUILD_OBJECT(
-                'id', vcl.label_id,
-                'name', vcl.label_name
-              )
-            ) -- Removed FILTER clause here
-            , '[]'
-          ) AS labels
-        FROM view_collection_labels vcl
-        WHERE vcl.collection_id = $1 AND vcl.user_id = $2
-      )
       SELECT 
-        cd.name,
-        cd.not_memorized_cnt,
-        cd.words,
-        ld.labels
-      FROM collection_data cd, label_data ld;
+        c.name,
+        stats.not_memorized_cnt,
+        COALESCE(cw.words, '[]') AS words,
+        COALESCE(cl.labels, '[]') AS labels
+      FROM collections c
+      LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
+      LEFT JOIN collection_with_words cw ON c.id = cw.collection_id
+      LEFT JOIN collection_with_labels cl ON c.id = cl.collection_id
+      WHERE c.id = $1 AND c.user_id = $2
+      LIMIT 1;
     `;
 
 
@@ -121,48 +90,18 @@ const getPrivateById = async (user_id, collection_id) => {
  */
 const getPublicById = async (collection_id) => {
   const query = `
-    WITH collection_data AS (
-      SELECT 
-        c.name AS name,
-        c.user_id AS user_id,
-        COALESCE(
-          JSON_AGG(
-            JSON_BUILD_OBJECT(
-              'id', wd.id,
-              'name', wd.name,
-              'description', wd.description,
-              'img_path', wd.img_path,
-              'label_ids', ARRAY_REMOVE(wd.label_ids, NULL)
-            )
-          ) FILTER (WHERE wd.id IS NOT NULL),
-          '[]'
-        ) AS words
-      FROM collections c
-      LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
-      LEFT JOIN view_word_data wd ON c.id = wd.collection_id
-      WHERE c.id = $1 AND c.is_public = TRUE
-      GROUP BY c.id, stats.word_cnt
-    ),
-    label_data AS (
-      SELECT 
-        COALESCE(
-          JSON_AGG(
-            JSON_BUILD_OBJECT(
-              'id', vcl.label_id,
-              'name', vcl.label_name
-            )
-          ) -- Removed FILTER clause here
-          , '[]'
-        ) AS labels
-      FROM view_collection_labels vcl
-      WHERE vcl.collection_id = $1 AND vcl.user_id = user_id
-    )
     SELECT 
-      cd.user_id,
-      cd.name,
-      cd.words,
-      ld.labels
-    FROM collection_data cd, label_data ld;
+      c.user_id,
+      c.name,
+      stats.not_memorized_cnt,
+      COALESCE(cw.words, '[]') AS words,
+      COALESCE(cl.labels, '[]') AS labels
+    FROM collections c
+    LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
+    LEFT JOIN collection_with_words cw ON c.id = cw.collection_id
+    LEFT JOIN collection_with_labels cl ON c.id = cl.collection_id
+    WHERE c.id = $1 AND c.is_public = TRUE
+    LIMIT 1;
   `;
 
 
