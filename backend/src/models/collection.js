@@ -16,7 +16,8 @@ const createTable = async () => {
       created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
       last_viewed_at TIMESTAMPTZ DEFAULT NULL
     );
-    `;
+    CREATE INDEX IF NOT EXISTS idx_collections_id_user_id ON collections (id, user_id);
+  `;
   await db.query(query);
   console.log('Collections table and collection_word_stats view created successfully');
 };

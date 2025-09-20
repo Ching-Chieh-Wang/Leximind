@@ -11,6 +11,7 @@ const wordRoutes = require('./routes/word');
 const wordLabelRoutes = require('./routes/word_label');
 const {startHealthCheckInterval,router:healthRoute} = require('./routes/health');
 const {connectToDatabase} = require("./config/db")
+const {consumeMemorizedEvents} = require("./services/eventListener.js")
 require('./services/scheduler.js');
 
 
@@ -42,6 +43,7 @@ connectToDatabase()
     // Start the server
     const PORT = process.env.PORT || 4000;
     startHealthCheckInterval();
+    consumeMemorizedEvents();
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

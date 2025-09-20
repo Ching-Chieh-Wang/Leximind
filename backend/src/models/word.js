@@ -1,3 +1,4 @@
+const { executeTransaction } = require('../config/db');
 const db = require('../config/db');
 
 /**
@@ -171,6 +172,45 @@ const changeIsMemorizedStatus = async (user_id, collection_id, word_id, is_memor
   return result.rows[0];
 };
 
+/**
+ * Get all memorized word IDs for a collection belonging to a user
+ */
+const getMemorizedWordIds = async (user_id, collection_id) => {
+  const query = `
+    SELECT array_agg(w.id) AS word_ids
+    FROM words w
+    WHERE w.collection_id = (
+      SELECT id FROM collections WHERE id = $2 AND user_id = $1
+    )
+    AND w.is_memorized = TRUE;
+  `;
+  const result = await db.query(query, [user_id, collection_id]);
+  return result.rows[0].word_ids || [];
+};
+
+/**
+ * Batch update memorized status of words for multiple collections
+ * @param {Array<{collectionId: number, updates: Array<{wordId: number, isMemorized: boolean}>}>} updates
+ */
+const updateMemorizedWordsBatch = async (updates) => {
+  await executeTransaction(async (client) => {
+    for (const update of updates) {
+      const { collectionId, updates: wordUpdates } = update;
+      for (const { wordId, userId, isMemorized } of wordUpdates) {
+        const query = `
+          UPDATE words
+          SET is_memorized = $4
+          WHERE collection_id = (
+            SELECT id FROM collections WHERE id = $1 AND user_id = $3
+          )
+          AND id = $2
+        `;
+        await client.query(query, [collectionId, wordId, userId, isMemorized]);
+      }
+    }
+  });
+};
+
 module.exports = {
   createTable,
   create,
@@ -179,5 +219,7 @@ module.exports = {
   getByLabelId,
   getUnmemorized,
   searchByPrefix,
-  changeIsMemorizedStatus
+  changeIsMemorizedStatus,
+  getMemorizedWordIds,
+  updateMemorizedWordsBatch
 };
