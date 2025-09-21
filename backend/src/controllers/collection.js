@@ -2,6 +2,11 @@ const collectionModel = require('../models/collection');
 const cacheService = require('../services/cacheService')
 const {checkC2ImageGetSignedUrl} = require('../utils/checkC2ImageGetSignedUrl')
 
+const removeCollectionsCache = async (user_id) => {
+  const collcionCacheKey = `userId:${user_id}:collections`;
+  await cacheService.removeCache(collcionCacheKey);
+};
+
 // Function to create a new collection
 const create = async (req, res) => {
   try {
@@ -13,7 +18,7 @@ const create = async (req, res) => {
     if (!collection) {
       return res.status(500).json({ message: 'Failed to create collection' });
     }
-
+    removeCollectionsCache(user_id)
     const {id,created_at} = collection
 
     res.status(201).json({ id,created_at });
@@ -124,7 +129,7 @@ const update = async (req, res) => {
     const { name, description, is_public } = req.body;
 
     const isUpdateSucess = await collectionModel.update(user_id, collection_id, name, description, is_public);
-
+    removeCollectionsCache(user_id)
     if (!isUpdateSucess) {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
@@ -147,7 +152,7 @@ const updateAuthorize = async (req, res) => {
     const {  is_public } = req.body;
 
     const isUpdateSucess = await collectionModel.update(user_id, collection_id, null,null,is_public);
-
+    removeCollectionsCache(user_id)
     if (!isUpdateSucess) {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
@@ -169,7 +174,7 @@ const remove = async (req, res) => {
     const { collection_id } = req.params;
 
     const isRemoveSuccess = await collectionModel.remove(user_id, collection_id);
-
+    removeCollectionsCache(user_id)
     if (!isRemoveSuccess) {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
@@ -194,7 +199,16 @@ const getPaginatedByUserIdSortedByLastViewedAt = async (req, res) => {
     const offset = req.offset;
     const limit = req.limit;
 
+    const collcionsCacheKey = `userId:${user_id}:collections`;
+
+    let cachedCollections = await cacheService.getCache(collcionsCacheKey);
+    if (cachedCollections) {
+      const collections = JSON.parse(cachedCollections);
+      return res.status(200).json({ collections });
+    }
+
     const collections = await collectionModel.getPaginatedByUserIdSortedByLastViewedAt(user_id,offset,limit);
+    await cacheService.setCache(collcionsCacheKey, JSON.stringify(collections), 30*60);
     
     res.status(200).json({ collections });
   } catch (err) {
