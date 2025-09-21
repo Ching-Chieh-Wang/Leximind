@@ -40,11 +40,11 @@ const remove = async (req, res) => {
 
     // Remove the word
     const result = await wordModel.remove(user_id,collection_id, word_id);
+    removeCollectionCache(user_id, collection_id);
     if (!result) {
       return res.status(404).json({ message: 'Word not found' });
     }
-
-    removeCollectionCache(user_id, collection_id);
+    
 
     return res.status(200).json({});
   } catch (err) {
@@ -62,11 +62,11 @@ const update = async (req, res) => {
 
     // Update the word details
     const updateSuccess = await wordModel.update(user_id, collection_id, word_id, name, description, img_path);
+    removeCollectionCache(user_id, collection_id);
     if (!updateSuccess) {
       return res.status(404).json({ message: 'Word not found or unauthorized' });
     }
 
-    removeCollectionCache(user_id, collection_id);
 
     return res.status(200).json({});
   } catch (err) {

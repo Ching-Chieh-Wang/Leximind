@@ -40,11 +40,11 @@ const update = async (req, res) => {
     const { name } = req.body;
 
     const isUpdateSucess = await labelModel.update(user_id,collection_id, label_id, name);
-
+    removeCollectionCache(user_id, collection_id);
     if (!isUpdateSucess) {
+      
       return res.status(404).json({ message: 'Label not found' });
     }
-    removeCollectionCache(user_id, collection_id);
     return res.status(200).json({});
   } catch (err) {
     if (err.code === '23505') { // Handle unique constraint violation
@@ -62,11 +62,11 @@ const remove = async (req, res) => {
     const { collection_id, label_id } = req.params;
 
     const isRemoved = await labelModel.remove(user_id,collection_id, label_id);
-
+    removeCollectionCache(user_id, collection_id);
     if (!isRemoved) {
+      
       return res.status(404).json({ message: 'Label not found' });
     }
-    removeCollectionCache(user_id, collection_id);
     return res.status(200).json({});
   } catch (err) {
     console.error('Error deleting label:', err);
