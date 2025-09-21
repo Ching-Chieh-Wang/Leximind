@@ -69,8 +69,8 @@ const getPrivateById = async (user_id, collection_id) => {
       SELECT 
         c.name,
         stats.not_memorized_cnt,
-        COALESCE(cw.words, '[]') AS words,
-        COALESCE(cl.labels, '[]') AS labels
+        COALESCE(cw.words, '{}'::json) AS words,
+        COALESCE(cl.labels, '{}'::json) AS labels
       FROM collections c
       LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
       LEFT JOIN collection_with_words cw ON c.id = cw.collection_id
@@ -94,8 +94,8 @@ const getPublicById = async (collection_id) => {
       c.user_id,
       c.name,
       stats.not_memorized_cnt,
-      COALESCE(cw.words, '[]') AS words,
-      COALESCE(cl.labels, '[]') AS labels
+      COALESCE(cw.words, '{}'::json) AS words,
+      COALESCE(cl.labels, '{}'::json) AS labels
     FROM collections c
     LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
     LEFT JOIN collection_with_words cw ON c.id = cw.collection_id
