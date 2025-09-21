@@ -14,11 +14,11 @@ const addWordToLabel = async (req, res) => {
 
     // Attempt to add the word to the label
     const addCuccess = await wordLabelModel.addWordToLabel(user_id, label_id, word_id,collection_id);
+    removeCollectionCache(user_id, collection_id);
     if(!addCuccess){
       // If no result is returned, respond with a 404 indicating the label or word was not found
       return res.status(404).json({ message: 'Label or word not found' });
     }
-    removeCollectionCache(user_id, collection_id);
     return res.status(200).json({});
   } catch (err) {
     if (err.code === '23505') {
@@ -50,11 +50,11 @@ const removeWordFromLabel = async (req, res) => {
 
     // Attempt to remove the word from the label
     const removeSuccess = await wordLabelModel.removeWordFromLabel(user_id, label_id, word_id, collection_id);
-
+    removeCollectionCache(user_id, collection_id);
     if (!removeSuccess) {
       return res.status(404).json({ message: 'User, word, label ,collection or Word-label association not found' });
     }
-    removeCollectionCache(user_id, collection_id);
+
     return res.status(200).json({});
   } catch (err) {
     console.error('Error removing word from label:', err);
