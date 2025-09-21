@@ -66,7 +66,7 @@ const getPrivateById = async (req, res) => {
     const user_id=req.user_id;
     const { collection_id } = req.params;
 
-    const collcionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+    const collcionCacheKey = `userId:${user_id}:collection:private:${collection_id}`;
 
     let collection = await cacheService.getCache(collcionCacheKey);
     if(collection == "__NOT_FOUND__") return res.status(404).json({ message: "User or collection not found" });
