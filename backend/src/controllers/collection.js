@@ -29,13 +29,13 @@ const create = async (req, res) => {
 // Function to get private collection
 const getPublicById = async (req, res) => {
   try {
-    const cacheKeyPrefix = "collection:public:";
-
     const user_id = req.user_id;
     const { collection_id } = req.params;
 
+    const cacheKey = `collection:public:${collection_id}`;
+
    // Try to get from cache first
-    let collection = await cacheService.getCache(cacheKeyPrefix+collection_id);
+    let collection = await cacheService.getCache(cacheKey);
     if(collection == "NOT_FOUND") return res.status(404).json({ message: "Collection not found" });
     if (!collection) {
       collection = await collectionModel.getPublicById(collection_id);
@@ -44,7 +44,7 @@ const getPublicById = async (req, res) => {
         return res.status(404).json({ message: "Collection not found" });
       }
       // Store in cache
-      await cacheService.setCache(cacheKeyPrefix+collection_id, collection, 30*60);
+      await cacheService.setCache(cacheKey, collection, 30*60);
     }
 
     if(user_id && user_id != collection.userId){
@@ -62,20 +62,30 @@ const getPublicById = async (req, res) => {
 // Function to get private collection
 const getPrivateById = async (req, res) => {
   try {
+
     const user_id=req.user_id;
     const { collection_id } = req.params;
 
-    let collection = await collectionModel.getPrivateById(user_id, collection_id );
+    const collcionCacheKey = `userId:${user_id}:collection:private:${collection_id}`;
 
-    if (!collection) {
-      return res.status(404).json({ message: "User or collection not found" });
+    let collection = await cacheService.getCache(collcionCacheKey);
+    if(collection == "__NOT_FOUND__") return res.status(404).json({ message: "User or collection not found" });
+    if(collection) {
+      collection = JSON.parse(collection);
+    } else {
+      collection = await collectionModel.getPrivateById(user_id, collection_id );
+      if (!collection) {
+        cacheService.setCache(collcionCacheKey, "__NOT_FOUND__", 5*60);
+        return res.status(404).json({ message: "User or collection not found" });
+      }
+      cacheService.setCache(collcionCacheKey, JSON.stringify(collection), 30*60);
     }
 
         // 🔹 Step 2: try cache for memorized word ids
-    const key = `user:${user_id}:collection:private:${collection_id}:memorized`;
+    const memorizedIdCachekey = `user:${user_id}:collection:private:${collection_id}:memorized`;
     let memorizedCnt = 0;
 
-    const cachedMemorizedIds = await cacheService.getSetCache(key);
+    const cachedMemorizedIds = await cacheService.getSetCache(memorizedIdCachekey);
     if (cachedMemorizedIds) {
       memorizedCnt = cachedMemorizedIds.size - 1;
       // overwrite DB’s is_memorized field with cache
@@ -89,7 +99,7 @@ const getPrivateById = async (req, res) => {
         .map(w => w.id);
       memorizedCnt = memorizedIds.length
       memorizedIds.push("__EMPTY__")
-      await cacheService.setSetCache(key, memorizedIds, 2 * 60 * 60);
+      await cacheService.setSetCache(memorizedIdCachekey, memorizedIds, 2 * 60 * 60);
     }
 
     collection.memorizedCnt = memorizedCnt;
@@ -163,6 +173,9 @@ const remove = async (req, res) => {
     if (!isRemoveSuccess) {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
+
+    const collcionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+    cacheService.removeCache(collcionCacheKey);
 
     return res.sendStatus(200);
   } catch (err) {
