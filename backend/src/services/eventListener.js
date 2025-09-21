@@ -1,4 +1,4 @@
-const redis = require('../config/cache');
+const {redisStream} = require('../config/cache');
 const { updateMemorizedWordsBatch } = require('../models/word');
 
 const STREAM_KEY = 'word_memorized_events';
@@ -43,24 +43,51 @@ async function processMessages(messages) {
 
   // Acknowledge processed messages
   if (messageIds.length > 0) {
-    await redis.xack(STREAM_KEY, GROUP_NAME, ...messageIds);
+    await redisStream.xack(STREAM_KEY, GROUP_NAME, ...messageIds);
   }
 }
 
 async function consumeMemorizedEvents() {
   // Create the consumer group if it doesn't exist
   try {
-    await redis.xgroup('CREATE', STREAM_KEY, GROUP_NAME, '0', 'MKSTREAM');
+    await redisStream.xgroup('CREATE', STREAM_KEY, GROUP_NAME, '0', 'MKSTREAM');
   } catch (err) {
     if (!err.message.includes('BUSYGROUP')) {
       throw err;
     }
   }
 
+  // Process pending messages (id = '0') before processing new messages
+  while (true) {
+    try {
+      const streams = await redisStream.xreadgroup(
+        'GROUP',
+        GROUP_NAME,
+        CONSUMER_NAME,
+        'COUNT',
+        100,
+        'STREAMS',
+        STREAM_KEY,
+        '0'
+      );
+
+      if (!streams) {
+        break;
+      }
+
+      const [stream, messages] = streams[0];
+      if (messages.length === 0) break;
+      await processMessages(messages);
+    } catch (err) {
+      console.error('Error consuming pending memorized events:', err);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+
   // First process new and backlog messages (id = '>') indefinitely
   while (true) {
     try {
-      const streams = await redis.xreadgroup(
+      const streams = await redisStream.xreadgroup(
         'GROUP',
         GROUP_NAME,
         CONSUMER_NAME,
@@ -94,34 +121,6 @@ async function consumeMemorizedEvents() {
       } else {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
-    }
-  }
-
-  // Then drain pending messages (id = '0') until none remain (crash recovery)
-  while (true) {
-    try {
-      const streams = await redis.xreadgroup(
-        'GROUP',
-        GROUP_NAME,
-        CONSUMER_NAME,
-        'COUNT',
-        100,
-        'BLOCK',
-        5000,
-        'STREAMS',
-        STREAM_KEY,
-        '0'
-      );
-
-      if (!streams) {
-        break;
-      }
-
-      const [stream, messages] = streams[0];
-      await processMessages(messages);
-    } catch (err) {
-      console.error('Error consuming pending memorized events:', err);
-      break;
     }
   }
 }

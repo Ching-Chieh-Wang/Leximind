@@ -1,5 +1,5 @@
 // src/services/cacheService.js
-const redis = require('../config/cache.js');
+const {redis} = require('../config/cache.js');
 
 const existsCache = async (key) => {
   const exists = await redis.exists(key);
@@ -55,7 +55,7 @@ const sremCache = async (key, value) => {
 };
 
 const xaddCache = async (stream, message) => {
-  await redis.xadd(stream, '*', ...Object.entries(message).flat());
+  await redis.xadd(stream, 'MAXLEN', '~', 10000, '*', ...Object.entries(message).flat());
 };
 
 const xreadCache = async (stream, count = 1, block = 0, lastId = '$') => {
