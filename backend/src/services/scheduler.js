@@ -1,4 +1,4 @@
-const redis = require('../config/cache.js');
+const {redis} = require('../config/cache.js');
 const { updateViewCountsBatch } = require('../models/collection');
 
 /**
