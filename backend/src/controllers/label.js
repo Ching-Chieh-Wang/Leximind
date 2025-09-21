@@ -2,7 +2,7 @@ const labelModel = require('../models/label');
 const cacheService = require('../services/cacheService')
 
 const removeCollectionCache = (user_id, collection_id) => {
-  const collcionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+  const collcionCacheKey = `userId:${user_id}:collection:private:${collection_id}`;
   cacheService.removeCache(collcionCacheKey);
 }
 

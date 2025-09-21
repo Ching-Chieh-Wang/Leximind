@@ -3,7 +3,7 @@ const cacheService = require('../services/cacheService')
 
 // Helper function to remove collection cache
 const removeCollectionCache = (user_id, collection_id) => {
-  const collectionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+  const collectionCacheKey = `userId:${user_id}:collection:private:${collection_id}`;
   cacheService.removeCache(collectionCacheKey);
 };
 

@@ -2,7 +2,7 @@ const cacheService = require('../services/cacheService');
 const wordLabelModel = require('../models/word_label');
 
 const removeCollectionCache = async (user_id, collection_id) => {
-  const collcionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+  const collcionCacheKey = `userId:${user_id}:collection:private:${collection_id}`;
   await cacheService.removeCache(collcionCacheKey);
 };
 
