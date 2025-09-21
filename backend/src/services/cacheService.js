@@ -1,3 +1,6 @@
+const removeCache = async (key) => {
+  await redis.del(key);
+};
 // src/services/cacheService.js
 const {redis} = require('../config/cache.js');
 
@@ -72,5 +75,6 @@ module.exports = {
   sremCache,
   existsCache,
   xaddCache,
-  xreadCache
+  xreadCache,
+  removeCache
 };

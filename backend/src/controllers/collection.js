@@ -174,6 +174,9 @@ const remove = async (req, res) => {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
 
+    const collcionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+    cacheService.removeCache(collcionCacheKey);
+
     return res.sendStatus(200);
   } catch (err) {
     if (err.code === '23503') { // Foreign key violation

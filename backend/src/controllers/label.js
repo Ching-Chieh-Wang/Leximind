@@ -1,4 +1,10 @@
 const labelModel = require('../models/label');
+const cacheService = require('../services/cacheService')
+
+const removeCollectionCache = (user_id, collection_id) => {
+  const collcionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+  cacheService.removeCache(collcionCacheKey);
+}
 
 // Function to create a new label within a specific collection
 const create = async (req, res) => {
@@ -12,6 +18,7 @@ const create = async (req, res) => {
     if (!data) {
       return res.status(500).json({ message: 'Error creating label' });
     }
+    removeCollectionCache(user_id, collection_id);
     return res.status(201).json({  id: data.id });
   } catch (err) {
     if (err.code === '23502') { // Foreign key violation
@@ -37,7 +44,7 @@ const update = async (req, res) => {
     if (!isUpdateSucess) {
       return res.status(404).json({ message: 'Label not found' });
     }
-
+    removeCollectionCache(user_id, collection_id);
     return res.status(200).json({});
   } catch (err) {
     if (err.code === '23505') { // Handle unique constraint violation
@@ -59,7 +66,7 @@ const remove = async (req, res) => {
     if (!isRemoved) {
       return res.status(404).json({ message: 'Label not found' });
     }
-
+    removeCollectionCache(user_id, collection_id);
     return res.status(200).json({});
   } catch (err) {
     console.error('Error deleting label:', err);

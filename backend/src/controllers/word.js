@@ -1,6 +1,12 @@
 const wordModel = require('../models/word');
 const cacheService = require('../services/cacheService')
 
+// Helper function to remove collection cache
+const removeCollectionCache = (user_id, collection_id) => {
+  const collectionCacheKey = `userId:${user_id}collection:private:${collection_id}`;
+  cacheService.removeCache(collectionCacheKey);
+};
+
 // Function to create a new word
 const create = async (req, res) => {
   try {
@@ -13,6 +19,8 @@ const create = async (req, res) => {
     if (!result) {
       return res.status(404).json({ message: 'User or Collection not found' });
     }
+
+    removeCollectionCache(user_id, collection_id);
 
     res.status(201).json({id: result.id});
   } catch (err) {
@@ -36,6 +44,8 @@ const remove = async (req, res) => {
       return res.status(404).json({ message: 'Word not found' });
     }
 
+    removeCollectionCache(user_id, collection_id);
+
     return res.status(200).json({});
   } catch (err) {
     console.error('Error deleting word:', err);
@@ -55,6 +65,9 @@ const update = async (req, res) => {
     if (!updateSuccess) {
       return res.status(404).json({ message: 'Word not found or unauthorized' });
     }
+
+    removeCollectionCache(user_id, collection_id);
+
     return res.status(200).json({});
   } catch (err) {
     console.error('Error updating word:', err);
