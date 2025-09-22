@@ -53,7 +53,8 @@ const getPublicById = async (req, res) => {
     }
 
     if(user_id && user_id != collection.userId){
-      cacheService.incrementCollectionView(collection_id, user_id)
+      const collectionViewKey = `collection:view:${collection_id}`;
+      cacheService.setPfadd(collectionViewKey, user_id)
     }
     res.status(200).json(collection);
   } catch (err) {
