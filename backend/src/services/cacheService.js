@@ -25,18 +25,10 @@ const setCache = async (key, value, ttl = 3600) => { // default 1 hour
 };
 
 const getSetCache = async (key) => {
-  const pipeline = redis.multi(); // or redis.pipeline();
-  pipeline.exists(key);
-  pipeline.smembers(key);
-
-  const [existsResult, smembersResult] = await pipeline.exec();
-  const exists = existsResult[1];
-  const data = smembersResult[1];
-
-  if (exists === 0) {
+  const data = await redis.smembers(key);
+  if (!data || data.length === 0) {
     return null; // true cache miss
   }
-
   return new Set(data);
 };
 
