@@ -79,6 +79,7 @@ const DemoCollection = () => {
                         <LabelComponent />
                     </div>
                 </div>
+                <p className="text-sm text-gray-500 mb-4">Press the card to show description.</p>
             </Card>
         </Horizontal_Layout>
 
