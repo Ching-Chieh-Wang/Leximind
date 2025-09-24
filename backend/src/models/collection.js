@@ -68,11 +68,9 @@ const getPrivateById = async (user_id, collection_id) => {
     const query = `
       SELECT 
         c.name,
-        stats.not_memorized_cnt,
         COALESCE(cw.words, '{}'::json) AS words,
         COALESCE(cl.labels, '{}'::json) AS labels
       FROM collections c
-      LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
       LEFT JOIN collection_with_words cw ON c.id = cw.collection_id
       LEFT JOIN collection_with_labels cl ON c.id = cl.collection_id
       WHERE c.id = $1 AND c.user_id = $2
@@ -93,11 +91,9 @@ const getPublicById = async (collection_id) => {
     SELECT 
       c.user_id,
       c.name,
-      stats.not_memorized_cnt,
       COALESCE(cw.words, '{}'::json) AS words,
       COALESCE(cl.labels, '{}'::json) AS labels
     FROM collections c
-    LEFT JOIN collection_word_stats stats ON c.id = stats.collection_id
     LEFT JOIN collection_with_words cw ON c.id = cw.collection_id
     LEFT JOIN collection_with_labels cl ON c.id = cl.collection_id
     WHERE c.id = $1 AND c.is_public = TRUE
@@ -127,7 +123,7 @@ const getPaginatedByUserIdSortedByLastViewedAt = async (user_id, offset = null, 
       collections.save_cnt AS save_cnt,
       collections.created_at AS created_at,
       COALESCE(collection_word_stats.word_cnt, 0) AS word_cnt,
-      COALESCE(collection_word_stats.not_memorized_cnt, 0) AS not_memorized_cnt
+      COALESCE(collection_word_stats.word_cnt, 0) - COALESCE(collection_word_stats.not_memorized_cnt, 0) AS memorized_cnt
     FROM 
       collections
     LEFT JOIN 

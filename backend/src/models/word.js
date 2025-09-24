@@ -20,8 +20,8 @@ const createTable = async () => {
   CREATE OR REPLACE VIEW collection_word_stats AS
     SELECT 
         collections.id AS collection_id,
-        COUNT(words.id) AS word_cnt,
-        COUNT(words.id) FILTER (WHERE words.is_memorized = FALSE) AS not_memorized_cnt
+        COUNT(words.id)::INT AS word_cnt,
+        COUNT(words.id) FILTER (WHERE words.is_memorized = FALSE)::INT AS not_memorized_cnt
     FROM 
         collections
     LEFT JOIN 
@@ -239,6 +239,21 @@ const updateMemorizedWordsBatch = async (updates) => {
   });
 };
 
+// Get word count and memorized count for a collection and user
+const getWordStats = async (collection_id) => {
+  const query = `
+    SELECT cws.word_cnt,
+           (cws.word_cnt - cws.not_memorized_cnt) AS memorized_cnt
+    FROM collection_word_stats cws
+    JOIN collections c ON cws.collection_id = c.id
+    WHERE cws.collection_id = $1;
+  `;
+  const result = await db.query(query, [ collection_id]);
+  return result.rows[0];
+};
+
+
+
 module.exports = {
   createTable,
   create,
@@ -249,5 +264,6 @@ module.exports = {
   searchByPrefix,
   changeIsMemorizedStatus,
   getMemorizedWordIds,
-  updateMemorizedWordsBatch
+  updateMemorizedWordsBatch,
+  getWordStats
 };

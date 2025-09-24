@@ -13,6 +13,7 @@ const nextConfig = {
     ],
     domains: [
       "leximind-profile-picture.us-003.s3.synologyc2.net",         // S3 Synology C2 bucket
+      "lh3.googleusercontent.com"
     ],
   },
 };

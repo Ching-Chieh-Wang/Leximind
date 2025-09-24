@@ -1,8 +1,10 @@
+// src/services/cacheService.js
+const {redis} = require('../config/cache.js');
+
 const removeCache = async (key) => {
   await redis.del(key);
 };
-// src/services/cacheService.js
-const {redis} = require('../config/cache.js');
+
 
 const existsCache = async (key) => {
   const exists = await redis.exists(key);
@@ -10,18 +12,18 @@ const existsCache = async (key) => {
 };
 
 
-const incrementCollectionView = async (collection_id, user_id) => {
-  const key = `collection:view:${collection_id}`;
-  await redis.pfadd(key, user_id);
+const setPfadd = async (key, value) => {
+  await redis.pfadd(key, value);
 };
 
 const getCache = async (key) => {
   const data = await redis.get(key);
-  return data ? JSON.parse(data) : null;
+  if(!data) return null;
+  return JSON.parse(data);
 };
 
 const setCache = async (key, value, ttl = 3600) => { // default 1 hour
-  await redis.set(key, JSON.stringify(value), 'EX', ttl);
+  await redis.set(key, value, 'EX', ttl);
 };
 
 const getSetCache = async (key) => {
@@ -58,7 +60,8 @@ const xreadCache = async (stream, count = 1, block = 0, lastId = '$') => {
 };
 
 module.exports = {
-  incrementCollectionView,
+  redis,
+  setPfadd,
   getCache,
   setCache,
   getSetCache,
