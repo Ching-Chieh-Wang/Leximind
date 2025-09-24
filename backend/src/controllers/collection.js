@@ -271,7 +271,7 @@ const getPaginatedByUserIdSortedByLastViewedAt = async (req, res) => {
 
     await writePipeline.exec();
     
-    res.status(200).json({ collections });
+    res.status(200).json(collections);
   } catch (err) {
     console.error('Error loading collections:', err);
     res.status(500).json({ message: 'Error loading collections:' });
@@ -292,18 +292,8 @@ const searchPublicCollections = async (req, res) => {
     }
     
     const collections = await collectionModel.searchPublicCollections(query, limit, offset);
-    
-    const updatedCollections = await Promise.all(
-      collections.map(async (collection) => {
-        collection.user_image = await checkC2ImageGetSignedUrl(collection.user_image);
-        return collection;
-      })
-    );
-
-    const responseData = { collections: updatedCollections };
-    await cacheService.setCache(cacheKey, JSON.stringify(responseData), 3 * 60 * 60);
-
-    res.status(200).json(responseData);
+    await cacheService.setCache(cacheKey, JSON.stringify(collections), 3 * 60 * 60);
+    res.status(200).json(collections);
   } catch (err) {
     console.error('Error searching public collections:', err);
     res.status(500).json({ message: 'Server error' });

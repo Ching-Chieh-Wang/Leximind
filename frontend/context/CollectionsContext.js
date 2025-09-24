@@ -204,9 +204,10 @@ export const CollectionsProvider = ({ type, children }) => {
 
     dispatch({ type: 'FETCH_COLLECTIONS_REQUEST' });
 
-    const data = await fetchHelper(url, 'GET');
-    if (data) {
-      dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: data.collections });
+    const collections = await fetchHelper(url, 'GET');
+    console.log(collections)
+    if (collections) {
+      dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: collections });
     } else {
       dispatch({ type: 'FETCH_COLLECTIONS_FAILURE', payload: 'Failed to fetch collections' });
     }
