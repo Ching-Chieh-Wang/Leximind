@@ -18,11 +18,12 @@ const setPfadd = async (key, value) => {
 
 const getCache = async (key) => {
   const data = await redis.get(key);
-  return data ? JSON.parse(data) : null;
+  if(!data) return null;
+  return JSON.parse(data);
 };
 
 const setCache = async (key, value, ttl = 3600) => { // default 1 hour
-  await redis.set(key, JSON.stringify(value), 'EX', ttl);
+  await redis.set(key, value, 'EX', ttl);
 };
 
 const getSetCache = async (key) => {

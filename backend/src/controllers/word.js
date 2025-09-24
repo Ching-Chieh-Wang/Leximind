@@ -7,6 +7,12 @@ const removeCollectionCache = (user_id, collection_id) => {
   cacheService.removeCache(collectionCacheKey);
 };
 
+// Helper function to remove word stats cache
+const removeCollectionStatsCache = (user_id, collection_id) => {
+  const statsCacheKey = `user:${user_id}:collection:private:${collection_id}:stats`;
+  cacheService.removeCache(statsCacheKey);
+};
+
 // Function to create a new word
 const create = async (req, res) => {
   try {
@@ -21,6 +27,7 @@ const create = async (req, res) => {
     }
 
     removeCollectionCache(user_id, collection_id);
+    removeCollectionStatsCache(user_id, collection_id);
 
     res.status(201).json({id: result.id});
   } catch (err) {
@@ -41,6 +48,7 @@ const remove = async (req, res) => {
     // Remove the word
     const result = await wordModel.remove(user_id,collection_id, word_id);
     removeCollectionCache(user_id, collection_id);
+    removeCollectionStatsCache(user_id, collection_id);
     if (!result) {
       return res.status(404).json({ message: 'Word not found' });
     }
@@ -162,6 +170,8 @@ const changeIsMemorizedStatus = async (req, res) => {
       word_id,
       is_memorized
     });
+
+    removeCollectionStatsCache(user_id, collection_id);
 
     return res.status(200).json({});
   } catch (err) {
