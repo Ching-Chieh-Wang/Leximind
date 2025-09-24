@@ -288,7 +288,7 @@ const searchPublicCollections = async (req, res) => {
     const cacheKey = `searchPublicCollections:${query || ''}:${offset}:${limit}`;
     let cachedResult = await cacheService.getCache(cacheKey);
     if (cachedResult) {
-      return res.status(200).json(JSON.parse(cachedResult));
+      return res.status(200).json(cachedResult);
     }
     
     const collections = await collectionModel.searchPublicCollections(query, limit, offset);
