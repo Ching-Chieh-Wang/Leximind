@@ -50,7 +50,7 @@ const getPublicById = async (req, res) => {
         return res.status(404).json({ message: "Collection not found" });
       }
       // Store in cache
-      await cacheService.setCache(cacheKey, collection, 30*60);
+      await cacheService.setCache(cacheKey, JSON.stringify(collection), 2 * 24 * 60 * 60);
     }
 
     if(user_id && user_id != collection.userId){
