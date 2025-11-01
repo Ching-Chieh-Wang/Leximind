@@ -80,8 +80,9 @@ const WordComponent = () => {
     />
   ));
 
+  // Use responsive padding instead of mx for smoother linear spacing
   return (
-    <Vertical_Layout extraStyle="w-full h-full items-center">
+    <Vertical_Layout extraStyle="h-full px-0 md:px-[clamp(1rem,5vw,6rem)]">
       <Horizontal_Layout justify='between' extraStyle='w-full items-center mb-2'>
         <Horizontal_Layout>
           <h1 className='text-zinc-700-700 font-bold hidden sm:block'>Description: </h1>
