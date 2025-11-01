@@ -111,7 +111,7 @@ const WordEditComponent = () => {
             >
                 {fieldErrors.general && <ErrorMsg>{fieldErrors.general}</ErrorMsg>}
                 {/* Name Input */}
-                <Vertical_Layout spacing='space-y-1'>
+                <Vertical_Layout spacing='space-y-1 '>
                     <label className="block  text-sm font-medium text-gray-900">
                         Name
                     </label>
