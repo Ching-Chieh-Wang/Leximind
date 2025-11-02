@@ -22,6 +22,11 @@ export const CollectionActions = (dispatch, state) => ({
       dispatch({ type: CollectionAction.VIEW_PREV_WORD });
     }
   },
+  setViewingWordIdx: (idx) =>{
+    if(0 <= idx < state.words.length){
+      dispatch({type: CollectionAction.SET_VIEWING_WORD_IDX, payload : idx})
+    }
+  },
   setIsAlwaysShowDescription: (isAlwaysShowDescription) => {
     dispatch({ type: CollectionAction.SET_IS_ALWAYS_SHOW_DESCRIPTION , payload: isAlwaysShowDescription});
   },

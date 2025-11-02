@@ -109,6 +109,14 @@ export const CollectionReducer = (state, action) => {
       };
     }
 
+    case CollectionAction.SET_VIEWING_WORD_IDX: {
+      const viewingWordIdx = action.payload;
+      return {
+        ...state,
+        viewingWordIdx
+      }
+    }
+
     case CollectionAction.ERROR: {
       const error = action.payload;
       return {
