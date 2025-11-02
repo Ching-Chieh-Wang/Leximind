@@ -11,6 +11,7 @@ export const CollectionStateSchema = z.object({
   originalWords: OriginalWordsSchema,
   labels: LabelsSchema,
   status: z.nativeEnum(CollectionStatus),
+  isFlipped: z.boolean(),
   viewingType: z.nativeEnum(CollectionViewingType),
   viewingName: z.string(),
   viewingWordIdx: z.number(),
