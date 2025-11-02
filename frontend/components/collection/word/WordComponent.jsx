@@ -1,5 +1,4 @@
 'use client';
-import { useState } from "react";
 import Image from 'next/image';
 import FlipCard from "../../FlipCard";
 import SwitcherButton from '../../buttons/SwitcherButton';
@@ -17,12 +16,14 @@ import { useCollection } from '@/context/collection/CollectionContext';
 import { PrivateCollectionStatus } from "@/context/collection/types/status/PrivateCollectionStatus";
 import { PrivateCollectionViewingType } from "@/context/collection/types/viewingType/PrivateCollectionViewingType";
 import { CollectionStatus } from "@/context/collection/types/status/CollectionStatus";
+import HideIcon from '@/components/icons/HideIcon';
+import ViewIcon from '@/components/icons/ViewIcon';
 
 
 const WordComponent = () => {
-  const { words, viewingWordIdx, status, startCreateWordSession, error, viewingType, viewNext, viewPrev ,searchWords,is_public } = useCollection();
-  const [isAlwaysShowDescription, setIsAlwaysShowDescription] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const { words, viewingWordIdx, status, startCreateWordSession, error, viewingType, viewNext, viewPrev ,searchWords,is_public,
+    isAlwaysShowDescription, isFlipped, setIsFlipped, setIsAlwaysShowDescription
+  } = useCollection();
 
   const handlePrevClick = () => {
     setIsFlipped(isAlwaysShowDescription); // Directly set it without function form
@@ -35,14 +36,11 @@ const WordComponent = () => {
   };
 
   const handleAlwaysShowDescriptionClick = () => {
-    setIsAlwaysShowDescription((prev) => {
-      setIsFlipped(!prev);
-      return !prev
-    });
+    setIsAlwaysShowDescription(!isAlwaysShowDescription);
   };
 
   const handleCardClick = () => {
-    setIsFlipped((prev) => !prev);
+    setIsFlipped(!isFlipped);
   };
 
 
@@ -84,16 +82,21 @@ const WordComponent = () => {
   return (
     <Vertical_Layout extraStyle="h-full px-0 md:px-[clamp(1rem,5vw,6rem)]">
       <Horizontal_Layout justify='between' extraStyle='w-full items-center mb-2'>
-        <Horizontal_Layout>
-          <h1 className='text-zinc-700-700 font-bold hidden sm:block'>Description: </h1>
-          <SwitcherButton
+            <SwitcherButton
             checked={isAlwaysShowDescription}
             onChange={handleAlwaysShowDescriptionClick}
-            onBody={<h1>Show</h1>}
-            offBody={<h1>Hide</h1>}
+            onBody={
+            <Horizontal_Layout spacing="space-x-0.5">
+              <ViewIcon/>
+              <h1 className='hidden md:block'>Show</h1>
+            </Horizontal_Layout>
+            }
+            offBody={            
+            <Horizontal_Layout spacing="space-x-0.5">
+              <HideIcon/>
+              <h1 className='hidden md:block'>Hide</h1>
+            </Horizontal_Layout>}
           />
-        </Horizontal_Layout>
-
         <SearchBar handleSearch={handleSearch} />
       </Horizontal_Layout>
 
