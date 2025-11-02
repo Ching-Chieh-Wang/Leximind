@@ -6,5 +6,8 @@ export const CollectionAction = {
     SEARCH_WORDS: 'search words',
     RESET_COLLECTION: 'reset collection',
     SET_CATEGORIZED_WORDS: 'set categorized words',
+    SET_IS_ALWAYS_SHOW_DESCRIPTION: 'set is always show description',
+    SET_IS_FLIPPED : 'set is flipped',
+    SET_VIEWING_WORD_IDX: 'set viewing word idx',
     ERROR: 'error',
   };

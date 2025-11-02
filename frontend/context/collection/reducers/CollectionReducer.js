@@ -50,6 +50,21 @@ export const CollectionReducer = (state, action) => {
         status: CollectionStatus.VIEWING,
         viewingWordIdx: state.viewingWordIdx - 1,
       };
+    
+    case CollectionAction.SET_IS_ALWAYS_SHOW_DESCRIPTION:
+      const isAlwaysShowDescription = action.payload;
+      return{
+        ...state,
+        isFlipped: isAlwaysShowDescription,
+        isAlwaysShowDescription
+      }
+
+    case CollectionAction.SET_IS_FLIPPED:
+      const isFlipped = action.payload;
+      return{
+        ...state,
+        isFlipped
+      }
 
     case CollectionAction.SEARCH_WORDS: {
       const { searchQuery, words } = action.payload;
@@ -92,6 +107,14 @@ export const CollectionReducer = (state, action) => {
         editingWordIdx: null,
         error: null,
       };
+    }
+
+    case CollectionAction.SET_VIEWING_WORD_IDX: {
+      const viewingWordIdx = action.payload;
+      return {
+        ...state,
+        viewingWordIdx
+      }
     }
 
     case CollectionAction.ERROR: {

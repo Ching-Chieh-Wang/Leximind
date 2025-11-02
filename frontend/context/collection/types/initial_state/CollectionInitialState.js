@@ -10,6 +10,8 @@ export const CollectionInitialState = CollectionStateSchema.parse({
     words:[],
     originalWords:{},
     labels: {},
+    isFlipped: false,
+    isAlwaysShowDescription: false,
     viewingName: '',
     viewingWordIdx: 0,
     searchQuery: null,
