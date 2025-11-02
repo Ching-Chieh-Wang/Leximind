@@ -10,7 +10,7 @@ import WordEditComponent from './WordEditComponent';
 import ErrorMsg from '../../msg/ErrorMsg';
 import WordNav from './WordNav';
 import SearchBar from '../../SearchBar';
-import WordStatus from './WordStatus';
+import WordMemoStatus from './WordMemoStatus';
 
 import { useCollection } from '@/context/collection/CollectionContext';
 import { PrivateCollectionStatus } from "@/context/collection/types/status/PrivateCollectionStatus";
@@ -18,6 +18,7 @@ import { PrivateCollectionViewingType } from "@/context/collection/types/viewing
 import { CollectionStatus } from "@/context/collection/types/status/CollectionStatus";
 import HideIcon from '@/components/icons/HideIcon';
 import ViewIcon from '@/components/icons/ViewIcon';
+import WordGo from './WordGo';
 
 
 const WordComponent = () => {
@@ -134,7 +135,10 @@ const WordComponent = () => {
           )}
         </div>
       )}
-      {!is_public && status != PrivateCollectionStatus.CREATING_WORD && status != PrivateCollectionStatus.CREATE_WORD_SUBMIT && status != PrivateCollectionStatus.UPDATING_WORD && <WordStatus />}
+      <Horizontal_Layout>
+          <WordGo />
+      </Horizontal_Layout>
+      {!is_public && status != PrivateCollectionStatus.CREATING_WORD && status != PrivateCollectionStatus.CREATE_WORD_SUBMIT && status != PrivateCollectionStatus.UPDATING_WORD && <WordMemoStatus />}
       {!is_public && <WordNav />}
     </Vertical_Layout>
   );

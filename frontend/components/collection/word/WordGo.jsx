@@ -64,6 +64,11 @@ const WordGo = () => {
     }
   }, [isEditing]);
 
+  // Synchronize editValue with viewingWordIdx changes from outside
+  useEffect(() => {
+    setEditValue(viewingWordIdx + 1);
+  }, [viewingWordIdx]);
+
   if (totalWords === 0) {
     return (
       <div className="text-md text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 drop-shadow-sm">
