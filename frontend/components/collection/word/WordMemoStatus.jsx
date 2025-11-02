@@ -7,10 +7,9 @@ import ToggleButton from "@/components/buttons/ToggleButton";
 import updateWordMemorizationRequest from "@/api/word/UpdateWordMemorization";
 
 import { useCollection } from '@/context/collection/CollectionContext';
-import WordGo from "./WordGo";
 
 
-const WordStatus = () => {
+const WordMemoStatus = () => {
     const { words, originalWords, memorizedCnt, viewingWordIdx, updateMemorization, id } = useCollection();
     const [memorizedPercentage, setMemorizedPercentage] = useState(0)
     useEffect(() => {
@@ -29,7 +28,6 @@ const WordStatus = () => {
     }
     return (
         <Vertical_Layout extraStyle="items-center">
-            <WordGo/>
             <Horizontal_Layout extraStyle="px-8 w-full">
                 <Vertical_Layout extraStyle="w-full" spacing="space-y-0">
                     <Horizontal_Layout justify="between" extraStyle="w-full">
@@ -49,4 +47,4 @@ const WordStatus = () => {
     )
 }
 
-export default WordStatus
+export default WordMemoStatus
