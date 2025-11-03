@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import Block from '../Block';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import LoginLogoutComponent from './LoginLogoutComponent';
 import SearchCollectionComponent from './SearchCollectionComponent';
-import SearchIcon from '../icons/SearchIcon';
 import Horizontal_Layout from '../Horizontal_Layout';
 
 
@@ -31,16 +29,7 @@ const Nav = () => {
       </Horizontal_Layout>
 
       <Horizontal_Layout justify='end'>
-        <div className="[@media(max-width:480px)]:hidden pl-6 md:pl-16">
-          <SearchCollectionComponent />
-        </div>
-        <div className="hidden [@media(max-width:480px)]:block">
-          <Block>
-            <Link href="/collections/search">
-              <SearchIcon size={22} />
-            </Link>
-          </Block>
-        </div>
+        <SearchCollectionComponent />
         <LoginLogoutComponent initialSession={initialSession} />
       </Horizontal_Layout>
     </nav>
