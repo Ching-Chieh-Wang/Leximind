@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 const ProtectedLayout = ({ children }) => {
   const router = useRouter();
 
-const { status } = useSession({
+const { } = useSession({
   required: true,
   onUnauthenticated: () => {
     // Let NextAuth mark status as 'unauthenticated' first

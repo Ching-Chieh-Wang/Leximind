@@ -151,7 +151,19 @@ const fetchHelper = async (url, method, body = null, isShowErr = true) => {
         return null;
       }
 
-      const data = await response.json();
+      const text = await response.text();
+      if (text.startsWith('<!DOCTYPE html>')) {
+        window.location.href = url;
+        return null;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error('Invalid JSON response:', text);
+        throw new Error('Invalid JSON response');
+      }
       return data;
     } catch (error) {
       console.error('Fetch error:',url, method,  error);

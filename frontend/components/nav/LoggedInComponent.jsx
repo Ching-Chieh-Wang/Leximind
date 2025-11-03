@@ -6,12 +6,17 @@ import ProfileIcon from '@/components/icons/ProfileIcon';
 import CollectionIcon from '../icons/CollectionIcon';
 import LogOutDropDownItem from './LogOutDropDownItem';
 import Block from '../Block';
-const LoggedInComponent = ({ user }) => {
+import { useSession } from 'next-auth/react';
+const LoggedInComponent = () => {
+
+      const { data: session } = useSession();
+
+      console.log(session)
 
     const dropdownButton = (
             <Image
                 unoptimized
-                src={user.image || '/assets/images/logo.jpg'}
+                src={session.image || '/assets/images/logo.jpg'}
                 width={40}
                 height={40}
                 className=" rounded-full cursor-pointer"
@@ -33,8 +38,8 @@ const LoggedInComponent = ({ user }) => {
             <DropdownMenu button={dropdownButton}>
                 <DropdownItem>
                     <div>
-                        <h1 className="text-base font-semibold">{user?.username}</h1>
-                        <p className="text-sm text-gray-500 mt-1">{user?.email}</p>
+                        <h1 className="text-base font-semibold">{session.username}</h1>
+                        <p className="text-sm text-gray-500 mt-1">{session.email}</p>
                     </div>
                 </DropdownItem>
                 <hr className="my-2" />
