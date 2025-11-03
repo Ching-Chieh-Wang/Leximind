@@ -4,7 +4,7 @@ import { DialogProvider } from '@/context/DialogContext';
 
 const RootProviders = ({ children }) => {
   return (
-    <SessionProvider >
+    <SessionProvider refetchOnWindowFocus={true} refetchInterval={5 * 60}>
       <DialogProvider>
           {children}
       </DialogProvider>

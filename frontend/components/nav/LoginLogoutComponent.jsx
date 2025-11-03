@@ -1,20 +1,22 @@
-'use client'
+'use client';
 
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
 import LoggedInComponent from './LoggedInComponent';
 import LoggedOutComponent from './LoggedOutComponent';
 
-const LoginLogoutComponent = ({initialSession}) => {
-    const { data: session, status } = useSession();
-    const [user,setUser]=useState(initialSession);
-    // Synchronize session state
-    useEffect(() => {
-      setUser(session);
-    }, [session, status]);
-  return (
-    user? <LoggedInComponent user={user}/>:<LoggedOutComponent/>
-  )
-}
+const LoginLogoutComponent = () => {
+  const { data: session, status } = useSession();
 
-export default LoginLogoutComponent
+  console.log(session)
+
+  if (status === 'Loading...') {
+    return null; // or a skeleton/placeholder if desired
+  }
+  return session ? (
+    <LoggedInComponent />
+  ) : (
+    <LoggedOutComponent />
+  );
+};
+
+export default LoginLogoutComponent;
