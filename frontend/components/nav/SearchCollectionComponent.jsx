@@ -1,31 +1,30 @@
-'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import SearchBar from '../SearchBar';
+
+import Block from '../Block';
+import Link from 'next/link';
+import SearchIcon from '../icons/SearchIcon';
+import CollectionsSearch from '../CollectionsSearch';
+import Horizontal_Layout from '../Horizontal_Layout';
+
 
 const SearchCollectionComponent = () => {
-  const [isFocused, setIsFocused] = useState(false);
-  const router = useRouter();
 
-  const handleSearch = (searchValue) => {
-    // Pass searchValue as a query parameter
-    router.push(`/collections/search?query=${encodeURIComponent(searchValue.trim())}`);
-  };
-
-  const handleBlur = (e) => {
-    setIsFocused(false);
-  };
 
   return (
-    <div
-      onFocus={() => setIsFocused(true)}
-      onBlur={handleBlur}
-      className={`transition-all duration-700 ${
-        !isFocused &&  'opacity-50'
-      }`}
-    >
-      <SearchBar handleSearch={handleSearch} />
-    </div>
+    <Horizontal_Layout>
+      <div className="block [@media(max-width:500px)]:hidden">
+        <CollectionsSearch />
+      </div>
+      <div className="hidden [@media(max-width:500px)]:block">
+        <Block>
+          <Link href="/collections/search?query=">
+            <SearchIcon size={22} />
+          </Link>
+        </Block>
+      </div>
+
+    </Horizontal_Layout>
+
+
   );
 };
 

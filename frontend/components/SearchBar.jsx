@@ -3,8 +3,8 @@ import Horizontal_Layout from "./Horizontal_Layout";
 import SearchIcon from "./icons/SearchIcon";
 import { useState } from "react";
 
-const SearchBar = ({ handleSearch = () => {}, isHandleSearchOnChange = false }) => {
-    const [searchValue, setSearchValue] = useState('');
+const SearchBar = ({ defaultInput = "", handleSearch = () => {}, isHandleSearchOnChange = false }) => {
+    const [searchValue, setSearchValue] = useState(defaultInput);
 
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent form from reloading the page
