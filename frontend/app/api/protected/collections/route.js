@@ -24,7 +24,6 @@ export async function GET(req) {
     let backendUrl
     if(page==null&&limit==null) backendUrl=`${process.env.BACKEND_API_URL}/api/collections/`;
     else backendUrl=`${process.env.BACKEND_API_URL}/api/collections?page=${page}&limit=${limit}`
-    console.log("session",session)
 
     const res = await fetch(backendUrl, {
       method: 'GET',
