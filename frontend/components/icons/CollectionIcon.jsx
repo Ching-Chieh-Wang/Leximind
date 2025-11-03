@@ -1,7 +1,7 @@
 
 
 
-const CollctionIcon = ({ size = 16 }) => {
+const CollctionIcon = ({ size = 20 }) => {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
