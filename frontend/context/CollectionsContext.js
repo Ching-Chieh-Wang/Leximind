@@ -129,35 +129,38 @@ export const CollectionsProvider = ({ type, children }) => {
   const { showDialog } = useDialog();
   const refershPage = () => { window.location.reload() };
 
-  const fetchHelper = async (url, method, body = null, isShowErr=true) => {
+const fetchHelper = async (url, method, body = null, isShowErr = true) => {
     try {
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         ...(body && { body: JSON.stringify(body) }),
+        credentials: 'include', // add if you’re using protected routes
       });
 
+      const clonedResponse = response.clone();
 
-      if (!response.ok ) {
-
+      if (!response.ok) {
         showDialog({
           title: 'Error',
           description: `Something went wrong. Please come back later.`,
           onOk: refershPage,
-        })
-        if(response.status===404) console.error('Error', 'API URL not found:', url);
+        });
+        if (response.status === 404)
+          console.error('Error', 'API URL not found:', url);
         return null;
       }
 
-
       const data = await response.json();
       return data;
-
     } catch (error) {
-      console.error('Fetch error:', error);
-      if(isShowErr)showDialog({ title: 'Error', description: 'Error: Please try again later.', onOk: refershPage });
+      console.error('Fetch error:',url, method,  error);
+      if (isShowErr)
+        showDialog({
+          title: 'Error',
+          description: 'Error: Please try again later.',
+          onOk: refershPage,
+        });
       return null;
     }
   };
@@ -205,7 +208,6 @@ export const CollectionsProvider = ({ type, children }) => {
     dispatch({ type: 'FETCH_COLLECTIONS_REQUEST' });
 
     const collections = await fetchHelper(url, 'GET');
-    console.log(collections)
     if (collections) {
       dispatch({ type: 'FETCH_COLLECTIONS_SUCCESS', payload: collections });
     } else {
