@@ -19,10 +19,10 @@ const Collections = () => {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="flex flex-col justify-between h-full rounded-xl border border-gray-200 bg-white shadow-sm p-6 animate-pulse"
+            className="flex flex-col justify-between min-h-[340px] rounded-xl border border-gray-200 bg-white shadow-sm p-6 animate-pulse"
           >
             {/* Title */}
-            <div className="h-6 w-3/4 bg-gray-200 rounded mb-3"></div>
+            <div className="h-6 w-3/4 bg-gray-200 rounded mb-10"></div>
 
             {/* Description */}
             <div className="space-y-3 flex-1">
