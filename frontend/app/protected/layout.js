@@ -14,10 +14,6 @@ const { status } = useSession({
   },
 });
 
-  if (status === 'loading') {
-    return <div>Loading......</div>;
-  }
-
   return <>{children}</>;
 };
 

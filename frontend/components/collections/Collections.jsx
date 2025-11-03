@@ -19,7 +19,7 @@ const Collections = () => {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="flex flex-col justify-between min-h-[340px] rounded-xl border border-gray-200 bg-white shadow-sm p-6 animate-pulse"
+            className="flex flex-col justify-between min-h-[385.964px] rounded-xl border border-gray-200 bg-white shadow-sm p-6 animate-pulse"
           >
             {/* Title */}
             <div className="h-6 w-3/4 bg-gray-200 rounded mb-10"></div>
@@ -81,7 +81,7 @@ const Collections = () => {
           <UserCollectionCardEdit />
         ) : (
           <button onClick={startCreateCollectionSession}>
-            <Vertical_Layout spacing="space-y-1" extraStyle={" h-full w-full bg-white min-h-[340px] items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg  text-blue-500 hover:text-2xl duration-500"}>
+            <Vertical_Layout spacing="space-y-1" extraStyle={" h-full w-full bg-white min-h-[385.964x] items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg  text-blue-500 hover:text-2xl duration-500"}>
               <CreateIcon size={35} />
               <h1>Add New Collection</h1>
             </Vertical_Layout>
@@ -89,6 +89,8 @@ const Collections = () => {
         )
       )}
     </div>
+
+    
   );
 };
 
