@@ -5,9 +5,11 @@ import { Suspense } from 'react';
 
 const CollectionSearchLayout = ({ children }) => {
     return (
-        <CollectionsProvider type='global'>
-            {children}
-        </CollectionsProvider>
+        <Suspense fallback={<div>Loading collections...</div>}>
+            <CollectionsProvider type='global'>
+                {children}
+            </CollectionsProvider>
+        </Suspense>
     );
 }
 
