@@ -44,7 +44,7 @@ const LoggedInComponent = () => {
                 </DropdownItem>
                 <hr className="my-2" />
                 <DropdownItem href="/protected/profile" icon={<ProfileIcon />}>Profile</DropdownItem>
-                <DropdownItem href="/protected/collections" icon={<CollectionIcon className="py-2" size={45}/>}>My Collection</DropdownItem>
+                <DropdownItem href="/protected/collections" icon={<CollectionIcon />}>My Collection</DropdownItem>
                 <LogOutDropDownItem />
             </DropdownMenu>
         </>
