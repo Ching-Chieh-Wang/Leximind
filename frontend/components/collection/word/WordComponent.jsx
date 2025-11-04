@@ -19,6 +19,7 @@ import { CollectionStatus } from "@/context/collection/types/status/CollectionSt
 import HideIcon from '@/components/icons/HideIcon';
 import ViewIcon from '@/components/icons/ViewIcon';
 import WordGo from './WordGo';
+import Card from '@/components/Card';
 
 
 const WordComponent = () => {
@@ -64,7 +65,34 @@ const WordComponent = () => {
   );
 
   if (status === CollectionStatus.LOADING) {
-    return <h1>Fetching collection</h1>;
+    return (
+      <Vertical_Layout extraStyle="h-full px-0 md:px-[clamp(1rem,5vw,6rem)]">
+        <Horizontal_Layout justify='between' extraStyle='w-full items-center mb-2'>
+          <div className="w-20 lg:w-32 h-7 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+          <div className="w-48 md:w-44 lg:w-64 h-10 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+        </Horizontal_Layout>
+        <div className="w-full h-60 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+        <Horizontal_Layout>
+          <div className="w-16 h-7 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+        </Horizontal_Layout>
+      {!is_public && 
+        <Horizontal_Layout extraStyle='px-8'>
+          <div className="w-full h-2 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+          <div className="w-48 h-8 rounded-xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+        </Horizontal_Layout>
+      }
+      {!is_public && 
+        <Card extraStyle="justify-center">
+          <Horizontal_Layout extraStyle='p-6'>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse" />
+          </Horizontal_Layout>
+        </Card>
+      }
+      </Vertical_Layout>
+    );
   }
   else if (status === CollectionStatus.ERROR) {
     return <ErrorMsg>{error}</ErrorMsg>

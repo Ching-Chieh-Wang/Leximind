@@ -22,22 +22,22 @@ const Collections = () => {
             className="flex flex-col justify-between min-h-[385.964px] rounded-xl border border-gray-200 bg-white shadow-sm p-6 animate-pulse"
           >
             {/* Title */}
-            <div className="h-6 w-3/4 bg-gray-200 rounded mb-10"></div>
+            <div className="h-6 w-3/4 bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded mb-10"></div>
 
             {/* Description */}
             <div className="space-y-3 flex-1">
-              <div className="h-4 w-full bg-gray-200 rounded"></div>
-              <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
-              <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
-              <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+              <div className="h-4 w-full bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded"></div>
+              <div className="h-4 w-5/6 bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded"></div>
+              <div className="h-4 w-2/3 bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded"></div>
+              <div className="h-4 w-1/2 bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded"></div>
             </div>
 
             {/* Bottom Section */}
             <div className="mt-6">
-              <div className="h-2 w-full bg-gray-200 rounded mb-4"></div>
+              <div className="h-2 w-full bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded mb-4"></div>
               <div className="flex justify-center gap-4">
-                <div className="w-24 h-8 bg-gray-200 rounded-full"></div>
-                <div className="w-28 h-8 bg-gray-200 rounded-full"></div>
+                <div className="w-24 h-8 bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded-full"></div>
+                <div className="w-28 h-8 bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse rounded-full"></div>
               </div>
             </div>
           </div>
