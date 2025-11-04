@@ -64,7 +64,7 @@ const WordComponent = () => {
     </Vertical_Layout>
   );
 
-  if (status !== CollectionStatus.LOADING) {
+  if (status === CollectionStatus.LOADING) {
     return (
       <Vertical_Layout extraStyle="h-full px-0 md:px-[clamp(1rem,5vw,6rem)]">
         <Horizontal_Layout justify='between' extraStyle='w-full items-center mb-2'>
