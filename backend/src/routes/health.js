@@ -62,6 +62,7 @@ const sendHealthCheck = async () => {
     if (!response.ok) {
       console.error('Health check failed:', response.statusText);
     }
+    console.log("Health checked success to frontend")
   } catch (error) {
     console.error('Health check request error:', error.message);
   }
@@ -74,7 +75,7 @@ const sendHealthCheck = async () => {
 const startHealthCheckInterval = () => {
   if (!intervalId) {
     sendHealthCheck();
-    intervalId = setInterval(sendHealthCheck, 14 * 60 * 1000);
+    intervalId = setInterval(sendHealthCheck, 5 * 60 * 1000);
   }
 };
 
