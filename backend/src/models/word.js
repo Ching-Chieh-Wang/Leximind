@@ -126,6 +126,33 @@ const update = async (user_id, collection_id, word_id, name, description, img_pa
 
 
 /**
+ * Get a single word by ID with ownership validation
+ */
+const getById = async (user_id, word_id) => {
+  const query = `
+    SELECT 
+      w.id,
+      w.collection_id,
+      w.name,
+      w.description,
+      w.img_path,
+      w.is_memorized,
+      w.created_at
+    FROM words w
+    JOIN collections c ON w.collection_id = c.id
+    WHERE w.id = $2
+    AND EXISTS (
+      SELECT 1
+      FROM collections c
+      WHERE c.id = w.collection_id
+        AND c.user_id = $1
+    )
+  `;
+  const result = await db.query(query, [user_id, word_id]);
+  return result.rows[0] || null;
+};
+
+/**
  * Get all words for a collection by label ID
  */
 const getByLabelId = async (user_id, collection_id, label_id) => {
@@ -158,7 +185,7 @@ const getUnmemorized = async (user_id, collection_id) => {
     AND w.is_memorized = FALSE
     GROUP BY w.collection_id;
   `;
-  const result = await db.query(query, [user_id, collection_id]); 
+  const result = await db.query(query, [user_id, collection_id]);
 
   return result.rows[0] || { word_ids: [] };
 };
@@ -180,7 +207,7 @@ const searchByPrefix = async (user_id, collection_id, searchQuery) => {
     GROUP BY w.collection_id;
   `;
   const result = await db.query(query, [collection_id, formattedQuery, user_id]);
-  return result.rows[0]|| {word_ids:[]};
+  return result.rows[0] || { word_ids: [] };
 };
 
 /**
@@ -248,7 +275,7 @@ const getWordStats = async (collection_id) => {
     JOIN collections c ON cws.collection_id = c.id
     WHERE cws.collection_id = $1;
   `;
-  const result = await db.query(query, [ collection_id]);
+  const result = await db.query(query, [collection_id]);
   return result.rows[0];
 };
 
@@ -259,6 +286,7 @@ module.exports = {
   create,
   remove,
   update,
+  getById,
   getByLabelId,
   getUnmemorized,
   searchByPrefix,

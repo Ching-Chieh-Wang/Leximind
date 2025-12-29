@@ -39,6 +39,27 @@ const uploadProfileImage = async (imageUrl) => {
   }
 };
 
+/**
+ * Upload audio buffer (TTS output) to C2/S3
+ */
+const uploadAudio = async (audioBuffer, objectKey) => {
+  try {
+    const uploadParams = {
+      Bucket: process.env.C2_BUCKET_TEXT_TO_SPEECH_BUCKET_NAME,
+      Key: objectKey,
+      Body: audioBuffer,
+      ContentType: "audio/mpeg",
+      CacheControl: "public, max-age=31536000, immutable",
+    };
+
+    await c2.upload(uploadParams).promise();
+    return objectKey;
+  } catch (error) {
+    console.error(error)
+    throw new Error("Failed to upload audio");
+  }
+};
+
 
 // Delete Image (using Read-Write Key)
 const deleteImage = async (fileName) => {
@@ -57,9 +78,9 @@ const deleteImage = async (fileName) => {
 }
 
 // Generate Long-Lived Signed URL (AWS SDK v2)
-const generateSignedUrl = async (fileName) => {
+const generateSignedUrl = async (bucketName, fileName) => {
   const params = {
-    Bucket: process.env.C2_BUCKET_NAME,
+    Bucket: bucketName,
     Key: fileName,
     Expires: 60 * 60 * 24 * 7  // 7 days in seconds
   };
@@ -69,8 +90,20 @@ const generateSignedUrl = async (fileName) => {
   return signedUrl;
 }
 
+const exists = async (bucket, key) => {
+  try {
+    await c2.headObject({ Bucket: bucket, Key: key }).promise();
+    return true;
+  } catch (err) {
+    if (err.code === "NotFound") return false;
+    throw err; // real error (permission, network, etc.)
+  }
+};
+
 module.exports = {
   uploadProfileImage,
+  uploadAudio,
   generateSignedUrl,
-  deleteImage
+  deleteImage,
+  exists
 };
