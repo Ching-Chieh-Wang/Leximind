@@ -1,4 +1,4 @@
-export const text2SpeechServce = {
+const text2SpeechServce = {
   async generate(text) {
     const response = await fetch(
       "https://internguysbackend.com/Chat/textToSpeech",
@@ -19,3 +19,5 @@ export const text2SpeechServce = {
     return Buffer.from(arrayBuffer);
   },
 };
+
+module.exports = { text2SpeechServce };
