@@ -1,7 +1,6 @@
 const collectionModel = require('../models/collection');
 const wordModel = require('../models/word');
 const cacheService = require('../services/cacheService')
-const {checkC2ImageGetSignedUrl} = require('../utils/checkC2ImageGetSignedUrl')
 
 const removeCollectionsCache = async (user_id) => {
   const collcionCacheKey = `userId:${user_id}:collections`;

@@ -1,5 +1,8 @@
 const wordModel = require('../models/word');
+const { generateSignedUrl, exists, uploadAudio } = require('../services/c2Service');
 const cacheService = require('../services/cacheService')
+const crypto = require("crypto");
+const { text2SpeechServce } = require('../services/text2SpeechService');
 
 // Helper function to remove collection cache
 const removeCollectionCache = (user_id, collection_id) => {
@@ -11,6 +14,10 @@ const removeCollectionCache = (user_id, collection_id) => {
 const removeCollectionStatsCache = (user_id, collection_id) => {
   const statsCacheKey = `user:${user_id}:collection:private:${collection_id}:stats`;
   cacheService.removeCache(statsCacheKey);
+};
+
+const removeWordCache = (word_id) => {
+  cacheService.removeCache(`word:${word_id}`);
 };
 
 // Function to create a new word
@@ -52,7 +59,7 @@ const remove = async (req, res) => {
     if (!result) {
       return res.status(404).json({ message: 'Word not found' });
     }
-    
+    removeWordCache(word_id);
 
     return res.status(200).json({});
   } catch (err) {
@@ -74,7 +81,7 @@ const update = async (req, res) => {
     if (!updateSuccess) {
       return res.status(404).json({ message: 'Word not found or unauthorized' });
     }
-
+    removeWordCache(word_id);
 
     return res.status(200).json({});
   } catch (err) {
@@ -181,6 +188,40 @@ const changeIsMemorizedStatus = async (req, res) => {
 };
 
 
+const textToSpeech = async (req, res) => {
+  const { word_id } = req.params;
+
+  // 1. Redis read-through cache
+  const cacheKey = `word:${word_id}`;
+  let word = await cacheService.getCache(cacheKey);
+
+  if (!word) {
+    word = await wordModel.getById(req.user_id, word_id);
+    if (!word) return res.status(404).json({});
+    await cacheService.setCache(cacheKey, JSON.stringify(word), 3600);
+  }
+
+  // 2. Immutable hash (normalize word to lowercase)
+  const hash = crypto
+    .createHash("sha256")
+    .update(word.name.toLowerCase())
+    .digest("hex");
+
+  const objectKey = `${word_id}/${hash}.mp3`;
+
+  // 3. Generate once (normalize word to lowercase for TTS)
+  if (!(await exists(process.env.C2_BUCKET_TEXT_TO_SPEECH_BUCKET_NAME, objectKey))) {
+    const audioBuffer = await text2SpeechServce.generate(word.name.toLowerCase());
+    await uploadAudio(audioBuffer, objectKey)
+  }
+
+  // 4. CDN URL
+  res.json({
+    url: await generateSignedUrl(process.env.C2_BUCKET_TEXT_TO_SPEECH_BUCKET_NAME, objectKey)
+  });
+};
+
+
 module.exports = {
   create,
   remove,
@@ -188,5 +229,6 @@ module.exports = {
   getByLabelId,
   searchByPrefix,
   getUnmemorized,
-  changeIsMemorizedStatus
+  changeIsMemorizedStatus,
+  textToSpeech
 };

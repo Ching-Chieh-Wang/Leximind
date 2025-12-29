@@ -6,11 +6,9 @@ export async function GET(req, { params }) {
   try {
     // Extract query parameters from the request URL
     const { searchParams } = new URL(req.url);
-    const prefix = searchParams.get('prefix');
     const session = await getServerSession(authOptions);
 
-    const backendUrl = `${process.env.BACKEND_API_URL}/api/collections/${params.collection_id}/words/search?prefix=${prefix}`
-    const res = await fetch(backendUrl, {
+    const res = await fetch(`${process.env.BACKEND_API_URL}/api/collections/${params.collection_id}/words/${params.word_id}/text_to_speech`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

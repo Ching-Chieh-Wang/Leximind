@@ -10,6 +10,7 @@ const {
   update,
   remove,
   changeIsMemorizedStatus,
+  textToSpeech,
   getUnmemorized
 } = require('../controllers/word');
 const { validateCollectionId } = require('../middlewares/validateId/collection');
@@ -40,5 +41,8 @@ router.delete('/words/:word_id', validateWordId, remove);
 
 // Add a route for changing the memorize status of a word
 router.patch('/words/:word_id/memorize', validateWordId, changeIsMemorizedStatus);
+
+// Generate audio sound to text
+router.get('/words/:word_id/text_to_speech', validateWordId, textToSpeech);
 
 module.exports = router;
