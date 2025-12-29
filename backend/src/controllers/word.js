@@ -201,18 +201,17 @@ const textToSpeech = async (req, res) => {
     await cacheService.setCache(cacheKey, JSON.stringify(word), 3600);
   }
 
-  // 2. Immutable hash
+  // 2. Immutable hash (normalize word to lowercase)
   const hash = crypto
     .createHash("sha256")
-    .update(word.name)
+    .update(word.name.toLowerCase())
     .digest("hex");
 
   const objectKey = `${word_id}/${hash}.mp3`;
 
-
-  // 3. Generate once
+  // 3. Generate once (normalize word to lowercase for TTS)
   if (!(await exists(process.env.C2_BUCKET_TEXT_TO_SPEECH_BUCKET_NAME, objectKey))) {
-    const audioBuffer = await text2SpeechServce.generate(word.name);
+    const audioBuffer = await text2SpeechServce.generate(word.name.toLowerCase());
     await uploadAudio(audioBuffer, objectKey)
   }
 
