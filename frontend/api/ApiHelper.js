@@ -3,11 +3,11 @@ import { ErrorHandle } from "@/utils/ErrorHandle";
 import { ParseHelper } from "../utils/ParseHelper";
 
 
-export const ApiHelper = async (url, method, requestBody = null, requestSchema = null, responseSchema = null, action = null, isNotOkThrow = true) => {
+export const ApiHelper = async (url, method, requestBody = null, requestSchema = null, responseSchema = null, actionName = null, isNotOkShowErrorDialog = true) => {
     try {
         const [parsedBody, error1] = requestSchema ? ParseHelper(requestSchema,requestBody) : [requestBody,null];
         if(error1) {
-            return handleError(error1, action);
+            return handleError(error1, actionName);
         }
         const res = await fetch(url, {
             method,
@@ -17,22 +17,23 @@ export const ApiHelper = async (url, method, requestBody = null, requestSchema =
 
         if (!res.ok) {
             const response = await res.json();
-            if (isNotOkThrow) {
-                return handleError(response.message, action );
+            if (isNotOkShowErrorDialog) {
+                return handleError(response.message, actionName );
             }
-            return [null, response.message];
+            return [null, response];
         }
 
         const response = await res.json();
+
         
         const [parsedResponse, error2]=  responseSchema? ParseHelper(responseSchema, response): [response,null];
         if(error2){
-            return handleError(error2, action);
+            return handleError(error2, actionName);
         }
         return [parsedResponse,null];
 
     } catch (err) {
-        return handleError(err, action)
+        return handleError(err, actionName)
     }
 }
 
