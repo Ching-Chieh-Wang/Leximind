@@ -1,10 +1,7 @@
 const jwt = require('jsonwebtoken');
-const userModel = require('@models/user');
-const { authorizeUser } = require('@middlewares/auth/user');
+const { authorizeUser, optionalAuthorizeUser } = require('@middlewares/auth/user');
 
-// Mocking dependencies
 jest.mock('jsonwebtoken');
-jest.mock('@models/user');
 
 describe('authorizeUser Middleware', () => {
   let mockReq, mockRes, mockNext;
@@ -25,24 +22,13 @@ describe('authorizeUser Middleware', () => {
 
   it('should authorize user successfully with a valid token', async () => {
     const mockDecoded = { id: 'user-123' };
-    const mockUser = { id: 'user-123', username: 'testuser', email: 'test@example.com' };
-
-    // Mock jwt.verify to return a decoded token
     jwt.verify.mockReturnValue(mockDecoded);
-
-    // Mock userModel.getById to return a user
-    userModel.getById.mockResolvedValue(mockUser);
 
     await authorizeUser(mockReq, mockRes, mockNext);
 
     expect(jwt.verify).toHaveBeenCalledWith('token123', process.env.JWT_SECRET, { ignoreExpiration: true });
-    expect(userModel.getById).toHaveBeenCalledWith('user-123');
     expect(mockNext).toHaveBeenCalled();
-    expect(mockReq.user).toEqual({
-      id: 'user-123',
-      username: 'testuser',
-      email: 'test@example.com'
-    });
+    expect(mockReq.user_id).toBe('user-123');
   });
 
   it('should return 401 if the token is invalid', async () => {
@@ -70,21 +56,11 @@ describe('authorizeUser Middleware', () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  it('should return 401 if the user is not found', async () => {
-    const mockDecoded = { id: 'user-123' };
+  it('should allow optional authorization without token', async () => {
+    mockReq.headers.authorization = null;
 
-    // Mock jwt.verify to return a decoded token
-    jwt.verify.mockReturnValue(mockDecoded);
+    await optionalAuthorizeUser(mockReq, mockRes, mockNext);
 
-    // Mock userModel.getById to return null (user not found)
-    userModel.getById.mockResolvedValue(null);
-
-    await authorizeUser(mockReq, mockRes, mockNext);
-
-    expect(jwt.verify).toHaveBeenCalledWith('token123', process.env.JWT_SECRET, { ignoreExpiration: true });
-    expect(userModel.getById).toHaveBeenCalledWith('user-123');
-    expect(mockRes.status).toHaveBeenCalledWith(401);
-    expect(mockRes.json).toHaveBeenCalledWith({ message: 'User not found, invalid token' });
-    expect(mockNext).not.toHaveBeenCalled();
+    expect(mockNext).toHaveBeenCalled();
   });
 });

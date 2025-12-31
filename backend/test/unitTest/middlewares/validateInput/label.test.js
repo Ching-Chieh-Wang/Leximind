@@ -29,8 +29,9 @@ describe('validateLabelInput Middleware', () => {
 
     expect(mockRes.statusCode).toBe(400);
     const data = mockRes._getJSONData();
-    expect(data.errors[0].msg).toBe('Label name is required');
-  });
+  expect(data.message.invalidArguments[0].msg)
+    .toBe('Label name is required');
+    });
 
   it('should fail if label name is too long (more than 50 characters)', async () => {
     mockReq.body = { name: 'A'.repeat(51) };
@@ -40,8 +41,8 @@ describe('validateLabelInput Middleware', () => {
 
     expect(mockRes.statusCode).toBe(400);
     const data = mockRes._getJSONData();
-    expect(data.message).toBe('invalid input');
-    expect(data.errors[0].msg).toBe('Label name cannot be more than 50 characters long');
+    expect(data.message.invalidArguments[0].msg)
+  .toBe('Label name cannot be more than 50 characters long');
   });
 
   it('should fail if label name contains invalid characters', async () => {
@@ -52,8 +53,8 @@ describe('validateLabelInput Middleware', () => {
 
     expect(mockRes.statusCode).toBe(400);
     const data = mockRes._getJSONData();
-    expect(data.message).toBe('invalid input');
-    expect(data.errors[0].msg).toBe('Label name can only contain letters, numbers, and spaces');
+    expect(data.message.invalidArguments[0].msg)
+  .toBe('Label name can only contain letters, numbers, and spaces');
   });
 
   it('should fail if label name contains only spaces', async () => {
@@ -64,8 +65,8 @@ describe('validateLabelInput Middleware', () => {
 
     expect(mockRes.statusCode).toBe(400);
     const data = mockRes._getJSONData();
-    expect(data.message).toBe('invalid input');
-    expect(data.errors[0].msg).toBe('Label name is required');
+    expect(data.message.invalidArguments[0].msg)
+    .toBe('Label name is required');
   });
 
   it('should trim spaces from label name and pass if valid', async () => {

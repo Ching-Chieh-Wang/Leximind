@@ -37,9 +37,9 @@ describe('validateCollectionInput middleware', () => {
     expect(responseData.errors[0].msg).toBe('Collection name is required');
   });
 
-  it('should return an error if the name exceeds 100 characters', async () => {
+  it('should return an error if the name exceeds 50 characters', async () => {
     mockReq.body = {
-      name: 'a'.repeat(101),  // Exceeding 100 characters
+      name: 'a'.repeat(51),  // Exceeding 50 characters
       description: 'Valid description'
     };
 
@@ -49,7 +49,7 @@ describe('validateCollectionInput middleware', () => {
 
     const responseData = mockRes._getJSONData();
     expect(mockRes.statusCode).toBe(400);
-    expect(responseData.errors[0].msg).toBe('Collection name cannot be more than 100 characters long');
+    expect(responseData.errors[0].msg).toBe('Collection name cannot be more than 50 characters long');
   });
 
   it('should return an error if the name contains invalid characters', async () => {

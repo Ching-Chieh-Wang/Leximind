@@ -3,9 +3,11 @@ const { body, validationResult } = require('express-validator');
 // Middleware to validate collection input
 const validateCollectionInput = [
   body('name')
-    .trim()
-    .notEmpty().withMessage('Collection name is required')
-    .isLength({ max: 50 }).withMessage('Collection name cannot be more than 50 characters long'),
+  .trim()
+  .notEmpty().withMessage('Collection name is required')
+  .isLength({ max: 50 }).withMessage('Collection name cannot be more than 50 characters long')
+  .matches(/^[a-zA-Z0-9 ]+$/)
+  .withMessage('Collection name can only contain letters, numbers, and spaces'),
 
   body('description')
     .trim()

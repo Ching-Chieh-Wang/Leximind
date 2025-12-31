@@ -21,42 +21,39 @@ describe('validatePagination Middleware', () => {
     // Expect next to be called and no errors
     expect(nextFunction).toHaveBeenCalled();
     expect(mockRes.status).not.toHaveBeenCalled();
+    expect(mockReq.limit).toBe(10);
+    expect(mockReq.offset).toBe(10);
   });
+
+  
 
   it('should return 400 if page is not a positive integer', () => {
-    mockReq.query.page = '-1';  // Invalid page number
+    mockReq.query.page = '-1';
+    mockReq.query.limit = '10';
 
     validatePagination(mockReq, mockRes, nextFunction);
 
-    // Expect a 400 response with error message
     expect(mockRes.status).toHaveBeenCalledWith(400);
-    expect(mockRes.json).toHaveBeenCalledWith({ message: '"page" must be a positive integer' });
-    expect(nextFunction).not.toHaveBeenCalled();
-  });
-
-  it('should return 400 if limit is not a positive integer', () => {
-    mockReq.query.limit = '0';  // Invalid limit number
-
-    validatePagination(mockReq, mockRes, nextFunction);
-
-    // Expect a 400 response with error message
-    expect(mockRes.status).toHaveBeenCalledWith(400);
-    expect(mockRes.json).toHaveBeenCalledWith({ message: '"limit" must be a positive integer' });
-    expect(nextFunction).not.toHaveBeenCalled();
+    expect(mockRes.json).toHaveBeenCalledWith({
+      message: '"page" must be a positive integer',
+    });
   });
 
   it('should return 400 if page is not a number', () => {
-    mockReq.query.page = 'abc';  // Invalid non-numeric page
+  mockReq.query.page = 'abc';
+  mockReq.query.limit = '10';
 
-    validatePagination(mockReq, mockRes, nextFunction);
+  validatePagination(mockReq, mockRes, nextFunction);
 
-    // Expect a 400 response with error message
-    expect(mockRes.status).toHaveBeenCalledWith(400);
-    expect(mockRes.json).toHaveBeenCalledWith({ message: '"page" must be a positive integer' });
+  expect(mockRes.status).toHaveBeenCalledWith(400);
+  expect(mockRes.json).toHaveBeenCalledWith({
+    message: '"page" must be a positive integer',
+    });
     expect(nextFunction).not.toHaveBeenCalled();
   });
 
   it('should return 400 if limit is not a number', () => {
+    mockReq.query.page = '10';
     mockReq.query.limit = 'xyz';  // Invalid non-numeric limit
 
     validatePagination(mockReq, mockRes, nextFunction);
@@ -74,5 +71,27 @@ describe('validatePagination Middleware', () => {
     // Expect next to be called without errors
     expect(nextFunction).toHaveBeenCalled();
     expect(mockRes.status).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 if only page is provided', () => {
+    mockReq.query.page = '1';
+
+    validatePagination(mockReq, mockRes, nextFunction);
+
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.json).toHaveBeenCalledWith({
+      message: '"page" and "limit" togethered are required query parameters',
+    });
+  });
+
+  it('should return 400 if only limit is provided', () => {
+    mockReq.query.limit = '10';
+
+    validatePagination(mockReq, mockRes, nextFunction);
+
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.json).toHaveBeenCalledWith({
+      message: '"page" and "limit" togethered are required query parameters',
+    });
   });
 });

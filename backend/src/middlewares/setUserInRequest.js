@@ -1,11 +1,11 @@
-const UserModel = require('../models/user'); // Import the user model
+const userRepo = require('../repositories/user');
 
 // Middleware to set req.user based on userId in the URL
 const setUserInRequest = async (req, res, next) => {
   const { user_id } = req.params;
 
   try {
-    const user = await UserModel.getById(user_id);
+    const user = await userRepo.getById(user_id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });

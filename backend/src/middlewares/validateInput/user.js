@@ -19,6 +19,8 @@ const passwordValidation = body('password')
   .isLength({ max: 60 }).withMessage('Password must be less than 60 characters long')
   .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
   .matches(/\d/).withMessage('Password must contain at least one digit')
+  .matches(/[^A-Za-z0-9]/)
+  .withMessage('Password must contain at least one special character');
 
 // Common error handling middleware
 const handleValidationErrors = (req, res, next) => {
