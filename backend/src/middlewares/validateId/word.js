@@ -1,4 +1,4 @@
-const WordModel = require('../../models/word');
+const WordModel = require('../../repositories/word');
 
 const validateWordId = async (req, res, next) => {
   const { word_id } = req.params;

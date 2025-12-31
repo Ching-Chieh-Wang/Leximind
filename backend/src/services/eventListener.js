@@ -1,5 +1,5 @@
 const {redisStream} = require('../config/cache');
-const { updateMemorizedWordsBatch } = require('../models/word');
+const { updateMemorizedWordsBatch } = require('../repositories/word');
 
 const STREAM_KEY = 'word_memorized_events';
 const GROUP_NAME = 'word_memorize_group';
