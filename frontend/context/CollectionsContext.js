@@ -107,6 +107,8 @@ const collectionsReducer = (state, action) => {
       return { ...state, status: 'error', error: action.payload };
     case 'CREATE_COLLECTION_LOADING':
       return { ...state, status: 'createCollectionLoading' }
+    case 'CREATE_COLLECTION_FAILED':
+      return { ...state, status: 'creatingCollection' }
     case 'RESET_COLLECTIONS':
       return { ...state, status: 'viewing', sortType: null, editingIdx: null, collections: state.originalCollections };
     case 'CANCEL_EDIT_COLLECTION':
@@ -181,6 +183,7 @@ const fetchHelper = async (url, method, body = null, isShowErr = true) => {
     dispatch({type:'CREATE_COLLECTION_LOADING'})
     const [data, error] = await createCollectionAPI(name,description,is_public);
     if(error){
+      dispatch({type:'CREATE_COLLECTION_FAILED'})
       throw error;
     }
     const newCollection = { name,description,is_public, id: data.id, view_cnt: 0, last_viewed_at: null, save_cnt: 0, created_at: data.created_at, word_cnt: 0 }
