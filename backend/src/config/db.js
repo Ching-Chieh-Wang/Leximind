@@ -17,11 +17,11 @@ const connectToDatabase = async () => {
     await pool.connect(); // Ensure proper connection
 
     // Import models after connecting to avoid dependency issues
-    const userModel = require('../models/user');
-    const collectionModel = require('../models/collection');
-    const labelModel = require('../models/label');
-    const wordModel = require('../models/word');
-    const wordLabelModel = require('../models/word_label');
+    const userModel = require('../repositories/user');
+    const collectionModel = require('../repositories/collection');
+    const labelModel = require('../repositories/label');
+    const wordModel = require('../repositories/word');
+    const wordLabelModel = require('../repositories/word_label');
     
 
     await userModel.createTable(),

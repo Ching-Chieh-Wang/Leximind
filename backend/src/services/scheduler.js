@@ -1,5 +1,5 @@
 const {redis} = require('../config/cache.js');
-const { updateViewCountsBatch } = require('../models/collection');
+const { updateViewCountsBatch } = require('../repositories/collection.js');
 
 /**
  * Sync Redis view counts to Postgres
