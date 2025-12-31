@@ -27,58 +27,38 @@ const UserCollectionCardEdit = ({ index }) => {
   const handleUpsert = async (e) => {
     e.preventDefault();
     setFieldErrors({})
-    let data;
-    if (status === 'creatingCollection') data = await createCollection('/api/protected/collections', name, description, isPublic )
-    else if (status === 'updatingCollection') data = updateCollection(`/api/protected/collections/${collections[index].id}`,  name, description, isPublic )
-    else {
-      console.error('status not found', status)
-      return
+    try {
+      if (status === 'creatingCollection') await createCollection(name, description, isPublic)
+      else if (status === 'updatingCollection') updateCollection(`/api/protected/collections/${collections[index].id}`, name, description, isPublic)
+      else {
+        console.error('status not found', status)
+        return
+      }
+    } catch (err) {
+      console.log(err)
+      if (err.errors) {
+        const errors = {};
+        err.errors.forEach((error) => {
+          if (!errors[error.path]) {
+            errors[error.path] = error.msg; // Store only the first error for each field
+          }
+        });
+        setFieldErrors(errors);
+      }
+      else{
+        setFieldErrors({general:'Unexpected error! Please try again later.'})
+      }
     }
-    if (data?.errors) {
-      const errors = {};
-      data.errors.forEach((error) => {
-        if (!errors[error.path]) {
-          errors[error.path] = error.msg; // Store only the first error for each field
-        }
-      });
-      setFieldErrors(errors);
-    }
+    
   };
 
   const handleNameChange = (e) => {
     const input = e.target.value;
-  
-    // Validate the input for name length
-    if (input.length > 50) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        name: 'Name cannot exceed 50 characters',
-      }));
-    } else {
-      setFieldErrors((prevErrors) => {
-        const { name, ...rest } = prevErrors; // Remove the name error if it exists
-        return rest;
-      });
-      setName(input);
-    }
+    setName(input);
   };
-  
   const handleDescriptionChange = (e) => {
     const input = e.target.value;
-  
-    // Validate the input for description length
-    if (input.length > 500) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        description: 'Description cannot exceed 500 characters',
-      }));
-    } else {
-      setFieldErrors((prevErrors) => {
-        const { description, ...rest } = prevErrors; // Remove the description error if it exists
-        return rest;
-      });
-      setDescription(input);
-    }
+    setDescription(input);
   };
   const handleIsPublicChange = () => {
     setFieldErrors({})
@@ -127,7 +107,7 @@ const UserCollectionCardEdit = ({ index }) => {
             className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg h-24 w-full p-2.5"
             placeholder="Enter collection description"
           ></textarea>
-            <ErrorMsg>{fieldErrors.description}</ErrorMsg>
+          <ErrorMsg>{fieldErrors.description}</ErrorMsg>
         </Vertical_Layout>
 
 

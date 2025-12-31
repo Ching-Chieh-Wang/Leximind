@@ -45,7 +45,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    const body=await req.json();
+    const body = await req.json();
     const res = await fetch(`${process.env.BACKEND_API_URL}/api/collections`, {
       method: 'POST',
       headers: {
@@ -54,7 +54,7 @@ export async function POST(req) {
       },
       body: JSON.stringify(body),
     });
-    const result=await res.json();
+    const result = await res.json();
 
     // Return the response from the backend API
     return NextResponse.json(result,{status:res.status});
