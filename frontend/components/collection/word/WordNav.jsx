@@ -9,8 +9,7 @@ import QuestionIcon from "@/components/icons/QuestionIcon";
 import { useCollection } from '@/context/collection/CollectionContext';
 import { PrivateCollectionStatus } from "@/context/collection/types/status/PrivateCollectionStatus";
 import removeWordRequest from "@/api/word/RemoveWord";
-import {text2Speech} from "@/api/word/Text2Speech";
-import AudioIcon from "@/components/icons/AudioIcon";
+
 
 
 const WordNav = () => {
@@ -26,11 +25,6 @@ const WordNav = () => {
     viewUnmemorized();
   };
 
-  const handlePronunciation = async () => {
-    const speechUrl = await text2Speech(id, words[viewingWordIdx].id)
-    const audio = new Audio(speechUrl);
-    audio.play();
-  }
 
   return (
     <nav className="flex justify-center">
@@ -79,16 +73,6 @@ const WordNav = () => {
             <Vertical_Layout spacing='space-y-0' extraStyle="items-center">
               <QuestionIcon size={26} />
               <h1 className='text-xs  hidden md:block'>Unmemorized</h1>
-            </Vertical_Layout>
-          </button>
-
-          <button
-            className={`hover:text-blue-400 'text-gray-500'`}
-            onClick={handlePronunciation}
-          >
-            <Vertical_Layout spacing='space-y-0' extraStyle="items-center">
-              <AudioIcon size={26} />
-              <h1 className='text-xs  hidden md:block'>Pronunciation</h1>
             </Vertical_Layout>
           </button>
 
