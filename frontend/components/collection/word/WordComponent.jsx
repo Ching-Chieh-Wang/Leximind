@@ -20,6 +20,7 @@ import HideIcon from '@/components/icons/HideIcon';
 import ViewIcon from '@/components/icons/ViewIcon';
 import WordGo from './WordGo';
 import Card from '@/components/Card';
+import WordUtil from './WordUtil';
 
 
 const WordComponent = () => {
@@ -163,8 +164,12 @@ const WordComponent = () => {
           )}
         </div>
       )}
-      <Horizontal_Layout>
-          <WordGo />
+      <Horizontal_Layout extraStyle="w-full mt-2">
+        <div className="flex-1" />
+        <WordGo />
+        <div className="flex-1 flex justify-end pr-5">
+          <WordUtil />
+        </div>
       </Horizontal_Layout>
       {!is_public && status != PrivateCollectionStatus.CREATING_WORD && status != PrivateCollectionStatus.CREATE_WORD_SUBMIT && status != PrivateCollectionStatus.UPDATING_WORD && <WordMemoStatus />}
       {!is_public && <WordNav />}
