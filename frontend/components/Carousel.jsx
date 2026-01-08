@@ -8,6 +8,11 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
   const [isTapAllowed, setIsTapAllowed] = useState(true);
   
   const TAP_DELAY = 300; // Set a delay (in milliseconds) before allowing another tap
+  const WINDOW = 1; // render only index-1, index, index+1
+  const visibleSlides = slides
+    .map((slide, i) => ({ slide, i }))
+    .filter(({ i }) => Math.abs(i - index) <= WINDOW);
+
     // Use the useSwipeable hook to handle swipes
     const handlers = useSwipeable({
       onSwipedLeft: () => {
@@ -23,7 +28,8 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
         setIsTapAllowed(false);
         setTimeout(() => setIsTapAllowed(true), TAP_DELAY); // Reset tap permission after delay
       },
-      trackMouse:true,
+      trackMouse: true,
+      delta: 50,
       preventDefaultTouchmoveEvent:true
     });
   return (
@@ -32,7 +38,7 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
       {/* Sliding Container for Background and Slides */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
         <div
-          className="absolute flex w-[calc(100%*${slides.length})] h-full transition-transform duration-500"
+          className="absolute w-full h-full"
           style={{
             transform: `translateX(-${index * (100 / slides.length)}%)`,
           }}
@@ -44,22 +50,18 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
 
       {/* Slides Container */}
       <div
-        className="relative flex w-full h-full transition-transform duration-500"
+        className="relative w-full h-full"
         {...handlers}
-        style={{
-          transform: `translateX(-${index * 100}%)`,
-        }}
       >
-        {slides.map((slide, i) => (
+        {visibleSlides.map(({ slide, i }) => (
           <div
             key={`slide-${i}`}
-            className="flex-shrink-0 w-full h-full relative"
-
+            className="absolute w-full h-full flex items-center justify-center transition-transform duration-300 ease-in-out"
+            style={{
+              transform: `translateX(${(i - index) * 100}%)`,
+            }}
           >
-            {/* Slide Content */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {slide}
-            </div>
+            {slide}
           </div>
         ))}
       </div>
