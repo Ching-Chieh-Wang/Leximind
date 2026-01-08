@@ -50,8 +50,17 @@ const Carousel = ({ slides, index, onNext, onPrev ,onClick}) => {
 
       {/* Slides Container */}
       <div
-        className="relative w-full h-full"
+        className="relative w-full h-full touch-none overscroll-none"
         {...handlers}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.overflow = 'hidden';
+        }}
+        onTouchEnd={() => {
+          document.documentElement.style.overflow = '';
+          document.body.style.overflow = '';
+        }}
       >
         {visibleSlides.map(({ slide, i }) => (
           <div
