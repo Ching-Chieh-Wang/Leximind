@@ -213,6 +213,114 @@ const updateViewCountsBatch = async (updates) => {
   });
 };
 
+/**
+ * Import a public collection and all its words/labels into a new private collection for a user.
+ */
+const importPublicCollection = async (user_id, source_collection_id) => {
+  return db.executeTransaction(async (client) => {
+    const insertCollectionQuery = `
+      WITH source AS (
+        SELECT name, description
+        FROM collections
+        WHERE id = $2 AND is_public = TRUE
+        LIMIT 1
+      ),
+      inserted AS (
+        INSERT INTO collections (user_id, name, description, is_public)
+        SELECT $1, source.name, source.description, FALSE
+        FROM source
+        RETURNING id, created_at
+      )
+      SELECT id, created_at FROM inserted;
+    `;
+    const insertCollectionResult = await client.query(insertCollectionQuery, [
+      user_id,
+      source_collection_id,
+    ]);
+    const newCollection = insertCollectionResult.rows[0];
+    if (!newCollection) {
+      return null;
+    }
+
+    const sourceLabelsResult = await client.query(
+      `SELECT id, name FROM labels WHERE collection_id = $1 ORDER BY id;`,
+      [source_collection_id]
+    );
+    const insertedLabelsResult = await client.query(
+      `
+      INSERT INTO labels (name, collection_id)
+      SELECT name, $2
+      FROM labels
+      WHERE collection_id = $1
+      ORDER BY id
+      RETURNING id;
+      `,
+      [source_collection_id, newCollection.id]
+    );
+    const labelIdMap = new Map();
+    for (let i = 0; i < sourceLabelsResult.rows.length; i++) {
+      const oldId = sourceLabelsResult.rows[i].id;
+      const newId = insertedLabelsResult.rows[i]?.id;
+      if (newId) {
+        labelIdMap.set(oldId, newId);
+      }
+    }
+
+    const sourceWordsResult = await client.query(
+      `SELECT id FROM words WHERE collection_id = $1 ORDER BY id;`,
+      [source_collection_id]
+    );
+    const insertedWordsResult = await client.query(
+      `
+      INSERT INTO words (collection_id, name, description, img_path, is_memorized)
+      SELECT $2, name, description, img_path, FALSE
+      FROM words
+      WHERE collection_id = $1
+      ORDER BY id
+      RETURNING id;
+      `,
+      [source_collection_id, newCollection.id]
+    );
+    const wordIdMap = new Map();
+    for (let i = 0; i < sourceWordsResult.rows.length; i++) {
+      const oldId = sourceWordsResult.rows[i].id;
+      const newId = insertedWordsResult.rows[i]?.id;
+      if (newId) {
+        wordIdMap.set(oldId, newId);
+      }
+    }
+
+    const wordLabelsResult = await client.query(
+      `SELECT word_id, label_id FROM word_labels WHERE collection_id = $1;`,
+      [source_collection_id]
+    );
+    if (wordLabelsResult.rows.length > 0) {
+      const values = [];
+      const placeholders = [];
+      let idx = 1;
+      for (const row of wordLabelsResult.rows) {
+        const newWordId = wordIdMap.get(row.word_id);
+        const newLabelId = labelIdMap.get(row.label_id);
+        if (!newWordId || !newLabelId) {
+          continue;
+        }
+        placeholders.push(`($${idx}, $${idx + 1}, $${idx + 2})`);
+        values.push(newWordId, newLabelId, newCollection.id);
+        idx += 3;
+      }
+      if (placeholders.length > 0) {
+        const insertWordLabelsQuery = `
+          INSERT INTO word_labels (word_id, label_id, collection_id)
+          VALUES ${placeholders.join(', ')};
+        `;
+        await client.query(insertWordLabelsQuery, values);
+      }
+    }
+
+    return { id: newCollection.id, created_at: newCollection.created_at };
+  });
+};
+
 module.exports = {
   createTable,
   create,
@@ -222,5 +330,6 @@ module.exports = {
   remove,
   getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
-  updateViewCountsBatch
+  updateViewCountsBatch,
+  importPublicCollection
 };

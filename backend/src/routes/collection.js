@@ -14,6 +14,7 @@ const {
   remove,
   getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
+  importPublicCollection,
 } = require('../controllers/collection');
 
 // Route for searching public collections with pagination (does not require authentication)
@@ -24,6 +25,9 @@ router.get('/private/:collection_id',authorizeUser,validateCollectionId, getPriv
 
 // Route to get public collection
 router.get('/public/:collection_id',optionalAuthorizeUser,validateCollectionId, getPublicById);
+
+// Route to import public collection to current user
+router.post('/public/:collection_id/import', authorizeUser, validateCollectionId, importPublicCollection);
 
 // Route for getting all collections of a user
 router.get('/', authorizeUser, validatePagination, getPaginatedByUserIdSortedByLastViewedAt);

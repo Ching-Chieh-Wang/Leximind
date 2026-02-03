@@ -131,6 +131,20 @@ const searchPublicCollections = async (req, res) => {
   return res.status(status).json(data);
 };
 
+// Function to import a public collection to the authenticated user
+const importPublicCollection = async (req, res) => {
+  const user_id = req.user_id;
+  const { collection_id } = req.params;
+  const { status, data, error } = await collectionService.importPublicCollection({
+    user_id,
+    collection_id,
+  });
+  if (error) {
+    return res.status(status).json(error);
+  }
+  return res.status(status).json(data);
+};
+
 module.exports = {
   create,
   getPublicById,
@@ -140,4 +154,5 @@ module.exports = {
   remove,
   getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
+  importPublicCollection,
 };
