@@ -248,6 +248,22 @@ const searchPublicCollections = async ({ query, offset, limit }) => {
   }
 };
 
+const importPublicCollection = async ({ user_id, collection_id }) => {
+  try {
+    const imported = await collectionRepo.importPublicCollection(user_id, collection_id);
+    if (!imported) {
+      return { status: 404, error: { message: 'Public collection not found' } };
+    }
+
+    await removeCollectionsCache(user_id);
+
+    return { status: 201, data: imported };
+  } catch (err) {
+    console.error('Error importing collection:', err);
+    return { status: 500, error: { message: 'Failed to import collection' } };
+  }
+};
+
 module.exports = {
   create,
   getPublicById,
@@ -257,4 +273,5 @@ module.exports = {
   remove,
   getPaginatedByUserIdSortedByLastViewedAt,
   searchPublicCollections,
+  importPublicCollection,
 };
