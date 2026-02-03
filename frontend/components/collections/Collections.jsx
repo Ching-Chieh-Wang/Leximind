@@ -81,7 +81,7 @@ const Collections = () => {
           <UserCollectionCardEdit />
         ) : (
           <button onClick={startCreateCollectionSession}>
-            <Vertical_Layout spacing="space-y-1" extraStyle={" h-full w-full bg-white min-h-[385.964x] items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg  text-blue-500 hover:text-2xl duration-500"}>
+            <Vertical_Layout spacing="space-y-1" extraStyle={" h-full w-full bg-white min-h-[385.964px] items-center border-2 border-dashed hover:border-solid border-blue-300 rounded-lg  text-blue-500 hover:text-2xl duration-500"}>
               <CreateIcon size={35} />
               <h1>Add New Collection</h1>
             </Vertical_Layout>
