@@ -1,4 +1,3 @@
-
 import '@/styles/globals.css';
 import Background from '@/components/Background';
 import RootProviders from '@/components/RootProviders';
@@ -38,7 +37,7 @@ export const metadata = {
       'Card-based vocabulary-building app to help you learn words faster with curated collections and practice.',
   },
   verification: {
-    google: 'L3gzhonZRXeXKy5XGepLSxV-HzxpSJqxuuahrEzKc2I',
+    google: 'K86qRmh0L_PdNIe8WdipClx9xxnEf0muHEmwbB_aG4c',
   },
 };
 
