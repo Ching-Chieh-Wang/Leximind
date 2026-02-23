@@ -11,6 +11,10 @@ import { useCollection } from '@/context/collection/CollectionContext';
 import { PrivateCollectionStatus } from '@/context/collection/types/status/PrivateCollectionStatus';
 import { updateWordRequest } from '@/api/word/UpdateWord';
 import { createWordRequest } from '@/api/word/CreateWord';
+import AIIcon from '@/components/icons/AIIcon';
+import { translateWordRequest } from '@/api/word/TranslateWord';
+import LoadingIcon from '@/components/icons/LoadingIcon';
+import DeleteIcon from '@/components/icons/DeleteIcon';
 
 
 const WordEditComponent = () => {
@@ -25,6 +29,7 @@ const WordEditComponent = () => {
         createWordSubmit,
         startCreateWordSession
     } = useCollection();
+    const [isAITranslating, setIsAITranslating] = useState(false);
     const [name, setName] = useState(status === PrivateCollectionStatus.UPDATING_WORD ? words[viewingWordIdx].name : '');
     const [description, setDescription] = useState(status === PrivateCollectionStatus.UPDATING_WORD ? words[viewingWordIdx].description : '');
     const [imagePath, setImagePath] = useState(status === PrivateCollectionStatus.UPDATING_WORD ? words[viewingWordIdx].image : '');
@@ -102,6 +107,22 @@ const WordEditComponent = () => {
     const handleImageChange = () => {
         return null
     }
+    const handleAITranslate = async (e) => {
+        setIsAITranslating(true);
+        e.preventDefault();
+        if (!name) {
+            setFieldErrors({name : 'Name is required for translation'});
+            setIsAITranslating(false);
+            return;
+        }
+        const [translateResult, error] = await translateWordRequest(name, 'zh');
+        if (error) {
+            setFieldErrors({description : 'Failed to translate word'});
+        } else {
+            setDescription(translateResult);
+        }
+        setIsAITranslating(false);
+    }
 
     return (
         <form onSubmit={handleUpsert}>
@@ -131,12 +152,27 @@ const WordEditComponent = () => {
 
                 {/* Description Input */}
                 <Vertical_Layout spacing='space-y-1'>
-                    <label
-                        htmlFor="description"
-                        className="block text-sm font-medium  text-gray-900"
-                    >
-                        Description
-                    </label>
+                    <Horizontal_Layout justify='between'>
+                        <label
+                            htmlFor="description"
+                            className="block text-sm font-medium text-gray-900"
+                        >
+                            Description
+                        </label>
+                        
+                        <button type="button" className="px-3 bg-purple-200 border-purple-500 border rounded-2xl px-2 py-1 cursor-pointer text-purple-500 hover:text-yellow-500 hover:border-yellow-500 hover:bg-yellow-200" onClick={handleAITranslate} disabled={isAITranslating}>
+                            <Horizontal_Layout spacing='space-x-1'>
+                                {isAITranslating && <LoadingIcon/>}
+                                <h2>AI</h2>
+                                <div className='hidden md:block'>
+                                    Generation
+                                </div>
+                                <AIIcon/>                  
+                            </Horizontal_Layout>
+                        </button>                            
+                    </Horizontal_Layout>
+
+
                     <textarea
                         id="description"
                         rows="2"
@@ -169,7 +205,7 @@ const WordEditComponent = () => {
                             Cancel
                         </FormCancelButton>
                         <FormSubmitButton isLoading={status === PrivateCollectionStatus.CREATE_WORD_SUBMIT}>
-                            {status === PrivateCollectionStatus.CREATING_WORD || status === PrivateCollectionStatus.CREATE_WORD_SUBMIT ? 'Create' : 'Update'}
+                            {status == PrivateCollectionStatus.CREATING_WORD || status === PrivateCollectionStatus.CREATE_WORD_SUBMIT ? 'Create' : 'Update'}
                         </FormSubmitButton>
                     </Horizontal_Layout>
             </Card>

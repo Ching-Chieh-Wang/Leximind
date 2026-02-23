@@ -1,12 +1,16 @@
 import React from 'react'
 
-const LoadingIcon = () => {
+const LoadingIcon = ({ size = 20 }) => {
     return (
-        <svg
-            className="animate-spin h-5 w-5 mr-2 text-white"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="animate-spin h-5 w-5 mr-2"
+            viewBox="0 0 24 24" 
+            fill="none" 
+            strokeWidth={1.5} 
+            stroke="currentColor" 
+            width={size} 
+            height={size} 
         >
             <circle
                 className="opacity-25"

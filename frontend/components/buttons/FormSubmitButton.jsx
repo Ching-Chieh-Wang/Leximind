@@ -9,7 +9,7 @@ export default function FormSubmitButton({  isLoading, loadingText = 'Loading...
       disabled={isLoading} // Also disables button in loading state
     >
       {isLoading ? (
-        <Horizontal_Layout>
+        <Horizontal_Layout extraStyle="gap-x-2" >
           <LoadingIcon/>
           {loadingText}
         </Horizontal_Layout>
